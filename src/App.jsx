@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 
 const logoUrl = 'https://cdn.builder.io/api/v1/image/assets%2F6cb987f4f6054cf88b5f469a13f2a67e%2Faa4cf312487f4851a160ff070e6b8847?format=webp&width=800'
-const week1Video = 'https://drive.google.com/uc?export=preview&id=125hbuZvwJ0OjicHPkPD2YTUR9XwsRXCL'
+const week1Video = 'https://drive.google.com/file/d/125hbuZvwJ0OjicHPkPD2YTUR9XwsRXCL/preview'
 
 function useRevealOnScroll() {
   useEffect(() => {
@@ -57,8 +57,7 @@ export default function App() {
               <span className="text-white text-lg font-bold">غرس</span>
             </a>
             <div className="flex items-center gap-2 sm:gap-4 text-sm">
-              <a href="#about" className="text-brand-gray hover:text-white transition">عن المشروع</a>
-              <a href="#week1" className="text-brand-gray hover:text-white transition">الأسبوع الأول</a>
+              <a href="#about" className="text-brand-gray hover:text-white transition">عن غرس</a>
             </div>
           </div>
         </div>
@@ -74,7 +73,7 @@ export default function App() {
           <div className="grid items-center gap-8 sm:grid-cols-2">
             <div data-animate>
               <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight text-shadow-soft">مشروع غرس</h1>
-              <p className="mt-4 text-brand-gray text-lg">غرس قيم عند الطالب عبر قيمة أسبوعية. الطالب يجمع نقاط، وفي نهاي�� كل شهر مكافأة قيمة للمتميزين.</p>
+              <p className="mt-4 text-brand-gray text-lg">غرس قيم عند الطالب عبر قيمة أسبوعية. الطالب يجمع نقاط، وفي نهاية كل شهر مكافأة قيمة للمتميزين.</p>
               <div className="mt-6 flex items-center gap-3">
                 <a href="#week1" className="rounded-20 bg-white/10 hover:bg-white/20 text-white px-5 py-3 border border-white/20 shadow-card transition">ابدأ من الأسبوع الأول</a>
                 <a href="#about" className="rounded-20 border border-brand-gray/40 hover:border-white/50 text-brand-gray hover:text-white px-5 py-3 transition">اعرف المزيد</a>
@@ -94,7 +93,7 @@ export default function App() {
         <div className="grid gap-6 sm:grid-cols-3" data-animate>
           {[
             { t: 'قيمة أسبوعية', d: 'كل أسبوع نتعلم قيمة جديدة ونطبقها في حياتنا المدرسية.' },
-            { t: 'نقاط وتحف��ز', d: 'يجمع الطالب نقاطًا يومية، وتُصرف مكافآت قيمة للملتزمين.' },
+            { t: 'نقاط وتحفيز', d: 'يجمع الطالب نقاطًا يومية، وتُصرف مكافآت قيمة للملتزمين.' },
             { t: 'تأثير مستدام', d: 'هدفنا بناء سلوكٍ راسخ يعكس القيم النبيلة لدى الطلبة.' },
           ].map((i, idx) => (
             <div key={idx} className="rounded-20 border border-brand-gray/30 bg-black/40 p-5 shadow-card hover:translate-y-[-2px] hover:border-white/40 transition">
@@ -114,9 +113,14 @@ export default function App() {
                 src={week1Video}
                 title="فيديو قيمة الاحترام"
                 allow="autoplay; encrypted-media"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
                 allowFullScreen
                 className="h-full w-full"
               />
+            </div>
+            <div className="bg-black/40 border-t border-white/10 px-4 py-3 text-center text-brand-gray text-sm">
+              <a href="https://drive.google.com/file/d/125hbuZvwJ0OjicHPkPD2YTUR9XwsRXCL/view" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">فتح الفيديو في نافذة جديدة</a>
             </div>
           </div>
           <div className="flex flex-col justify-center">
@@ -135,7 +139,7 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-8 border-t border-brand-gray/20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 text-brand-gray text-sm">
-          <p>© {new Date().getFullYear()} غرس. جميع الحقوق محفوظة.</p>
+          <p>جميع الحقوق محفوظة، مدرسة أوال الاإعدادية للبنين©</p>
         </div>
       </footer>
     </div>
