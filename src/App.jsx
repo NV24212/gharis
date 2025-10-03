@@ -3,6 +3,14 @@ import React, { useEffect } from 'react'
 const logoUrl = 'https://cdn.builder.io/api/v1/image/assets%2F6cb987f4f6054cf88b5f469a13f2a67e%2Faa4cf312487f4851a160ff070e6b8847?format=webp&width=800'
 const week1Video = 'https://drive.google.com/file/d/125hbuZvwJ0OjicHPkPD2YTUR9XwsRXCL/preview'
 
+function getISOWeek(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+  const dayNum = date.getUTCDay() || 7
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum)
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1))
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7)
+}
+
 function useRevealOnScroll() {
   useEffect(() => {
     const els = document.querySelectorAll('[data-animate]')
@@ -46,6 +54,8 @@ export default function App() {
   }, [])
   useRevealOnScroll()
 
+  const currentWeek = getISOWeek(new Date())
+
   return (
     <div className="min-h-full">
       {/* Navbar */}
@@ -75,7 +85,20 @@ export default function App() {
               <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight text-shadow-soft">مشروع غرس</h1>
               <p className="mt-4 text-brand-gray text-lg">غرس قيم عند الطالب عبر قيمة أسبوعية. الطالب يجمع نقاط، وفي نهاية كل شهر مكافأة قيمة للمتميزين.</p>
               <div className="mt-6 flex items-center gap-3">
-                <a href="#week1" className="rounded-20 bg-white/10 hover:bg-white/20 text-white px-5 py-3 border border-white/20 shadow-card transition">ابدأ من الأسبوع الأول</a>
+                <a
+                  href="#week1"
+                  onClick={(e) => {
+                    const id = `week${currentWeek}`
+                    const el = document.getElementById(id)
+                    if (el) {
+                      e.preventDefault()
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }
+                  }}
+                  className="rounded-20 bg-white/10 hover:bg-white/20 text-white px-5 py-3 border border-white/20 shadow-card transition"
+                >
+                  ابدأ من الأسبوع الحالي (الأسبوع {currentWeek})
+                </a>
                 <a href="#about" className="rounded-20 border border-brand-gray/40 hover:border-white/50 text-brand-gray hover:text-white px-5 py-3 transition">اعرف المزيد</a>
               </div>
             </div>
