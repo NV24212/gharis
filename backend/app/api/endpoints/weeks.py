@@ -12,6 +12,17 @@ public_router = APIRouter()
 
 # --- Admin Week Endpoints ---
 
+@admin_router.get("", response_model=List[Week])
+def read_weeks_admin(
+    db: Client = Depends(deps.get_supabase_client),
+    current_user: Any = Depends(deps.get_current_admin_user)
+) -> Any:
+    """
+    Retrieve all weeks with their content (Admin only).
+    """
+    week_service = WeekService(db)
+    return week_service.get_all_weeks_with_content()
+
 @admin_router.post("", response_model=Week, status_code=status.HTTP_201_CREATED)
 def create_week(
     *,
