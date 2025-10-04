@@ -2,12 +2,12 @@
 --
 -- Instructions:
 -- 1. Go to your Supabase project's "SQL Editor".
--- 2. Click on "New query".
+-- 2. Click on "New query".j
 -- 3. Copy and paste the entire content of this file into the editor.
 -- 4. Click "Run" to execute the script and create your database tables.
 -- 5. After running this, go to "Storage" and create a new public bucket named `videos` for the weekly video uploads.
 
--- It's highly recommended to enable Row Level Security (RLS) on your tables
+-- It's highly recommended to enable Row Level Security (RLS) on your tabless
 -- and define policies for secure data access, especially for student data.
 -- For simplicity, this script does not include RLS policies, but you should
 -- add them based on your application's access patterns.
