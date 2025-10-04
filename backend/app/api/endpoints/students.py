@@ -8,7 +8,7 @@ from app.api import deps
 
 router = APIRouter()
 
-@router.post("/", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
 def create_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -27,7 +27,7 @@ def create_student(
         )
     return student
 
-@router.get("/", response_model=List[User])
+@router.get("", response_model=List[User])
 def read_students(
     db: Client = Depends(deps.get_supabase_client),
     current_user: Any = Depends(deps.get_current_user)

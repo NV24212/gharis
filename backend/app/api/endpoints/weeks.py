@@ -35,6 +35,16 @@ def read_weeks(
     week_service = WeekService(db)
     return week_service.get_all_weeks_with_content()
 
+@router.get("/all", response_model=List[Week])
+def read_all_weeks(
+    db: Client = Depends(deps.get_supabase_client),
+) -> Any:
+    """
+    Retrieve all weeks with their content.
+    """
+    week_service = WeekService(db)
+    return week_service.get_all_weeks_with_content()
+
 @router.get("/{week_id}", response_model=Week)
 def read_week(
     *,
