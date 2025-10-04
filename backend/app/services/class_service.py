@@ -1,6 +1,6 @@
 from supabase import Client
 from typing import List, Optional, Dict, Any
-from app.schemas.class import ClassCreate, ClassUpdate
+from app.schemas.class_schema import ClassCreate, ClassUpdate
 
 class ClassService:
     def __init__(self, db_client: Client):
