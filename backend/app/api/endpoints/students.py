@@ -34,13 +34,13 @@ def create_student(
 @admin_router.get("/me", response_model=User)
 def read_student_me(
     db: Client = Depends(deps.get_supabase_client),
-    current_user: User = Depends(deps.get_current_student_user)
+    current_user: User = Depends(deps.get_current_user)
 ) -> Any:
     """
     Get current logged-in student's data.
     """
     student_service = StudentService(db)
-    student = student_service.get_student_by_id(student_id=current_user['id'])
+    student = student_service.get_student_by_id(student_id=current_user.id)
     return student
 
 @admin_router.get("", response_model=List[User])
