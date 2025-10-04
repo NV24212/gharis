@@ -57,7 +57,7 @@ export default function Home() {
           {[
             { t: 'مبادرة طلابية', d: 'يقود الطلبة تنفيذ القيم أسبوعيًا بمشاركة جميع الصفوف.' },
             { t: 'إشراف تربوي', d: 'بإشراف الأستاذ علي الحر البصري لضمان الأثر التربوي.' },
-            { t: 'تحفيز ونقاط', d: 'يجمع الطالب نقاطًا يومية وتُصرف مكافآت كل نهاية أسبوع للمجتهدين.' },
+            { t: 'تحفيز ونقاط', d: 'يجمع الطالب نقاطًا يومية وتُصرف مكافآت كل نهاية أسبوع.' },
           ].map((i, idx) => (
             <div key={idx} className="rounded-20 border border-brand-gray/30 bg-black/40 p-5 shadow-card hover:translate-y-[-2px] hover:border-white/40 transition">
               <h3 className="text-white font-bold mb-2">{i.t}</h3>
