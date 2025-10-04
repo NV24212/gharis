@@ -14,7 +14,7 @@
 /* Base styles */
 @layer base {
   html, body, #root { height: 100%; }
-  body { @apply bg-black text-brand-white font-arabic antialiased; }
+  body { @apply bg-black text-brand-primary font-arabic antialiased; }
 }
 
 /* Utilities */
