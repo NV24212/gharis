@@ -43,7 +43,6 @@ def read_student_me(
     student = student_service.get_student_by_id(student_id=current_user.id)
     return student
 
-
 @admin_router.get("", response_model=List[User])
 def read_students(
     db: Client = Depends(deps.get_supabase_client),

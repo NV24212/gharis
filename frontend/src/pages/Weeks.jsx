@@ -1,69 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import api from '../services/api';
-import { Lock, ArrowLeft } from 'lucide-react';
+import api, { setAuthToken } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
+import Section from '../components/Section.jsx';
 
-const WeekCard = ({ week }) => {
-  const { t } = useTranslation();
+function WeekCard({ week }) {
   const isLocked = !week.unlocked;
-
-  const cardContent = (
-    <div className="p-6">
-      <h3 className="text-brand-primary font-bold text-xl">{`${t('Week')} ${week.week_number}`}</h3>
-      <p className="text-brand-secondary mt-1 truncate">{week.title}</p>
-      <div className="mt-4">
+  return (
+    <div className="relative rounded-20 border border-gray-700 bg-gray-800 p-5 shadow-lg">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-white font-bold">الأسبوع {week.week_number}</h3>
+          <p className="text-gray-400 mt-1">{week.title || 'قيمة لاحقًا'}</p>
+        </div>
         {isLocked ? (
-          <div className="flex items-center gap-2 text-brand-secondary">
-            <Lock size={16} />
-            <span>{t('Locked')}</span>
-          </div>
+          <span className="rounded-full border border-gray-600 text-gray-400 px-3 py-1 cursor-not-allowed select-none text-sm">
+            مغلق
+          </span>
         ) : (
-          <div className="flex items-center gap-2 text-brand-accent font-bold group-hover:gap-3 transition-all">
-            <span>{t('Enter')}</span>
-            <ArrowLeft size={20} />
-          </div>
+          <Link
+            to={`/weeks/${week.id}`}
+            className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 border border-blue-500 transition text-sm"
+          >
+            ادخل
+          </Link>
         )}
       </div>
+      {isLocked && (
+        <div className="pointer-events-none absolute inset-0 rounded-20 bg-black/40 backdrop-blur-sm"></div>
+      )}
     </div>
   );
+}
 
-  const cardClasses = `
-    bg-brand-content border border-brand-border rounded-2xl shadow-card
-    transition-all duration-300 ease-in-out
-    ${isLocked
-      ? 'cursor-not-allowed filter grayscale-[50%] opacity-60'
-      : 'hover:-translate-y-1 hover:shadow-lg hover:border-brand-accent/50 group'
-    }
-  `;
-
-  if (isLocked) {
-    return <div className={cardClasses}>{cardContent}</div>;
-  }
-
-  return (
-    <Link to={`/weeks/${week.id}`} className={cardClasses}>
-      {cardContent}
-    </Link>
-  );
-};
-
-const Weeks = () => {
-  const { t } = useTranslation();
+export default function Weeks() {
+  const { token } = useContext(AuthContext);
   const [weeks, setWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchWeeks = async () => {
+      if (!token) {
+        setError('Authentication required.');
+        setLoading(false);
+        return;
+      }
+      setAuthToken(token);
+
       try {
         setLoading(true);
         const response = await api.get('/weeks');
-        const sortedWeeks = response.data.sort((a, b) => a.week_number - b.week_number);
-        setWeeks(sortedWeeks);
+        setWeeks(response.data);
         setError('');
       } catch (err) {
-        setError(t('Failed to fetch weeks.'));
+        setError('Failed to fetch weeks.');
         console.error(err);
       } finally {
         setLoading(false);
@@ -71,28 +62,23 @@ const Weeks = () => {
     };
 
     fetchWeeks();
-  }, [t]);
+  }, [token]);
 
   if (loading) {
-    return <div className="text-center py-20 text-brand-secondary">{t('Loading weeks...')}</div>;
+    return <Section title="الأسابيع"><p className="text-center text-white">Loading weeks...</p></Section>;
   }
 
   if (error) {
-    return <div className="text-center py-20 text-red-500">{error}</div>;
+    return <Section title="الأسابيع"><p className="text-center text-red-500">{error}</p></Section>;
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-      <header className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-brand-primary">{t('Weeks')}</h1>
-      </header>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <Section id="weeks" title="الأسابيع">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {weeks.map((week) => (
           <WeekCard key={week.id} week={week} />
         ))}
       </div>
-    </div>
+    </Section>
   );
-};
-
-export default Weeks;
+}
