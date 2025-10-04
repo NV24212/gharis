@@ -13,4 +13,19 @@ export const setAuthToken = (token) => {
   }
 };
 
+export const classService = {
+  getAllClasses: async () => {
+    const response = await api.get('/admin/classes');
+    return response.data;
+  },
+  createClass: async (classData) => {
+    const response = await api.post('/admin/classes', classData);
+    return response.data;
+  },
+  deleteClass: async (classId) => {
+    const response = await api.delete(`/admin/classes/${classId}`);
+    return response.data;
+  },
+};
+
 export default api;
