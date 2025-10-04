@@ -1,6 +1,6 @@
 from supabase import Client
 from typing import List, Optional, Dict, Any
-from app.models.week import WeekCreate, WeekUpdate, ContentCardCreate, ContentCardUpdate
+from app.schemas.week import WeekCreate, WeekUpdate, ContentCardCreate, ContentCardUpdate
 from fastapi import UploadFile
 import uuid
 

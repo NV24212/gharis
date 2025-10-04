@@ -1,6 +1,6 @@
 from supabase import Client
 from typing import List, Optional, Dict, Any
-from app.models.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import get_password_hash
 
 class StudentService:

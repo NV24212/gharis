@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Any
 from supabase import Client
 
-from app.models.user import User, UserCreate, UserUpdate
+from app.schemas.user import User, UserCreate, UserUpdate
 from app.services.student_service import StudentService
 from app.api import deps
 
