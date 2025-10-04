@@ -1,6 +1,6 @@
 from typing import Any, Generator
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status, Security
+from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
 from jose import jwt
 from pydantic import ValidationError
 from supabase import Client
@@ -9,6 +9,16 @@ from app.core import security
 from app.core.config import settings
 from app.db.supabase import get_supabase_client
 from app.schemas.token import TokenData
+
+api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
+
+def get_api_key(api_key_header: str = Security(api_key_header)):
+    if api_key_header == settings.API_KEY:
+        return api_key_header
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate API KEY"
+        )
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/token"

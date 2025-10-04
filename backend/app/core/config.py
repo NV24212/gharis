@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # The frontend URL that will be allowed to make requests to the backend
-    BACKEND_CORS_ORIGINS: List[str] = ["*"]
+    BACKEND_CORS_ORIGINS: List[str] = ["https://ghars.hasmah.xyz"]
 
     # Supabase configuration will be added here later
     SUPABASE_URL: str = ""
@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     SUPABASE_BUCKET: str = "videos"
 
     # Security settings
+    API_KEY: str = "a_very_secret_api_key" # This should be loaded from an environment variable
     SECRET_KEY: str = "a_very_secret_key_that_should_be_changed" # This should be loaded from an environment variable
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8 # 8 days
