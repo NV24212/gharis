@@ -6,9 +6,13 @@ from app.schemas.user import User, UserCreate, UserUpdate
 from app.services.student_service import StudentService
 from app.api import deps
 
-router = APIRouter()
+# Router for admin-only student operations
+admin_router = APIRouter()
+# Router for public-facing student operations
+public_router = APIRouter()
 
-@router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
+
+@admin_router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
 def create_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -16,7 +20,7 @@ def create_student(
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
-    Create new student.
+    Create new student (Admin only).
     """
     student_service = StudentService(db)
     student = student_service.create_student(student_in=student_in)
@@ -27,25 +31,31 @@ def create_student(
         )
     return student
 
-@router.get("", response_model=List[User])
-def read_students(
+@admin_router.get("/me", response_model=User)
+def read_student_me(
     db: Client = Depends(deps.get_supabase_client),
-    current_user: Any = Depends(deps.get_current_user)
+    current_user: User = Depends(deps.get_current_student_user)
 ) -> Any:
     """
-    Retrieve all students.
+    Get current logged-in student's data.
     """
     student_service = StudentService(db)
-    # If the user is not an admin, they should only get their own data.
-    if current_user.role != "admin":
-        student = student_service.get_student_by_id(student_id=current_user.id)
-        if not student:
-            raise HTTPException(status_code=404, detail="Student not found")
-        return [student]
+    student = student_service.get_student_by_id(student_id=current_user['id'])
+    return student
 
+@admin_router.get("", response_model=List[User])
+def read_students(
+    db: Client = Depends(deps.get_supabase_client),
+    current_user: Any = Depends(deps.get_current_admin_user)
+) -> Any:
+    """
+    Retrieve all students (Admin only).
+    """
+    student_service = StudentService(db)
     return student_service.get_all_students()
 
-@router.put("/{student_id}", response_model=User)
+
+@admin_router.put("/{student_id}", response_model=User)
 def update_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -54,39 +64,36 @@ def update_student(
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
-    Update a student's points, name, or class.
+    Update a student's info (Admin only).
     """
     student_service = StudentService(db)
     student = student_service.get_student_by_id(student_id=student_id)
     if not student:
-        raise HTTPException(
-            status_code=404,
-            detail="The student with this ID does not exist in the system",
-        )
+        raise HTTPException(status_code=404, detail="Student not found")
     updated_student = student_service.update_student(student_id=student_id, student_update=student_in)
     return updated_student
 
-@router.delete("/{student_id}", response_model=User)
+@admin_router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
     student_id: int,
     current_user: Any = Depends(deps.get_current_admin_user)
-) -> Any:
+) -> None:
     """
-    Delete a student.
+    Delete a student (Admin only).
     """
     student_service = StudentService(db)
-    student = student_service.get_student_by_id(student_id=student_id)
-    if not student:
-        raise HTTPException(
-            status_code=404,
-            detail="The student with this ID does not exist in the system",
-        )
-    deleted_student = student_service.delete_student(student_id=student_id)
-    return deleted_student
+    student_to_delete = student_service.get_student_by_id(student_id=student_id)
+    if not student_to_delete:
+        raise HTTPException(status_code=404, detail="Student not found")
 
-@router.get("/leaderboard", response_model=List[User])
+    student_service.delete_student(student_id=student_id)
+
+
+# --- Public Endpoint ---
+
+@public_router.get("/leaderboard", response_model=List[User])
 def read_leaderboard(
     db: Client = Depends(deps.get_supabase_client),
 ) -> Any:

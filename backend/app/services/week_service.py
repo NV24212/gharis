@@ -12,30 +12,11 @@ class WeekService:
 
     # Week Management
     def create_week(self, week_in: WeekCreate) -> Optional[Dict[str, Any]]:
-        """Creates a week and its associated content cards."""
-        cards_data = week_in.content_cards
-        # Use alias-aware dump and exclude cards for the main insert
-        week_data = week_in.model_dump(by_alias=True, exclude={'content_cards'})
-
-        week_response = self.db.table(self.weeks_table).insert(week_data).execute()
-        if not week_response.data:
-            return None
-
-        new_week = week_response.data[0]
-        week_id = new_week['id']
-
-        if cards_data:
-            # Prepare card data with the new week_id for batch insert
-            cards_to_insert = [
-                {**card.model_dump(), "week_id": week_id} for card in cards_data
-            ]
-            self.db.table(self.cards_table).insert(cards_to_insert).execute()
-
-        # Return the full week object with cards
-        return self.get_week_by_id(week_id)
+        response = self.db.table(self.weeks_table).insert(week_in.model_dump()).execute()
+        return response.data[0] if response.data else None
 
     def get_all_weeks_with_content(self) -> List[Dict[str, Any]]:
-        weeks_response = self.db.table(self.weeks_table).select("*").order("week_number").execute()
+        weeks_response = self.db.table(self.weeks_table).select("*").order("id").execute()
         if not weeks_response.data:
             return []
 
@@ -58,28 +39,11 @@ class WeekService:
         return week
 
     def update_week(self, week_id: int, week_in: WeekUpdate) -> Optional[Dict[str, Any]]:
-        """Updates a week's details and replaces its content cards if provided."""
-        # Use alias-aware dump and exclude unset fields and cards
-        update_data = week_in.model_dump(by_alias=True, exclude_unset=True, exclude={'content_cards'})
-
-        if update_data:
-            response = self.db.table(self.weeks_table).update(update_data).eq("id", week_id).execute()
-            if not response.data:
-                return None  # Week not found
-
-        # If content_cards are part of the update payload, replace existing ones
-        if week_in.content_cards is not None:
-            # 1. Delete old cards
-            self.db.table(self.cards_table).delete().eq("week_id", week_id).execute()
-
-            # 2. Add new cards if the list isn't empty
-            if week_in.content_cards:
-                cards_to_insert = [
-                    {**card.model_dump(), "week_id": week_id} for card in week_in.content_cards
-                ]
-                self.db.table(self.cards_table).insert(cards_to_insert).execute()
-
-        return self.get_week_by_id(week_id)
+        update_data = week_in.model_dump(exclude_unset=True)
+        if not update_data:
+            return self.get_week_by_id(week_id)
+        response = self.db.table(self.weeks_table).update(update_data).eq("id", week_id).execute()
+        return response.data[0] if response.data else None
 
     def delete_week(self, week_id: int) -> Optional[Dict[str, Any]]:
         # The database is set to cascade deletes, so cards will be deleted automatically.

@@ -9,12 +9,9 @@ export default {
       },
       colors: {
         brand: {
-          background: '#0A0A0A', // Main background
-          content: '#171717',    // Card/content area background
-          border: '#262626',      // Subtle borders
-          primary: '#F5F5F5',     // Primary text (off-white)
-          secondary: '#A3A3A3',   // Secondary text (gray)
-          accent: '#FFFFFF',      // Accent color (e.g., buttons)
+          gray: "#6e6c6f",
+          white: "#ffffff",
+          black: "#000000",
         },
       },
       borderRadius: {
