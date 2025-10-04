@@ -1,38 +1,84 @@
-import React from 'react'
-import Section from '../components/Section.jsx'
-import { weeks } from '../data/site.js'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import api, { setAuthToken } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
+import Section from '../components/Section.jsx';
 
-function WeekCard({ w }) {
-  const locked = !w.unlocked
+function WeekCard({ week }) {
+  const isLocked = !week.unlocked;
   return (
-    <div className="relative rounded-20 border border-brand-gray/30 bg-black/40 p-5 shadow-card">
+    <div className="relative rounded-20 border border-gray-700 bg-gray-800 p-5 shadow-lg">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-white font-bold">الأسبوع {w.id}</h3>
-          <p className="text-brand-gray mt-1">{w.title || 'قيمة لاحقًا'}</p>
+          <h3 className="text-white font-bold">الأسبوع {week.week_number}</h3>
+          <p className="text-gray-400 mt-1">{week.title || 'قيمة لاحقًا'}</p>
         </div>
-        {locked ? (
-          <span className="rounded-20 border border-brand-gray/40 text-brand-gray px-3 py-2 cursor-not-allowed select-none">مغلق</span>
+        {isLocked ? (
+          <span className="rounded-full border border-gray-600 text-gray-400 px-3 py-1 cursor-not-allowed select-none text-sm">
+            مغلق
+          </span>
         ) : (
-          <Link to={`/weeks/${w.id}`} className="rounded-20 bg-white/10 hover:bg-white/20 text-white px-4 py-2 border border-white/20 transition">ادخل</Link>
+          <Link
+            to={`/weeks/${week.id}`}
+            className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 border border-blue-500 transition text-sm"
+          >
+            ادخل
+          </Link>
         )}
       </div>
-      {locked && (
-        <div className="pointer-events-none absolute inset-0 rounded-20 bg-black/30"></div>
+      {isLocked && (
+        <div className="pointer-events-none absolute inset-0 rounded-20 bg-black/40 backdrop-blur-sm"></div>
       )}
     </div>
-  )
+  );
 }
 
 export default function Weeks() {
+  const { token } = useContext(AuthContext);
+  const [weeks, setWeeks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchWeeks = async () => {
+      if (!token) {
+        setError('Authentication required.');
+        setLoading(false);
+        return;
+      }
+      setAuthToken(token);
+
+      try {
+        setLoading(true);
+        const response = await api.get('/weeks');
+        setWeeks(response.data);
+        setError('');
+      } catch (err) {
+        setError('Failed to fetch weeks.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeeks();
+  }, [token]);
+
+  if (loading) {
+    return <Section title="الأسابيع"><p className="text-center text-white">Loading weeks...</p></Section>;
+  }
+
+  if (error) {
+    return <Section title="الأسابيع"><p className="text-center text-red-500">{error}</p></Section>;
+  }
+
   return (
     <Section id="weeks" title="الأسابيع">
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {weeks.map(w => (
-          <WeekCard key={w.id} w={w} />
+        {weeks.map((week) => (
+          <WeekCard key={week.id} week={week} />
         ))}
       </div>
     </Section>
-  )
+  );
 }
