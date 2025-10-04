@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     SUPABASE_BUCKET: str = "videos"
 
     # Security settings
-    API_KEY: str = "a_very_secret_api_key" # This should be loaded from an environment variable
-    SECRET_KEY: str = "a_very_secret_key_that_should_be_changed" # This should be loaded from an environment variable
+    API_KEY: str
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8 # 8 days
 
