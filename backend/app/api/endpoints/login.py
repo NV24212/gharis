@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from typing import Any
 
 from app.services.user_service import UserService
-from app.models.token import Token
+from app.schemas.token import Token
 from app.core.security import create_access_token
 from app.db.supabase import get_supabase_client
 

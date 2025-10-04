@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import List, Any
 from supabase import Client
 
-from app.models.week import Week, WeekCreate, WeekUpdate, ContentCard, ContentCardCreate, ContentCardUpdate
+from app.schemas.week import Week, WeekCreate, WeekUpdate, ContentCard, ContentCardCreate, ContentCardUpdate
 from app.services.week_service import WeekService
 from app.api import deps
 from app.core.config import settings
