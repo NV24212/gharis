@@ -34,6 +34,7 @@ const Navigation = () => {
             <span className="text-brand-primary text-xl font-bold">{t('Ghars')}</span>
           </Link>
           <div className="flex items-center gap-5 text-sm font-medium">
+            {/* These links are now public and always visible */}
             <Link to="/weeks" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Weeks')}</Link>
             <Link to="/leaderboard" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Leaderboard')}</Link>
 
