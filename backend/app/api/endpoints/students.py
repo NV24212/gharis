@@ -85,3 +85,13 @@ def delete_student(
         )
     deleted_student = student_service.delete_student(student_id=student_id)
     return deleted_student
+
+@router.get("/leaderboard", response_model=List[User])
+def read_leaderboard(
+    db: Client = Depends(deps.get_supabase_client),
+) -> Any:
+    """
+    Retrieve the top students for the public leaderboard.
+    """
+    student_service = StudentService(db)
+    return student_service.get_all_students()
