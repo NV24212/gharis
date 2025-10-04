@@ -1,27 +1,21 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import api, { setAuthToken } from '../services/api';
+import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { Trophy } from 'lucide-react';
 
 const Leaderboard = () => {
   const { t } = useTranslation();
-  const { token, user } = useContext(AuthContext); // Assuming user info is in AuthContext
+  const { user } = useContext(AuthContext); // Keep user to highlight them if logged in
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      if (!token) {
-        setLoading(false);
-        setError(t('Authentication required.'));
-        return;
-      }
-      setAuthToken(token);
-
       try {
         setLoading(true);
+        // The endpoint is now public, no token needed
         const response = await api.get('/students/leaderboard');
         setLeaderboard(response.data);
         setError('');
@@ -34,7 +28,7 @@ const Leaderboard = () => {
     };
 
     fetchLeaderboard();
-  }, [token, t]);
+  }, [t]);
 
   const getRankIndicator = (rank) => {
     if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-400" />;

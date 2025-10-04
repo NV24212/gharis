@@ -33,18 +33,17 @@ const Navigation = () => {
             <span className="text-brand-primary text-xl font-bold">{t('Ghars')}</span>
           </Link>
           <div className="flex items-center gap-5 text-sm font-medium">
+            <Link to="/weeks" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Weeks')}</Link>
+            <Link to="/leaderboard" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Leaderboard')}</Link>
+
             {user ? (
               <>
                 {user.role === 'student' && <Link to="/dashboard" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Dashboard')}</Link>}
                 {user.role === 'admin' && <Link to="/admin" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Admin Panel')}</Link>}
-                <Link to="/weeks" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Weeks')}</Link>
-                <Link to="/leaderboard" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Leaderboard')}</Link>
                 <button onClick={handleLogout} className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Logout')}</button>
               </>
             ) : (
-              <>
-                <Link to="/login" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Login')}</Link>
-              </>
+              <Link to="/login" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Login')}</Link>
             )}
           </div>
         </div>
@@ -87,13 +86,13 @@ const App = () => {
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <Login />} />
+        <Route path="/weeks" element={<Weeks />} />
+        <Route path="/weeks/:id" element={<WeekDetail />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
 
         {/* Protected Routes for Students */}
         <Route element={<ProtectedRoute allowedRoles={['student']} />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/weeks" element={<Weeks />} />
-          <Route path="/weeks/:id" element={<WeekDetail />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
         </Route>
 
         {/* Protected Routes for Admin */}

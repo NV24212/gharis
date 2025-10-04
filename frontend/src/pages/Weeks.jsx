@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import api, { setAuthToken } from '../services/api';
-import { AuthContext } from '../context/AuthContext';
+import api from '../services/api';
 import { Lock, ArrowLeft } from 'lucide-react';
 
 const WeekCard = ({ week }) => {
@@ -51,20 +50,12 @@ const WeekCard = ({ week }) => {
 
 const Weeks = () => {
   const { t } = useTranslation();
-  const { token } = useContext(AuthContext);
   const [weeks, setWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchWeeks = async () => {
-      if (!token) {
-        setError(t('Authentication required.'));
-        setLoading(false);
-        return;
-      }
-      setAuthToken(token);
-
       try {
         setLoading(true);
         const response = await api.get('/weeks');
@@ -81,7 +72,7 @@ const Weeks = () => {
     };
 
     fetchWeeks();
-  }, [token, t]);
+  }, [t]);
 
   if (loading) {
     return <div className="text-center py-20 text-brand-secondary">{t('Loading weeks...')}</div>;
