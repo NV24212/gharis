@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 
-# Content Card Schemas
+# --- Content Card Schemas ---
 class ContentCardBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -23,18 +23,24 @@ class ContentCard(ContentCardInDB):
     pass
 
 
-# Week Schemas
+# --- Week Schemas ---
 class WeekBase(BaseModel):
     title: str
-    is_locked: bool = True
+    week_number: int
+    # Use an alias to allow the frontend to send 'unlocked' but use 'is_locked' in the backend
+    is_locked: bool = Field(True, alias='unlocked')
 
 class WeekCreate(WeekBase):
-    pass
+    # Content cards are received as part of the week creation payload
+    content_cards: List[ContentCardCreate] = []
+    video_url: Optional[str] = None
 
 class WeekUpdate(BaseModel):
     title: Optional[str] = None
-    is_locked: Optional[bool] = None
+    week_number: Optional[int] = None
+    is_locked: Optional[bool] = Field(None, alias='unlocked')
     video_url: Optional[str] = None
+    content_cards: Optional[List[ContentCardCreate]] = None
 
 class WeekInDB(WeekBase):
     id: int
@@ -44,5 +50,6 @@ class WeekInDB(WeekBase):
     class Config:
         from_attributes = True
 
+# Public-facing Week schema
 class Week(WeekInDB):
     pass

@@ -1,6 +1,6 @@
 from supabase import Client
 from typing import List, Optional, Dict, Any
-from app.schemas.week import WeekCreate, WeekUpdate, ContentCardCreate, ContentCardUpdate
+from app.schemas.week import WeekCreate, WeekUpdate
 from fastapi import UploadFile
 import uuid
 
@@ -10,13 +10,31 @@ class WeekService:
         self.weeks_table = "weeks"
         self.cards_table = "content_cards"
 
-    # Week Management
     def create_week(self, week_in: WeekCreate) -> Optional[Dict[str, Any]]:
-        response = self.db.table(self.weeks_table).insert(week_in.model_dump()).execute()
-        return response.data[0] if response.data else None
+        """Creates a week and its associated content cards."""
+        cards_data = week_in.content_cards
+        # Use alias-aware dump and exclude cards for the main insert
+        week_data = week_in.model_dump(by_alias=True, exclude={'content_cards'})
+
+        week_response = self.db.table(self.weeks_table).insert(week_data).execute()
+        if not week_response.data:
+            return None
+
+        new_week = week_response.data[0]
+        week_id = new_week['id']
+
+        if cards_data:
+            # Prepare card data with the new week_id for batch insert
+            cards_to_insert = [
+                {**card.model_dump(), "week_id": week_id} for card in cards_data
+            ]
+            self.db.table(self.cards_table).insert(cards_to_insert).execute()
+
+        return self.get_week_by_id(week_id)
 
     def get_all_weeks_with_content(self) -> List[Dict[str, Any]]:
-        weeks_response = self.db.table(self.weeks_table).select("*").order("id").execute()
+        """Retrieves all weeks with their content, ordered by week number."""
+        weeks_response = self.db.table(self.weeks_table).select("*").order("week_number").execute()
         if not weeks_response.data:
             return []
 
@@ -28,6 +46,7 @@ class WeekService:
         return weeks
 
     def get_week_by_id(self, week_id: int) -> Optional[Dict[str, Any]]:
+        """Retrieves a single week by its ID, including its content cards."""
         response = self.db.table(self.weeks_table).select("*").eq("id", week_id).single().execute()
         if not response.data:
             return None
@@ -39,41 +58,42 @@ class WeekService:
         return week
 
     def update_week(self, week_id: int, week_in: WeekUpdate) -> Optional[Dict[str, Any]]:
-        update_data = week_in.model_dump(exclude_unset=True)
-        if not update_data:
-            return self.get_week_by_id(week_id)
-        response = self.db.table(self.weeks_table).update(update_data).eq("id", week_id).execute()
-        return response.data[0] if response.data else None
+        """Updates a week's details and replaces its content cards if provided."""
+        update_data = week_in.model_dump(by_alias=True, exclude_unset=True, exclude={'content_cards'})
+
+        if update_data:
+            response = self.db.table(self.weeks_table).update(update_data).eq("id", week_id).execute()
+            if not response.data:
+                return None  # Week not found
+
+        if week_in.content_cards is not None:
+            self.db.table(self.cards_table).delete().eq("week_id", week_id).execute()
+
+            if week_in.content_cards:
+                cards_to_insert = [
+                    {**card.model_dump(), "week_id": week_id} for card in week_in.content_cards
+                ]
+                self.db.table(self.cards_table).insert(cards_to_insert).execute()
+
+        return self.get_week_by_id(week_id)
 
     def delete_week(self, week_id: int) -> Optional[Dict[str, Any]]:
-        # The database is set to cascade deletes, so cards will be deleted automatically.
+        """Deletes a week and its associated cards (handled by cascade delete)."""
         response = self.db.table(self.weeks_table).delete().eq("id", week_id).execute()
         return response.data[0] if response.data else None
 
     def upload_video(self, week_id: int, file: UploadFile, bucket_name: str) -> Optional[Dict[str, Any]]:
+        """Uploads a video file to storage and updates the week's video_url."""
         file_path = f"week_{week_id}/{uuid.uuid4()}_{file.filename}"
 
         # Upload to Supabase Storage
         self.db.storage.from_(bucket_name).upload(file_path, file.file.read(), {"contentType": file.content_type})
 
         # Get public URL
-        public_url = self.db.storage.from_(bucket_name).get_public_url(file_path)
+        public_url_response = self.db.storage.from_(bucket_name).get_public_url(file_path)
 
-        # Update the week's video_url
+        # The response is an object with a publicURL key
+        public_url = public_url_response['publicURL']
+
+        # Update the week's video_url in the database
         return self.update_week(week_id, WeekUpdate(video_url=public_url))
-
-    # Content Card Management
-    def add_card_to_week(self, week_id: int, card_in: ContentCardCreate) -> Optional[Dict[str, Any]]:
-        card_data = card_in.model_dump()
-        card_data["week_id"] = week_id
-        response = self.db.table(self.cards_table).insert(card_data).execute()
-        return response.data[0] if response.data else None
-
-    def update_card(self, card_id: int, card_in: ContentCardUpdate) -> Optional[Dict[str, Any]]:
-        update_data = card_in.model_dump(exclude_unset=True)
-        response = self.db.table(self.cards_table).update(update_data).eq("id", card_id).execute()
-        return response.data[0] if response.data else None
-
-    def delete_card(self, card_id: int) -> Optional[Dict[str, Any]]:
-        response = self.db.table(self.cards_table).delete().eq("id", card_id).execute()
-        return response.data[0] if response.data else None

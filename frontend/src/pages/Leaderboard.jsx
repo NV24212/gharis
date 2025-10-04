@@ -1,29 +1,26 @@
 import React, { useState, useEffect, useContext } from 'react';
-import api, { setAuthToken } from '../services/api';
+import { useTranslation } from 'react-i18next';
+import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
+import { Trophy } from 'lucide-react';
 
 const Leaderboard = () => {
-  const { token } = useContext(AuthContext);
+  const { t } = useTranslation();
+  const { user } = useContext(AuthContext); // Keep user to highlight them if logged in
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      if (!token) {
-        setLoading(false);
-        setError('Authentication required.');
-        return;
-      }
-      setAuthToken(token);
-
       try {
         setLoading(true);
+        // The endpoint is now public, no token needed
         const response = await api.get('/students/leaderboard');
         setLeaderboard(response.data);
         setError('');
       } catch (err) {
-        setError('Failed to fetch leaderboard data.');
+        setError(t('Failed to fetch leaderboard data.'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -31,48 +28,57 @@ const Leaderboard = () => {
     };
 
     fetchLeaderboard();
-  }, [token]);
+  }, [t]);
+
+  const getRankIndicator = (rank) => {
+    if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-400" />;
+    if (rank === 2) return <Trophy className="h-6 w-6 text-gray-400" />;
+    if (rank === 3) return <Trophy className="h-6 w-6 text-yellow-600" />;
+    return <span className="text-brand-secondary font-mono text-lg">{rank}</span>;
+  };
 
   if (loading) {
-    return (
-      <div className="text-center py-10">
-        <p className="text-white">Loading leaderboard...</p>
-      </div>
-    );
+    return <div className="text-center py-20 text-brand-secondary">{t('Loading leaderboard...')}</div>;
   }
 
   if (error) {
-    return (
-      <div className="text-center py-10">
-        <p className="text-red-500">{error}</p>
-      </div>
-    );
+    return <div className="text-center py-20 text-red-500">{error}</div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-      <h1 className="text-3xl font-bold text-white mb-6 text-center">All-Time Leaderboard</h1>
-      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-        <table className="min-w-full text-white">
-          <thead className="bg-gray-700">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Rank</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Class</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Points</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-700">
-            {leaderboard.map((student, index) => (
-              <tr key={student.id} className="hover:bg-gray-700/50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.class_name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <header className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-brand-primary">{t('All-Time Leaderboard')}</h1>
+        <p className="text-brand-secondary mt-2">شاهد ترتيبك وترتيب زملائك في المنافسة</p>
+      </header>
+
+      <div className="bg-brand-content border border-brand-border rounded-2xl shadow-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-right">
+            <thead className="border-b border-brand-border">
+              <tr>
+                <th className="px-6 py-4 text-sm font-medium text-brand-secondary uppercase tracking-wider">{t('Rank')}</th>
+                <th className="px-6 py-4 text-sm font-medium text-brand-secondary uppercase tracking-wider">{t('Name')}</th>
+                <th className="px-6 py-4 text-sm font-medium text-brand-secondary uppercase tracking-wider hidden sm:table-cell">{t('Class')}</th>
+                <th className="px-6 py-4 text-sm font-medium text-brand-secondary uppercase tracking-wider">{t('Points')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-brand-border">
+              {leaderboard.map((student, index) => (
+                <tr key={student.id} className={`transition-colors ${user?.id === student.id ? 'bg-brand-accent/10' : 'hover:bg-brand-background'}`}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex justify-center items-center h-full w-8">
+                      {getRankIndicator(index + 1)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-brand-primary font-semibold">{student.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-brand-secondary hidden sm:table-cell">{student.class_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-brand-primary font-bold">{student.points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
