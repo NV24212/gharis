@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PNU Arabic font (exact relative path preserved) */
+@font-face {
+  font-family: 'PNU';
+  src: url('../../PNU-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Base styles */
+@layer base {
+  html, body, #root { height: 100%; }
+  body { @apply bg-black text-brand-white font-arabic antialiased; }
+}
+
+/* Utilities */
+@layer utilities {
+  .rounded-20 { border-radius: 20px; }
+  .text-shadow-soft { text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+}
