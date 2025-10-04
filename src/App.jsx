@@ -37,7 +37,7 @@ export default function App() {
 
         <footer className="mt-8 border-t border-brand-gray/30 bg-black/60">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 text-white text-sm text-center">
-            <p>جميع الحقوق محفوظة، مدرسة أوال الاإعدادية للبنين © {new Date().getFullYear()}</p>
+            <p>جميع الحقوق محفوظة، مدرسة أوال الاإعدادية للبنين <span className="font-sans" aria-hidden="true">&copy;</span> {new Date().getFullYear()}</p>
           </div>
         </footer>
       </div>
