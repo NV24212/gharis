@@ -11,7 +11,7 @@ router = APIRouter()
 
 # --- Week Endpoints ---
 
-@router.post("/", response_model=Week, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=Week, status_code=status.HTTP_201_CREATED)
 def create_week(
     *,
     db: Client = Depends(deps.get_supabase_client),
