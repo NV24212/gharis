@@ -109,14 +109,14 @@ const WeekManagement = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Week Management</h1>
-        <button onClick={() => openModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center">
+        <button onClick={() => openModal()} className="bg-black hover:bg-gray-800 border border-gray-600 text-white font-bold py-2 px-4 rounded-md flex items-center">
           <Plus className="mr-2 h-5 w-5" /> Add Week
         </button>
       </div>
 
-      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-black border border-gray-600 rounded-lg shadow-lg overflow-hidden">
         <table className="min-w-full text-white">
-          <thead className="bg-gray-700">
+          <thead className="bg-gray-900">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase">Week No.</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase">Title</th>
@@ -146,17 +146,17 @@ const WeekManagement = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-start z-50 overflow-y-auto py-10">
-          <div className="bg-gray-800 rounded-lg p-8 w-full max-w-3xl">
+          <div className="bg-black border border-gray-600 rounded-lg p-8 w-full max-w-3xl">
             <h2 className="text-xl font-bold mb-6">{editingWeek ? 'Edit' : 'Add'} Week</h2>
             <form onSubmit={handleFormSubmit} className="space-y-4">
               {/* Main week details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="number" name="week_number" value={formData.week_number} onChange={handleFormChange} placeholder="Week Number" required className="bg-gray-700 p-2 rounded-md" />
-                <input type="text" name="title" value={formData.title} onChange={handleFormChange} placeholder="Title" required className="bg-gray-700 p-2 rounded-md" />
+                <input type="number" name="week_number" value={formData.week_number} onChange={handleFormChange} placeholder="Week Number" required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />
+                <input type="text" name="title" value={formData.title} onChange={handleFormChange} placeholder="Title" required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />
               </div>
-              <input type="text" name="video_url" value={formData.video_url} onChange={handleFormChange} placeholder="Video URL" required className="w-full bg-gray-700 p-2 rounded-md" />
+              <input type="text" name="video_url" value={formData.video_url} onChange={handleFormChange} placeholder="Video URL" required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />
               <label className="flex items-center space-x-2 text-gray-300">
-                <input type="checkbox" name="unlocked" checked={formData.unlocked} onChange={handleFormChange} className="form-checkbox h-5 w-5 bg-gray-700 border-gray-600 rounded text-blue-500 focus:ring-blue-500" />
+                <input type="checkbox" name="unlocked" checked={formData.unlocked} onChange={handleFormChange} className="form-checkbox h-5 w-5 bg-gray-700 border-gray-600 rounded text-gray-400 focus:ring-gray-500" />
                 <span>Unlocked</span>
               </label>
 
@@ -164,18 +164,18 @@ const WeekManagement = () => {
               <div className="pt-4">
                 <h3 className="text-lg font-semibold mb-2">Content Cards</h3>
                 {formData.content_cards.map((card, index) => (
-                  <div key={index} className="bg-gray-700 p-4 rounded-md mb-4 space-y-3 relative">
+                  <div key={index} className="bg-gray-700 p-4 rounded-md mb-4 space-y-3 relative border border-gray-600">
                     <button type="button" onClick={() => removeCard(index)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><X size={18} /></button>
-                    <input type="text" name="title" value={card.title} onChange={(e) => handleCardChange(index, e)} placeholder="Card Title" required className="w-full bg-gray-600 p-2 rounded-md" />
-                    <textarea name="description" value={card.description} onChange={(e) => handleCardChange(index, e)} placeholder="Card Description" required className="w-full bg-gray-600 p-2 rounded-md" rows="2"></textarea>
+                    <input type="text" name="title" value={card.title} onChange={(e) => handleCardChange(index, e)} placeholder="Card Title" required className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md" />
+                    <textarea name="description" value={card.description} onChange={(e) => handleCardChange(index, e)} placeholder="Card Description" required className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md" rows="2"></textarea>
                   </div>
                 ))}
                 <button type="button" onClick={addCard} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md text-sm">Add Card</button>
               </div>
 
               <div className="flex justify-end space-x-4 pt-6">
-                <button type="button" onClick={closeModal} className="bg-gray-600 hover:bg-gray-700 py-2 px-4 rounded-md">Cancel</button>
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-md">Save</button>
+                <button type="button" onClick={closeModal} className="bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded-md">Cancel</button>
+                <button type="submit" className="bg-black hover:bg-gray-800 border border-gray-600 text-white font-bold py-2 px-4 rounded-md">Save</button>
               </div>
             </form>
           </div>

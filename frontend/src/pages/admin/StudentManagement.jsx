@@ -96,15 +96,15 @@ const StudentManagement = () => {
         <h1 className="text-2xl font-bold">Student Management</h1>
         <button
           onClick={() => openModal()}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center"
+          className="bg-black hover:bg-gray-800 border border-gray-600 text-white font-bold py-2 px-4 rounded-md flex items-center"
         >
           <Plus className="mr-2 h-5 w-5" /> Add Student
         </button>
       </div>
 
-      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-black border border-gray-600 rounded-lg shadow-lg overflow-hidden">
         <table className="min-w-full text-white">
-          <thead className="bg-gray-700">
+          <thead className="bg-gray-900">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Class</th>
@@ -130,19 +130,19 @@ const StudentManagement = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-          <div className="bg-gray-800 rounded-lg p-8 w-full max-w-md">
+          <div className="bg-black border border-gray-600 rounded-lg p-8 w-full max-w-md">
             <h2 className="text-xl font-bold mb-6">{editingStudent ? 'Edit' : 'Add'} Student</h2>
             <form onSubmit={handleFormSubmit} className="space-y-4">
-              <input type="text" name="name" value={formData.name} onChange={handleFormChange} placeholder="Name" required className="w-full bg-gray-700 text-white p-2 rounded-md" />
-              <input type="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? 'New Password (optional)' : 'Password'} required={!editingStudent} className="w-full bg-gray-700 text-white p-2 rounded-md" />
-              <select name="class_id" value={formData.class_id} onChange={handleFormChange} required className="w-full bg-gray-700 text-white p-2 rounded-md">
+              <input type="text" name="name" value={formData.name} onChange={handleFormChange} placeholder="Name" required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />
+              <input type="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? 'New Password (optional)' : 'Password'} required={!editingStudent} className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />
+              <select name="class_id" value={formData.class_id} onChange={handleFormChange} required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md">
                 <option value="">Select Class</option>
                 {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
               </select>
-              {editingStudent && (<input type="number" name="points" value={formData.points} onChange={handleFormChange} placeholder="Points" required className="w-full bg-gray-700 text-white p-2 rounded-md" />)}
+              {editingStudent && (<input type="number" name="points" value={formData.points} onChange={handleFormChange} placeholder="Points" required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />)}
               <div className="flex justify-end space-x-4 pt-4">
-                <button type="button" onClick={closeModal} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md">Cancel</button>
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">Save</button>
+                <button type="button" onClick={closeModal} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md">Cancel</button>
+                <button type="submit" className="bg-black hover:bg-gray-800 border border-gray-600 text-white font-bold py-2 px-4 rounded-md">Save</button>
               </div>
             </form>
           </div>
