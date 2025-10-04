@@ -26,6 +26,6 @@ def login_for_access_token(
         )
 
     access_token = create_access_token(
-        data={"sub": str(user['id']), "role": user['role']}
+        data={"id": str(user['id']), "role": user['role']}
     )
     return {"access_token": access_token, "token_type": "bearer"}
