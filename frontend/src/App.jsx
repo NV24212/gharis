@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AuthContext } from './context/AuthContext';
 import Home from './pages/Home.jsx';
 import Weeks from './pages/Weeks.jsx';
@@ -11,7 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import StudentManagement from './pages/admin/StudentManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
-import { useTranslation } from 'react-i18next';
+import ClassManagement from './pages/admin/ClassManagement.jsx';
 import { logoUrl } from './data/site.js';
 
 const Navigation = () => {
@@ -69,7 +70,7 @@ const Layout = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-brand-background text-brand-primary flex flex-col font-arabic">
+    <div className="min-h-screen bg-black text-brand-primary flex flex-col font-arabic">
       <Navigation />
       <main className="flex-grow">{children}</main>
       <Footer />
@@ -78,7 +79,7 @@ const Layout = ({ children }) => {
 };
 
 const App = () => {
-  const { user } = useContext(AuthContext); // This is now safe because App is a child of AuthProvider
+  const { user } = useContext(AuthContext);
 
   return (
     <Layout>
@@ -101,6 +102,7 @@ const App = () => {
             <Route index element={<Navigate to="students" />} />
             <Route path="students" element={<StudentManagement />} />
             <Route path="weeks" element={<WeekManagement />} />
+            <Route path="classes" element={<ClassManagement />} />
           </Route>
         </Route>
 
