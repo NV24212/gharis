@@ -7,14 +7,14 @@ class ClassBase(BaseModel):
 class ClassCreate(ClassBase):
     pass
 
-class ClassUpdate(BaseModel):
-    name: Optional[str] = None
+class ClassUpdate(ClassBase):
+    pass
 
-class ClassInDB(ClassBase):
+class ClassInDBBase(ClassBase):
     id: int
 
     class Config:
         from_attributes = True
 
-class Class(ClassInDB):
+class Class(ClassInDBBase):
     pass
