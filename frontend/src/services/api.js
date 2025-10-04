@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    'X-API-KEY': import.meta.env.VITE_API_KEY,
+  },
 });
 
 // Function to set the authorization token on the api instance

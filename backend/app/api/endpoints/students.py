@@ -13,7 +13,8 @@ def create_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
     student_in: UserCreate,
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Create new student.
@@ -30,12 +31,20 @@ def create_student(
 @router.get("/", response_model=List[User])
 def read_students(
     db: Client = Depends(deps.get_supabase_client),
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Retrieve all students.
     """
     student_service = StudentService(db)
+    # If the user is not an admin, they should only get their own data.
+    if current_user.role != "admin":
+        student = student_service.get_student_by_id(student_id=current_user.id)
+        if not student:
+            raise HTTPException(status_code=404, detail="Student not found")
+        return [student]
+
     return student_service.get_all_students()
 
 @router.put("/{student_id}", response_model=User)
@@ -44,7 +53,8 @@ def update_student(
     db: Client = Depends(deps.get_supabase_client),
     student_id: int,
     student_in: UserUpdate,
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Update a student's points, name, or class.
@@ -64,7 +74,8 @@ def delete_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
     student_id: int,
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Delete a student.

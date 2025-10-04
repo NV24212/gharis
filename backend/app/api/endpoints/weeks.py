@@ -16,7 +16,8 @@ def create_week(
     *,
     db: Client = Depends(deps.get_supabase_client),
     week_in: WeekCreate,
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Create a new week.
@@ -27,8 +28,8 @@ def create_week(
 
 @router.get("/", response_model=List[Week])
 def read_weeks(
-    db: Client = Depends(deps.get_supabase_client)
-    # This endpoint is public, so no admin dependency
+    db: Client = Depends(deps.get_supabase_client),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Retrieve all weeks with their content.
@@ -41,6 +42,7 @@ def read_week(
     *,
     db: Client = Depends(deps.get_supabase_client),
     week_id: int,
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Get a specific week by ID, if it's not locked.
@@ -61,7 +63,8 @@ def update_week(
     db: Client = Depends(deps.get_supabase_client),
     week_id: int,
     week_in: WeekUpdate,
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Update a week's details (title, lock status).
@@ -78,7 +81,8 @@ def upload_week_video(
     db: Client = Depends(deps.get_supabase_client),
     week_id: int,
     file: UploadFile = File(...),
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ):
     """
     Upload a video for a week.
@@ -98,7 +102,8 @@ def create_content_card(
     db: Client = Depends(deps.get_supabase_client),
     week_id: int,
     card_in: ContentCardCreate,
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Add a new content card to a week.
@@ -116,7 +121,8 @@ def update_content_card(
     db: Client = Depends(deps.get_supabase_client),
     card_id: int,
     card_in: ContentCardUpdate,
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Update a content card.
@@ -133,7 +139,8 @@ def delete_content_card(
     *,
     db: Client = Depends(deps.get_supabase_client),
     card_id: int,
-    current_user: Any = Depends(deps.get_current_admin_user)
+    current_user: Any = Depends(deps.get_current_admin_user),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     Delete a content card.
