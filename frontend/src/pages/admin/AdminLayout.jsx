@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Users, Video } from 'lucide-react'; // Using lucide-react for icons
+import { Users, Video, ClipboardList } from 'lucide-react'; // Using lucide-react for icons
 
 const AdminLayout = () => {
   const navLinkClasses = ({ isActive }) =>
@@ -24,6 +24,10 @@ const AdminLayout = () => {
             <NavLink to="/admin/weeks" className={navLinkClasses}>
               <Video className="mr-3 h-5 w-5" />
               Week Management
+            </NavLink>
+            <NavLink to="/admin/classes" className={navLinkClasses}>
+              <ClipboardList className="mr-3 h-5 w-5" />
+              Class Management
             </NavLink>
           </nav>
         </div>
