@@ -15,7 +15,7 @@ function WeekCard({ w }) {
         {locked ? (
           <span className="rounded-20 border border-brand-gray/40 text-brand-gray px-3 py-2 cursor-not-allowed select-none">مغلق</span>
         ) : (
-          <Link to={`/weeks/${w.id}`} className="rounded-20 bg-white/10 hover:bg-white/20 text-white px-4 py-2 border border-white/20 transition">التفاصيل</Link>
+          <Link to={`/weeks/${w.id}`} className="rounded-20 bg-white/10 hover:bg-white/20 text-white px-4 py-2 border border-white/20 transition">ادخل</Link>
         )}
       </div>
       {locked && (
@@ -27,7 +27,7 @@ function WeekCard({ w }) {
 
 export default function Weeks() {
   return (
-    <Section id="weeks" title="الأسابيع" subtitle="تصفح الأسابيع – الأسبوع الأول متاح والبقية قيد الإعداد">
+    <Section id="weeks" title="الأسابيع">
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {weeks.map(w => (
           <WeekCard key={w.id} w={w} />
