@@ -56,4 +56,4 @@ CREATE TABLE content_cards (
 -- Initial Data (Optional)
 -- You can add an initial admin password here to get started.
 -- Replace 'your_secret_admin_password' with the actual password you want to use.
--- INSERT INTO admins (password) VALUES ('your_secret_admin_password');
+INSERT INTO admins (password) VALUES ('Xnaf*123');
