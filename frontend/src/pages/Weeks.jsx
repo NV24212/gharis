@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import api, { setAuthToken } from '../services/api';
+import { setAuthToken, weekService } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import Section from '../components/Section.jsx';
 
@@ -50,8 +50,8 @@ export default function Weeks() {
 
       try {
         setLoading(true);
-        const response = await api.get('/weeks');
-        setWeeks(response.data);
+        const data = await weekService.getAllWeeks();
+        setWeeks(data);
         setError('');
       } catch (err) {
         setError('Failed to fetch weeks.');

@@ -28,4 +28,11 @@ export const classService = {
   },
 };
 
+export const weekService = {
+  getAllWeeks: async () => {
+    const response = await api.get('/weeks/'); // Added trailing slash
+    return response.data;
+  },
+};
+
 export default api;
