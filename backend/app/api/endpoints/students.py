@@ -13,8 +13,7 @@ def create_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
     student_in: UserCreate,
-    current_user: Any = Depends(deps.get_current_admin_user),
-    api_key: str = Depends(deps.get_api_key)
+    current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
     Create new student.
@@ -31,8 +30,7 @@ def create_student(
 @router.get("/", response_model=List[User])
 def read_students(
     db: Client = Depends(deps.get_supabase_client),
-    current_user: Any = Depends(deps.get_current_user),
-    api_key: str = Depends(deps.get_api_key)
+    current_user: Any = Depends(deps.get_current_user)
 ) -> Any:
     """
     Retrieve all students.
@@ -53,8 +51,7 @@ def update_student(
     db: Client = Depends(deps.get_supabase_client),
     student_id: int,
     student_in: UserUpdate,
-    current_user: Any = Depends(deps.get_current_admin_user),
-    api_key: str = Depends(deps.get_api_key)
+    current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
     Update a student's points, name, or class.
@@ -74,8 +71,7 @@ def delete_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
     student_id: int,
-    current_user: Any = Depends(deps.get_current_admin_user),
-    api_key: str = Depends(deps.get_api_key)
+    current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
     Delete a student.
