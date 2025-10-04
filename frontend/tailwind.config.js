@@ -9,12 +9,7 @@ export default {
       },
       colors: {
         brand: {
-          background: '#000000',
-          content: '#171717',
-          border: '#262626',
-          primary: '#F5F5F5',
-          secondary: '#A3A3A3',
-          accent: '#FFFFFF',
+          background: "#1a1a1a",
           gray: "#6e6c6f",
           white: "#ffffff",
           black: "#000000",
