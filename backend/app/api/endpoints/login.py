@@ -6,13 +6,15 @@ from app.services.user_service import UserService
 from app.schemas.token import Token
 from app.core.security import create_access_token
 from app.db.supabase import get_supabase_client
+from app.api import deps
 
 router = APIRouter()
 
 @router.post("/token", response_model=Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Any = Depends(get_supabase_client)
+    db: Any = Depends(get_supabase_client),
+    api_key: str = Depends(deps.get_api_key)
 ) -> Any:
     """
     OAuth2 compatible token login, gets an access token for future requests
