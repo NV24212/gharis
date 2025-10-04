@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://ghars-api.hasmah.xyz/api/v1',
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
-    'X-API-KEY': 'a_very_secret_api_key',
+    'X-API-KEY': import.meta.env.VITE_API_KEY,
   },
 });
 
