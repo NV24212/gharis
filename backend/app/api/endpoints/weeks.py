@@ -31,7 +31,8 @@ def read_weeks(
 def read_week(
     *,
     db: Client = Depends(deps.get_supabase_client),
-    week_id: int
+    week_in: WeekCreate,
+    current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
     Get a specific week by ID. If the week is locked, it will not be returned
