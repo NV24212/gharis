@@ -1,17 +1,25 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 import { jwtDecode } from 'jwt-decode';
+import { Key, LogIn } from 'lucide-react';
+import { logoUrl } from '../data/site.js';
 
 const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
       const formData = new URLSearchParams();
       formData.append('password', password);
@@ -25,33 +33,30 @@ const Login = () => {
       });
 
       const token = response.data.access_token;
-      login(token); // Update the auth context
+      login(token);
 
-      // Decode the token to perform the immediate redirect
       const decoded = jwtDecode(token);
-      if (decoded.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate(decoded.role === 'admin' ? '/admin' : '/dashboard');
+
     } catch (err) {
-      setError('Invalid password or server error.');
+      setError(t('Invalid password or server error.'));
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-      <div className="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold text-center">Login</h1>
+    <div className="flex items-center justify-center min-h-screen bg-brand-background p-4">
+      <div className="w-full max-w-sm">
+         <div className="text-center mb-8">
+            <img src={logoUrl} alt="Logo" className="w-20 h-20 rounded-full mx-auto mb-4"/>
+            <h1 className="text-2xl font-bold text-brand-primary">{t('Sign in to your account')}</h1>
+            <p className="text-brand-secondary mt-2">{t('Enter your password to access the platform.')}</p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="password"
-              className="text-sm font-medium tracking-wider text-gray-400"
-            >
-              Password
-            </label>
+          <div className="relative">
             <input
               id="password"
               name="password"
@@ -60,16 +65,22 @@ const Login = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder={t('Password')}
+              className="w-full bg-brand-content border border-brand-border text-brand-primary p-3 pr-10 rounded-lg focus:ring-2 focus:ring-brand-accent focus:outline-none transition"
             />
+            <Key className="absolute top-1/2 right-3 -translate-y-1/2 h-5 w-5 text-brand-secondary" />
           </div>
-          {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
           <div>
             <button
               type="submit"
-              className="w-full px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 font-bold text-brand-background bg-brand-accent rounded-lg transition hover:opacity-90 disabled:opacity-50"
             >
-              Sign in
+              {loading ? 'جاري التحقق...' : t('Sign In')}
+              {!loading && <LogIn size={20} />}
             </button>
           </div>
         </form>
