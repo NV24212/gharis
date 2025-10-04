@@ -5,3 +5,4 @@ supabase==2.21.1
 python-jose==3.5.0
 passlib[bcrypt]==1.7.4
 python-multipart
+python-dotenv==1.0.1
