@@ -35,8 +35,8 @@ export default function App() {
           <Route path="/weeks/1" element={<WeekDetail />} />
         </Routes>
 
-        <footer className="mt-8 border-t border-brand-gray/20">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 text-brand-gray text-sm">
+        <footer className="mt-8 border-t border-brand-gray/30 bg-black/60">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 text-white text-sm text-center">
             <p>جميع الحقوق محفوظة، مدرسة أوال الاإعدادية للبنين © {new Date().getFullYear()}</p>
           </div>
         </footer>
