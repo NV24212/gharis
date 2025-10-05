@@ -1,41 +1,60 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { Users, Video, ClipboardList } from 'lucide-react'; // Using lucide-react for icons
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Users, Video, ClipboardList, LogOut } from 'lucide-react';
+import { logoUrl } from '../../data/site.js';
 
 const AdminLayout = () => {
-  const navLinkClasses = ({ isActive }) =>
-    `flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+  const { t } = useTranslation();
+  const location = useLocation();
+
+  const navLinks = [
+    { to: '/admin/students', text: t('admin.nav.students'), icon: Users },
+    { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video },
+    { to: '/admin/classes', text: t('admin.nav.classes'), icon: ClipboardList },
+  ];
+
+  const navLinkClasses = (to) => {
+    const isActive = location.pathname.startsWith(to);
+    return `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 ${
       isActive
-        ? 'bg-gray-700 text-white'
-        : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+        ? 'bg-brand-primary/10 text-brand-primary'
+        : 'text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary'
     }`;
+  };
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div dir="rtl" className="flex h-screen bg-brand-background text-brand-primary font-arabic">
       {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 border-r border-gray-800 bg-gray-900 p-4">
-        <div className="flex flex-col h-full">
-          <h2 className="text-xl font-semibold mb-6 px-2">لوحة التحكم</h2>
-          <nav className="flex flex-col space-y-2">
-            <NavLink to="/admin/students" className={navLinkClasses}>
-              <Users className="mr-3 h-5 w-5" />
-              إدارة الطلاب
-            </NavLink>
-            <NavLink to="/admin/weeks" className={navLinkClasses}>
-              <Video className="mr-3 h-5 w-5" />
-              إدارة الأسابيع
-            </NavLink>
-            <NavLink to="/admin/classes" className={navLinkClasses}>
-              <ClipboardList className="mr-3 h-5 w-5" />
-              إدارة الفصول
-            </NavLink>
-          </nav>
+      <aside className="w-64 flex-shrink-0 border-l border-brand-border bg-black/20 p-4 flex flex-col">
+        <div className="flex items-center gap-3 px-2 mb-8">
+          <img src={logoUrl} alt="Logo" className="h-9 w-9 rounded-full object-cover" />
+          <span className="text-xl font-bold">{t('Ghars')}</span>
+        </div>
+        <nav className="flex-grow">
+          <ul className="space-y-2">
+            {navLinks.map((link) => (
+              <li key={link.to}>
+                <NavLink to={link.to} className={navLinkClasses(link.to)}>
+                  <link.icon className="ml-3 h-5 w-5" />
+                  {link.text}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div>
+           {/* Placeholder for future logout button */}
+           <button className="flex items-center w-full px-4 py-2.5 text-sm font-medium text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary rounded-lg transition-colors duration-200">
+             <LogOut className="ml-3 h-5 w-5" />
+             {t('Logout')}
+           </button>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+        <div className="p-8 animate-fade-in-up">
           <Outlet />
         </div>
       </main>

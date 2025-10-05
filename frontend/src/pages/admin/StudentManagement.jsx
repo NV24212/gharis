@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import api, { setAuthToken, classService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, X } from 'lucide-react';
 
 const StudentManagement = () => {
+  const { t } = useTranslation();
   const { token } = useContext(AuthContext);
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -13,15 +15,10 @@ const StudentManagement = () => {
   const [editingStudent, setEditingStudent] = useState(null);
   const [formData, setFormData] = useState({ name: '', password: '', class_id: '', points: 0 });
 
-  useEffect(() => {
-    if (token) {
-      setAuthToken(token);
-      fetchData();
-    }
-  }, [token]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (!token) return;
     setLoading(true);
+    setAuthToken(token);
     try {
       const [studentsRes, classesRes] = await Promise.all([
         api.get('/admin/students'),
@@ -31,12 +28,16 @@ const StudentManagement = () => {
       setClasses(classesRes);
       setError('');
     } catch (err) {
-      setError('Failed to fetch data.');
+      setError(t('studentManagement.errors.fetch'));
       console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, t]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const openModal = (student = null) => {
     setEditingStudent(student);
@@ -59,68 +60,73 @@ const StudentManagement = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    const errorKey = editingStudent ? 'studentManagement.errors.update' : 'studentManagement.errors.add';
     try {
+      let payload = { ...formData, points: Number(formData.points) };
       if (editingStudent) {
-        const payload = { ...formData };
         if (!payload.password) delete payload.password;
         await api.put(`/admin/students/${editingStudent.id}`, payload);
       } else {
-        await api.post('/admin/students', formData);
+        if (!payload.password) {
+            setError("Password is required for new students."); // Or use a translation key
+            return;
+        }
+        await api.post('/admin/students', payload);
       }
       fetchData();
       closeModal();
     } catch (err) {
-      setError(`Failed to ${editingStudent ? 'update' : 'add'} student.`);
+      setError(t(errorKey));
       console.error(err);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('هل أنت متأكد أنك تريد حذف هذا الطالب؟')) {
+    if (window.confirm(t('studentManagement.confirmDelete'))) {
       try {
         await api.delete(`/admin/students/${id}`);
         fetchData();
       } catch (err) {
-        setError('Failed to delete student.');
+        setError(t('studentManagement.errors.delete'));
         console.error(err);
       }
     }
   };
 
-  if (loading) return <p>جاري التحميل...</p>;
-  if (error) return <p className="text-red-500 bg-red-800 p-3 rounded-md">{error}</p>;
+  if (loading) return <div className="text-center p-8">{t('common.loading')}</div>;
+  if (error) return <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg">{error}</div>;
 
   return (
-    <div className="p-6 bg-gray-900 text-white min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">إدارة الطلاب</h1>
+    <>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-brand-primary">{t('studentManagement.title')}</h1>
         <button
           onClick={() => openModal()}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center"
+          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200"
         >
-          <Plus className="mr-2 h-5 w-5" /> إضافة طالب
+          <Plus size={20} /> {t('studentManagement.addStudent')}
         </button>
       </div>
 
-      <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden">
-        <table className="min-w-full text-white">
-          <thead className="bg-gray-900">
+      <div className="bg-black/20 border border-brand-border rounded-20 overflow-hidden">
+        <table className="min-w-full text-brand-primary">
+          <thead className="bg-brand-border/5">
             <tr>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">الاسم</th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">الفصل</th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">النقاط</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">الإجراءات</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.name')}</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.class')}</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.points')}</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-brand-border">
             {students.map((student) => (
-              <tr key={student.id}>
-                <td className="px-6 py-4">{student.name}</td>
-                <td className="px-6 py-4">{classes.find(c => c.id === student.class_id)?.name || 'غير محدد'}</td>
-                <td className="px-6 py-4">{student.points}</td>
+              <tr key={student.id} className="hover:bg-brand-border/5 transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{classes.find(c => c.id === student.class_id)?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
                 <td className="px-6 py-4 text-left">
-                  <button onClick={() => openModal(student)} className="text-gray-400 hover:text-white mr-4"><Edit size={18} /></button>
-                  <button onClick={() => handleDelete(student.id)} className="text-gray-400 hover:text-red-500"><Trash2 size={18} /></button>
+                  <button onClick={() => openModal(student)} className="text-brand-secondary hover:text-brand-primary mr-4 transition-colors"><Edit size={18} /></button>
+                  <button onClick={() => handleDelete(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
                 </td>
               </tr>
             ))}
@@ -129,26 +135,29 @@ const StudentManagement = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-          <div className="bg-gray-800 rounded-lg p-8 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-6">{editingStudent ? 'تعديل' : 'إضافة'} طالب</h2>
-            <form onSubmit={handleFormSubmit} className="space-y-4">
-              <input type="text" name="name" value={formData.name} onChange={handleFormChange} placeholder="الاسم" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
-              <input type="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? 'كلمة مرور جديدة (اختياري)' : 'كلمة المرور'} required={!editingStudent} className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
-              <select name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md">
-                <option value="">اختر فصلًا</option>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in-up">
+          <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-md m-4">
+            <div className="flex justify-between items-center p-6 border-b border-brand-border">
+                <h2 className="text-xl font-bold">{editingStudent ? t('studentManagement.editStudent') : t('studentManagement.addStudent')}</h2>
+                <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
+            </div>
+            <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
+              <input type="text" name="name" value={formData.name} onChange={handleFormChange} placeholder={t('studentManagement.form.name')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+              <input type="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+              <select name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50">
+                <option value="">{t('studentManagement.form.selectClass')}</option>
                 {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
               </select>
-              {editingStudent && (<input type="number" name="points" value={formData.points} onChange={handleFormChange} placeholder="النقاط" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />)}
-              <div className="flex justify-end space-x-4 pt-4">
-                <button type="button" onClick={closeModal} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md">إلغاء</button>
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">حفظ</button>
+              {editingStudent && (<input type="number" name="points" value={formData.points} onChange={handleFormChange} placeholder={t('studentManagement.table.points')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />)}
+              <div className="flex justify-end gap-4 pt-4">
+                <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+                <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
               </div>
             </form>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

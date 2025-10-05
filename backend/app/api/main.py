@@ -24,4 +24,4 @@ api_router.include_router(admin_router, prefix="/admin")
 
 # Include the public-facing routers for weeks and the leaderboard at the root level.
 api_router.include_router(weeks.public_router, prefix="/weeks", tags=["Public Weeks"])
-api_router.include_router(students.public_router, prefix="/students", tags=["Public Students"])
+api_router.include_router(students.public_router, prefix="/leaderboard", tags=["Public Leaderboard"])
