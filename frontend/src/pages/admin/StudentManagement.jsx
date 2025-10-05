@@ -141,15 +141,29 @@ const StudentManagement = () => {
                 <h2 className="text-xl font-bold">{editingStudent ? t('studentManagement.editStudent') : t('studentManagement.addStudent')}</h2>
                 <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
             </div>
-            <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
-              <input type="text" name="name" value={formData.name} onChange={handleFormChange} placeholder={t('studentManagement.form.name')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-              <input type="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-              <select name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50">
-                <option value="">{t('studentManagement.form.selectClass')}</option>
-                {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-              </select>
-              {editingStudent && (<input type="number" name="points" value={formData.points} onChange={handleFormChange} placeholder={t('studentManagement.table.points')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />)}
-              <div className="flex justify-end gap-4 pt-4">
+            <form onSubmit={handleFormSubmit} className="p-8 space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.form.name')}</label>
+                <input type="text" id="name" name="name" value={formData.name} onChange={handleFormChange} placeholder={t('studentManagement.form.name')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+              </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-brand-secondary mb-2">{editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')}</label>
+                <input type="password" id="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+              </div>
+              <div>
+                <label htmlFor="class_id" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.class')}</label>
+                <select id="class_id" name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50">
+                  <option value="">{t('studentManagement.form.selectClass')}</option>
+                  {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                </select>
+              </div>
+              {editingStudent && (
+              <div>
+                <label htmlFor="points" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.points')}</label>
+                <input type="number" id="points" name="points" value={formData.points} onChange={handleFormChange} placeholder={t('studentManagement.table.points')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+              </div>
+              )}
+              <div className="flex justify-end gap-4">
                 <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
                 <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
               </div>

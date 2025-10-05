@@ -95,7 +95,7 @@ def delete_student(
 
 # --- Public Endpoint ---
 
-@public_router.get("/leaderboard", response_model=List[User])
+@public_router.get("/", response_model=List[User])
 def read_leaderboard(
     db: Client = Depends(deps.get_supabase_client),
 ) -> Any:

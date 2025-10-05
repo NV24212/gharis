@@ -1,40 +1,46 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { weekService } from '../services/api';
-import { AuthContext } from '../context/AuthContext';
 import Section from '../components/Section.jsx';
+import LoadingScreen from '../components/LoadingScreen';
+import { Lock, ArrowLeft } from 'lucide-react';
 
 function WeekCard({ week }) {
-  const isLocked = !week.unlocked;
+  const { t } = useTranslation();
+  const isLocked = week.is_locked;
+
   return (
-    <div className="relative rounded-20 border border-gray-700 bg-gray-800 p-5 shadow-lg">
+    <div className="relative rounded-20 border border-brand-border bg-black/20 p-6 shadow-card transition-all duration-300 hover:border-brand-primary/50 hover:-translate-y-1">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-white font-bold">الأسبوع {week.week_number}</h3>
-          <p className="text-gray-400 mt-1">{week.title || 'قيمة لاحقًا'}</p>
+          <h3 className="text-brand-primary font-bold text-xl">{`${t('weeks.week')} ${week.week_number}`}</h3>
+          <p className="text-brand-secondary mt-1">{week.title}</p>
         </div>
         {isLocked ? (
-          <span className="rounded-full border border-gray-600 text-gray-400 px-3 py-1 cursor-not-allowed select-none text-sm">
-            مغلق
+          <span className="flex items-center gap-2 rounded-full border border-brand-border text-brand-secondary px-3 py-1.5 select-none text-sm">
+            <Lock size={14} />
+            {t('weeks.locked')}
           </span>
         ) : (
           <Link
             to={`/weeks/${week.id}`}
-            className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 border border-blue-500 transition text-sm"
+            className="group flex items-center gap-2 rounded-full bg-brand-primary text-brand-background px-4 py-1.5 transition text-sm font-semibold hover:bg-opacity-90"
           >
-            ادخل
+            {t('weeks.enter')}
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           </Link>
         )}
       </div>
       {isLocked && (
-        <div className="pointer-events-none absolute inset-0 rounded-20 bg-black/40 backdrop-blur-sm"></div>
+        <div className="pointer-events-none absolute inset-0 rounded-20 bg-black/50 backdrop-blur-sm"></div>
       )}
     </div>
   );
 }
 
 export default function Weeks() {
-  const { token } = useContext(AuthContext);
+  const { t } = useTranslation();
   const [weeks, setWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -44,10 +50,10 @@ export default function Weeks() {
       setLoading(true);
       try {
         const data = await weekService.getAllWeeks();
-        setWeeks(data);
+        setWeeks(data.sort((a, b) => a.week_number - b.week_number));
         setError('');
       } catch (err) {
-        setError('Failed to fetch weeks.');
+        setError(t('weeks.errors.fetch'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -55,18 +61,22 @@ export default function Weeks() {
     };
 
     fetchWeeks();
-  }, []);
+  }, [t]);
 
   if (loading) {
-    return <Section title="الأسابيع"><p className="text-center text-white">Loading weeks...</p></Section>;
+    return <LoadingScreen fullScreen={true} />;
   }
 
   if (error) {
-    return <Section title="الأسابيع"><p className="text-center text-red-500">{error}</p></Section>;
+    return (
+        <Section title={t('weeks.title')}>
+            <p className="text-center text-red-400">{error}</p>
+        </Section>
+    );
   }
 
   return (
-    <Section id="weeks" title="الأسابيع">
+    <Section id="weeks" title={t('weeks.title')}>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {weeks.map((week) => (
           <WeekCard key={week.id} week={week} />

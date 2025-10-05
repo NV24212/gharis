@@ -94,7 +94,18 @@ i18next
           "dashboard.points": "نقاطك",
           "dashboard.class": "فصلك",
           "dashboard.noClass": "غير معين",
-          "dashboard.errors.fetch": "فشل في جلب بياناتك."
+          "dashboard.errors.fetch": "فشل في جلب بياناتك.",
+          "leaderboard.title": "لوحة الشرف",
+          "leaderboard.rank": "الترتيب",
+          "leaderboard.name": "الاسم",
+          "leaderboard.class": "الفصل",
+          "leaderboard.points": "النقاط",
+          "leaderboard.errors.fetch": "فشل في جلب لوحة الشرف.",
+          "weeks.title": "الأسابيع",
+          "weeks.week": "الأسبوع",
+          "weeks.locked": "مغلق",
+          "weeks.enter": "ادخل",
+          "weeks.errors.fetch": "فشل في جلب الأسابيع."
         }
       }
     },
