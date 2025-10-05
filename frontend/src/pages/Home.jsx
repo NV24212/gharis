@@ -38,7 +38,7 @@ export default function Home() {
               <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight text-shadow-soft">مشروع غرس</h1>
               <p className="mt-4 text-brand-gray text-lg">غرس مشروع طلابي بإشراف الأستاذ علي الحر البصري، يهدف إلى غرس القيم النبيلة لدى الطلبة عبر قيمة أسبوعية وتتبّع للنقاط وتحفيز مستمر للمتميزين.</p>
               <div className="mt-6 flex items-center gap-3">
-                <Link to="/weeks" className="rounded-20 bg-white/10 hover:bg-white/20 text-white px-5 py-3 border border-white/20 shadow-card transition">اذهب إلى صفحة الأسابيع</Link>
+                <Link to="/weeks" className="rounded-20 bg-brand-black text-white px-5 py-3 border border-brand-border hover:border-white shadow-card transition">اذهب إلى صفحة الأسابيع</Link>
                 <a href="#about" className="rounded-20 border border-brand-gray/40 hover:border-white/50 text-brand-gray hover:text-white px-5 py-3 transition">المزيد</a>
               </div>
             </div>

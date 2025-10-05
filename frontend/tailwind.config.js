@@ -13,6 +13,9 @@ export default {
           gray: "#6e6c6f",
           white: "#ffffff",
           black: "#000000",
+          primary: "#ffffff",
+          secondary: "#a0a0a0",
+          border: "rgba(255, 255, 255, 0.1)",
         },
       },
       borderRadius: {
