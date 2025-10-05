@@ -127,7 +127,7 @@ const ClassManagement = () => {
                 <h2 className="text-xl font-bold">{editingClass ? t('classManagement.editClass') : t('classManagement.addClass')}</h2>
                 <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
             </div>
-            <form onSubmit={handleFormSubmit} className="p-8 space-y-6">
+            <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-brand-secondary mb-2">{t('classManagement.newClassName')}</label>
                 <input
@@ -141,7 +141,7 @@ const ClassManagement = () => {
                   className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
                 />
               </div>
-              <div className="flex justify-end gap-4">
+              <div className="flex justify-end gap-4 pt-4">
                 <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
                 <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
               </div>
