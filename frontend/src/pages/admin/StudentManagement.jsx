@@ -4,6 +4,7 @@ import api, { classService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import Modal from '../../components/Modal';
+import LoadingScreen from '../../components/LoadingScreen';
 
 const StudentManagement = () => {
   const { t } = useTranslation();
