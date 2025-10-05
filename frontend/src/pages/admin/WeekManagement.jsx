@@ -115,7 +115,9 @@ const WeekManagement = () => {
 
       if (editingWeek) {
           for (const card of editingWeek.content_cards) {
-              await api.delete(`/admin/weeks/cards/${card.id}`);
+              if(card.id) {
+                await api.delete(`/admin/weeks/cards/${card.id}`);
+              }
           }
       }
       for (const card of formData.content_cards) {
@@ -190,69 +192,69 @@ const WeekManagement = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-start z-50 animate-fade-in-up overflow-y-auto p-4 md:p-10">
-          <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-3xl">
-            <div className="flex justify-between items-center p-6 border-b border-brand-border">
-                <h2 className="text-xl font-bold">{editingWeek ? t('weekManagement.editWeek') : t('weekManagement.addWeek')}</h2>
-                <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto p-4 md:p-10 flex justify-center items-center">
+            <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-3xl m-auto animate-fade-in-up flex flex-col max-h-[90vh]">
+                <div className="flex-shrink-0 flex justify-between items-center p-6 border-b border-brand-border">
+                    <h2 className="text-xl font-bold">{editingWeek ? t('weekManagement.editWeek') : t('weekManagement.addWeek')}</h2>
+                    <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
+                </div>
+                <form onSubmit={handleFormSubmit} className="p-6 space-y-4 overflow-y-auto flex-grow">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="week_number" className="block text-sm font-medium text-brand-secondary mb-2">{t('weekManagement.form.weekNumber')}</label>
+                        <input type="number" id="week_number" name="week_number" value={formData.week_number} onChange={handleFormChange} placeholder={t('weekManagement.form.weekNumber')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+                    </div>
+                    <div>
+                        <label htmlFor="title" className="block text-sm font-medium text-brand-secondary mb-2">{t('weekManagement.form.title')}</label>
+                        <input type="text" id="title" name="title" value={formData.title} onChange={handleFormChange} placeholder={t('weekManagement.form.title')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-brand-secondary mb-2">
+                    {editingWeek ? "Upload New Video (Optional)" : "Upload Video"}
+                    </label>
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-brand-border border-dashed rounded-lg">
+                    <div className="space-y-1 text-center">
+                        <UploadCloud className="mx-auto h-12 w-12 text-brand-secondary" />
+                        <div className="flex text-sm text-brand-secondary">
+                        <label htmlFor="file-upload" className="relative cursor-pointer bg-brand-background rounded-md font-medium text-brand-primary hover:text-brand-primary/80 focus-within:outline-none">
+                            <span>Upload a file</span>
+                            <input id="file-upload" name="video_file" type="file" className="sr-only" onChange={handleVideoFileChange} accept="video/*" />
+                        </label>
+                        </div>
+                        <p className="text-xs text-brand-secondary">{videoFile ? videoFile.name : "MP4, MOV, etc."}</p>
+                    </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label className="flex items-center gap-3 text-brand-primary cursor-pointer">
+                    <input type="checkbox" name="is_locked" checked={!formData.is_locked} onChange={handleFormChange} className="form-checkbox h-5 w-5 bg-black/30 border-brand-border rounded text-brand-primary focus:ring-brand-primary/50" />
+                    <span>{t('weekManagement.form.unlocked')}</span>
+                    </label>
+                </div>
+
+                <div>
+                    <h3 className="text-lg font-semibold mb-4">{t('weekManagement.form.contentCards')}</h3>
+                    <div className="space-y-4">
+                    {formData.content_cards.map((card, index) => (
+                        <div key={index} className="bg-black/20 border border-brand-border/50 p-4 rounded-lg space-y-3 relative">
+                        <button type="button" onClick={() => removeCard(index)} className="absolute top-3 left-3 text-brand-secondary hover:text-red-500 transition-colors"><X size={18} /></button>
+                        <input type="text" name="title" value={card.title} onChange={(e) => handleCardChange(index, e)} placeholder={t('weekManagement.form.cardTitle')} required className="w-full bg-black/30 border border-brand-border p-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary/50" />
+                        <textarea name="description" value={card.description} onChange={(e) => handleCardChange(index, e)} placeholder={t('weekManagement.form.cardDescription')} required className="w-full bg-black/30 border border-brand-border p-2.5 rounded-md" rows="2"></textarea>
+                        </div>
+                    ))}
+                    </div>
+                    <button type="button" onClick={addCard} className="mt-4 bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-semibold py-2 px-4 rounded-lg text-sm transition-colors">{t('weekManagement.form.addCard')}</button>
+                </div>
+
+                <div className="flex justify-end gap-4 pt-4">
+                    <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+                    <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
+                </div>
+                </form>
             </div>
-            <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="week_number" className="block text-sm font-medium text-brand-secondary mb-2">{t('weekManagement.form.weekNumber')}</label>
-                  <input type="number" id="week_number" name="week_number" value={formData.week_number} onChange={handleFormChange} placeholder={t('weekManagement.form.weekNumber')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-                </div>
-                <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-brand-secondary mb-2">{t('weekManagement.form.title')}</label>
-                  <input type="text" id="title" name="title" value={formData.title} onChange={handleFormChange} placeholder={t('weekManagement.form.title')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-brand-secondary mb-2">
-                  {editingWeek ? "Upload New Video (Optional)" : "Upload Video"}
-                </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-brand-border border-dashed rounded-lg">
-                  <div className="space-y-1 text-center">
-                    <UploadCloud className="mx-auto h-12 w-12 text-brand-secondary" />
-                    <div className="flex text-sm text-brand-secondary">
-                      <label htmlFor="file-upload" className="relative cursor-pointer bg-brand-background rounded-md font-medium text-brand-primary hover:text-brand-primary/80 focus-within:outline-none">
-                        <span>Upload a file</span>
-                        <input id="file-upload" name="video_file" type="file" className="sr-only" onChange={handleVideoFileChange} accept="video/*" />
-                      </label>
-                    </div>
-                    <p className="text-xs text-brand-secondary">{videoFile ? videoFile.name : "MP4, MOV, etc."}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="flex items-center gap-3 text-brand-primary cursor-pointer">
-                  <input type="checkbox" name="is_locked" checked={!formData.is_locked} onChange={handleFormChange} className="form-checkbox h-5 w-5 bg-black/30 border-brand-border rounded text-brand-primary focus:ring-brand-primary/50" />
-                  <span>{t('weekManagement.form.unlocked')}</span>
-                </label>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-4">{t('weekManagement.form.contentCards')}</h3>
-                <div className="space-y-4">
-                  {formData.content_cards.map((card, index) => (
-                    <div key={index} className="bg-black/20 border border-brand-border/50 p-4 rounded-lg space-y-3 relative">
-                      <button type="button" onClick={() => removeCard(index)} className="absolute top-3 left-3 text-brand-secondary hover:text-red-500 transition-colors"><X size={18} /></button>
-                      <input type="text" name="title" value={card.title} onChange={(e) => handleCardChange(index, e)} placeholder={t('weekManagement.form.cardTitle')} required className="w-full bg-black/30 border border-brand-border p-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary/50" />
-                      <textarea name="description" value={card.description} onChange={(e) => handleCardChange(index, e)} placeholder={t('weekManagement.form.cardDescription')} required className="w-full bg-black/30 border border-brand-border p-2.5 rounded-md" rows="2"></textarea>
-                    </div>
-                  ))}
-                </div>
-                <button type="button" onClick={addCard} className="mt-4 bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-semibold py-2 px-4 rounded-lg text-sm transition-colors">{t('weekManagement.form.addCard')}</button>
-              </div>
-
-              <div className="flex justify-end gap-4 pt-4">
-                <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-                <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
     </>
