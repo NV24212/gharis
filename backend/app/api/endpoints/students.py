@@ -10,6 +10,8 @@ from app.api import deps
 admin_router = APIRouter()
 # Router for public-facing student operations
 public_router = APIRouter()
+# Router for authenticated student operations
+student_router = APIRouter()
 
 
 @admin_router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
@@ -31,7 +33,7 @@ def create_student(
         )
     return student
 
-@admin_router.get("/me", response_model=User)
+@student_router.get("/me", response_model=User)
 def read_student_me(
     db: Client = Depends(deps.get_supabase_client),
     current_user: User = Depends(deps.get_current_user)

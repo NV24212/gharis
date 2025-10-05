@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { classService } from "../../services/api";
 import { Plus, Trash2 } from "lucide-react";
+import LoadingScreen from "../../components/LoadingScreen";
 
 const ClassManagement = () => {
   const { t } = useTranslation();
@@ -78,7 +79,7 @@ const ClassManagement = () => {
       </form>
 
       {isLoading ? (
-        <div className="text-center p-8">{t('common.loading')}</div>
+        <LoadingScreen fullScreen={false} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {classes.map((cls) => (

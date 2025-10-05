@@ -11,13 +11,13 @@ class UserService:
         Returns a dictionary with user details including a 'role' if successful, otherwise None.
         """
         # Check if the password belongs to an admin
-        admin_response = self.db.table("admins").select("id, role").eq("password", password).single().execute()
+        admin_response = self.db.table("admins").select("id, role").eq("password", password).execute()
         if admin_response.data:
-            return admin_response.data
+            return admin_response.data[0]
 
         # Check if the password belongs to a student
-        student_response = self.db.table("students").select("id, role").eq("password", password).single().execute()
+        student_response = self.db.table("students").select("id, role").eq("password", password).execute()
         if student_response.data:
-            return student_response.data
+            return student_response.data[0]
 
         return None

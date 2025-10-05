@@ -21,4 +21,16 @@
 @layer utilities {
   .rounded-20 { border-radius: 20px; }
   .text-shadow-soft { text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }

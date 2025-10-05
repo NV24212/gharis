@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import api, { setAuthToken } from '../../services/api';
+import api, { setAuthToken, weekService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { Plus, Edit, Trash2, X } from 'lucide-react';
+import { Plus, Edit, Trash2, X, UploadCloud } from 'lucide-react';
+import LoadingScreen from '../../components/LoadingScreen';
 
 const WeekManagement = () => {
   const { t } = useTranslation();
@@ -12,11 +13,11 @@ const WeekManagement = () => {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingWeek, setEditingWeek] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
 
   const initialFormState = {
     week_number: '',
     title: '',
-    video_url: '',
     unlocked: false,
     content_cards: [{ title: '', description: '' }],
   };
@@ -44,6 +45,7 @@ const WeekManagement = () => {
 
   const openModal = (week = null) => {
     setEditingWeek(week);
+    setVideoFile(null);
     const cards = week?.content_cards?.length > 0 ? week.content_cards : [{ title: '', description: '' }];
     setFormData(week ? { ...week, content_cards: cards } : initialFormState);
     setIsModalOpen(true);
@@ -52,11 +54,18 @@ const WeekManagement = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingWeek(null);
+    setVideoFile(null);
   };
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+  };
+
+  const handleVideoFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setVideoFile(e.target.files[0]);
+    }
   };
 
   const handleCardChange = (index, e) => {
@@ -77,15 +86,42 @@ const WeekManagement = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const payload = { ...formData, week_number: Number(formData.week_number) };
     const errorKey = editingWeek ? 'weekManagement.errors.update' : 'weekManagement.errors.add';
     try {
+      // Step 1: Create or Update week details (without video or cards)
+      const weekPayload = {
+        title: formData.title,
+        week_number: Number(formData.week_number),
+        unlocked: formData.unlocked,
+      };
+
+      let weekResponse;
       if (editingWeek) {
-        // This assumes the backend can handle updates to nested cards
-        await api.put(`/admin/weeks/${editingWeek.id}`, payload);
+        weekResponse = await api.put(`/admin/weeks/${editingWeek.id}`, weekPayload);
       } else {
-        await api.post('/admin/weeks', payload);
+        weekResponse = await api.post('/admin/weeks', weekPayload);
       }
+      const weekId = weekResponse.data.id;
+
+      // Step 2: If there's a video file, upload it
+      if (videoFile) {
+        await weekService.uploadWeekVideo(weekId, videoFile);
+      }
+
+      // Step 3: Handle content cards (basic implementation)
+      // This is a simplified logic. A real-world app would need more robust handling.
+      if (editingWeek) {
+          // simple approach: delete all cards and re-add them
+          for (const card of editingWeek.content_cards) {
+              await api.delete(`/admin/weeks/cards/${card.id}`);
+          }
+      }
+      for (const card of formData.content_cards) {
+          if(card.title && card.description) {
+              await api.post(`/admin/weeks/${weekId}/cards`, card);
+          }
+      }
+
       fetchWeeks();
       closeModal();
     } catch (err) {
@@ -106,7 +142,7 @@ const WeekManagement = () => {
     }
   };
 
-  if (loading) return <div className="text-center p-8">{t('common.loading')}</div>;
+  if (loading) return <LoadingScreen fullScreen={false} />;
   if (error) return <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg">{error}</div>;
 
   return (
@@ -123,6 +159,7 @@ const WeekManagement = () => {
 
       <div className="bg-black/20 border border-brand-border rounded-20 overflow-hidden">
         <table className="min-w-full text-brand-primary">
+          {/* Table Head */}
           <thead className="bg-brand-border/5">
             <tr>
               <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('weekManagement.table.weekNo')}</th>
@@ -131,6 +168,7 @@ const WeekManagement = () => {
               <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">{t('weekManagement.table.actions')}</th>
             </tr>
           </thead>
+          {/* Table Body */}
           <tbody className="divide-y divide-brand-border">
             {weeks.map((week) => (
               <tr key={week.id} className="hover:bg-brand-border/5 transition-colors">
@@ -151,6 +189,7 @@ const WeekManagement = () => {
         </table>
       </div>
 
+      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-start z-50 overflow-y-auto p-4 animate-fade-in-up">
           <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-3xl my-8">
@@ -159,16 +198,37 @@ const WeekManagement = () => {
                 <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
             </div>
             <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
+              {/* Week Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <input type="number" name="week_number" value={formData.week_number} onChange={handleFormChange} placeholder={t('weekManagement.form.weekNumber')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
                 <input type="text" name="title" value={formData.title} onChange={handleFormChange} placeholder={t('weekManagement.form.title')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
               </div>
-              <input type="text" name="video_url" value={formData.video_url} onChange={handleFormChange} placeholder={t('weekManagement.form.videoUrl')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+
+              {/* Video Upload */}
+              <div>
+                <label className="block text-sm font-medium text-brand-secondary mb-2">
+                  {editingWeek ? "Upload New Video (Optional)" : "Upload Video"}
+                </label>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-brand-border border-dashed rounded-md">
+                  <div className="space-y-1 text-center">
+                    <UploadCloud className="mx-auto h-12 w-12 text-brand-secondary" />
+                    <div className="flex text-sm text-brand-secondary">
+                      <label htmlFor="file-upload" className="relative cursor-pointer bg-brand-background rounded-md font-medium text-brand-primary hover:text-brand-primary/80 focus-within:outline-none">
+                        <span>Upload a file</span>
+                        <input id="file-upload" name="video_file" type="file" className="sr-only" onChange={handleVideoFileChange} accept="video/*" />
+                      </label>
+                    </div>
+                    <p className="text-xs text-brand-secondary">{videoFile ? videoFile.name : "MP4, MOV, etc."}</p>
+                  </div>
+                </div>
+              </div>
+
               <label className="flex items-center gap-3 text-brand-primary cursor-pointer">
                 <input type="checkbox" name="unlocked" checked={formData.unlocked} onChange={handleFormChange} className="form-checkbox h-5 w-5 bg-black/30 border-brand-border rounded text-brand-primary focus:ring-brand-primary/50" />
                 <span>{t('weekManagement.form.unlocked')}</span>
               </label>
 
+              {/* Content Cards */}
               <div className="pt-4">
                 <h3 className="text-lg font-semibold mb-4">{t('weekManagement.form.contentCards')}</h3>
                 <div className="space-y-4">
@@ -183,6 +243,7 @@ const WeekManagement = () => {
                 <button type="button" onClick={addCard} className="mt-4 bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-semibold py-2 px-4 rounded-lg text-sm transition-colors">{t('weekManagement.form.addCard')}</button>
               </div>
 
+              {/* Action Buttons */}
               <div className="flex justify-end gap-4 pt-6">
                 <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
                 <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>

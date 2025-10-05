@@ -86,7 +86,13 @@ i18next
           "weekManagement.errors.fetch": "فشل في جلب الأسابيع.",
           "weekManagement.errors.add": "فشل في إضافة الأسبوع.",
           "weekManagement.errors.update": "فشل في تحديث الأسبوع.",
-          "weekManagement.errors.delete": "فشل في حذف الأسبوع."
+          "weekManagement.errors.delete": "فشل في حذف الأسبوع.",
+          "dashboard.title": "لوحة التحكم الخاصة بك",
+          "dashboard.welcome": "أهلاً بك،",
+          "dashboard.points": "نقاطك",
+          "dashboard.class": "فصلك",
+          "dashboard.noClass": "غير معين",
+          "dashboard.errors.fetch": "فشل في جلب بياناتك."
         }
       }
     },

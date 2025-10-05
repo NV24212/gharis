@@ -22,13 +22,13 @@ class StudentService:
         return None
 
     def get_all_students(self) -> List[Dict[str, Any]]:
-        """Retrieves all students from the database."""
-        response = self.db.table(self.table).select("id, name, class_id, points").order("points", desc=True).execute()
+        """Retrieves all students from the database with their class name."""
+        response = self.db.table(self.table).select("id, name, points, classes(id, name)").order("points", desc=True).execute()
         return response.data if response.data else []
 
     def get_student_by_id(self, student_id: int) -> Optional[Dict[str, Any]]:
-        """Retrieves a single student by their ID."""
-        response = self.db.table(self.table).select("id, name, class_id, points").eq("id", student_id).single().execute()
+        """Retrieves a single student by their ID with their class name."""
+        response = self.db.table(self.table).select("id, name, points, classes(id, name)").eq("id", student_id).single().execute()
         return response.data if response.data else None
 
     def update_student(self, student_id: int, student_update: UserUpdate) -> Optional[Dict[str, Any]]:

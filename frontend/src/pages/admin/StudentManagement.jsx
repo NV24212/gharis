@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import api, { setAuthToken, classService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2, Search, X } from 'lucide-react';
+import LoadingScreen from '../../components/LoadingScreen';
 
 const StudentManagement = () => {
   const { t } = useTranslation();
@@ -43,7 +44,7 @@ const StudentManagement = () => {
     setEditingStudent(student);
     setFormData(
       student
-        ? { name: student.name, password: '', class_id: student.class_id || '', points: student.points }
+        ? { name: student.name, password: '', class_id: student.classes?.id || '', points: student.points }
         : { name: '', password: '', class_id: '', points: 0 }
     );
     setIsModalOpen(true);
@@ -93,7 +94,7 @@ const StudentManagement = () => {
     }
   };
 
-  if (loading) return <div className="text-center p-8">{t('common.loading')}</div>;
+  if (loading) return <LoadingScreen fullScreen={false} />;
   if (error) return <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg">{error}</div>;
 
   return (
@@ -122,7 +123,7 @@ const StudentManagement = () => {
             {students.map((student) => (
               <tr key={student.id} className="hover:bg-brand-border/5 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{classes.find(c => c.id === student.class_id)?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{student.classes?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
                 <td className="px-6 py-4 text-left">
                   <button onClick={() => openModal(student)} className="text-brand-secondary hover:text-brand-primary mr-4 transition-colors"><Edit size={18} /></button>

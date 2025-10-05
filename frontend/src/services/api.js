@@ -33,6 +33,16 @@ export const weekService = {
     const response = await api.get('/weeks/'); // Added trailing slash
     return response.data;
   },
+  uploadWeekVideo: async (weekId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post(`/admin/weeks/${weekId}/video`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 
 export default api;
