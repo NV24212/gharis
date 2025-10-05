@@ -12,9 +12,9 @@ class Settings(BaseSettings):
     # The frontend URL that will be allowed to make requests to the backend
     BACKEND_CORS_ORIGINS: List[str] = ["https://ghars.hasmah.xyz"]
 
-    # Supabase configuration will be added here later
-    SUPABASE_URL: str = ""
-    SUPABASE_KEY: str = ""
+    # Supabase configuration
+    SUPABASE_URL: str
+    SUPABASE_KEY: str
     SUPABASE_BUCKET: str = "videos"
 
     # Security settings
