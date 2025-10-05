@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import api, { setAuthToken } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
+import Modal from '../../components/Modal';
 
 const WeekManagement = () => {
   const { token } = useContext(AuthContext);
@@ -144,43 +145,38 @@ const WeekManagement = () => {
         </table>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-start z-50 overflow-y-auto py-10">
-          <div className="bg-black border border-gray-600 rounded-lg p-8 w-full max-w-3xl">
-            <h2 className="text-xl font-bold mb-6">{editingWeek ? 'Edit' : 'Add'} Week</h2>
-            <form onSubmit={handleFormSubmit} className="space-y-4">
-              {/* Main week details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="number" name="week_number" value={formData.week_number} onChange={handleFormChange} placeholder="Week Number" required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />
-                <input type="text" name="title" value={formData.title} onChange={handleFormChange} placeholder="Title" required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />
-              </div>
-              <input type="text" name="video_url" value={formData.video_url} onChange={handleFormChange} placeholder="Video URL" required className="w-full bg-gray-800 border border-gray-600 text-white p-2 rounded-md" />
-              <label className="flex items-center space-x-2 text-gray-300">
-                <input type="checkbox" name="unlocked" checked={formData.unlocked} onChange={handleFormChange} className="form-checkbox h-5 w-5 bg-gray-700 border-gray-600 rounded text-gray-400 focus:ring-gray-500" />
-                <span>Unlocked</span>
-              </label>
-
-              {/* Content Cards */}
-              <div className="pt-4">
-                <h3 className="text-lg font-semibold mb-2">Content Cards</h3>
-                {formData.content_cards.map((card, index) => (
-                  <div key={index} className="bg-gray-700 p-4 rounded-md mb-4 space-y-3 relative border border-gray-600">
-                    <button type="button" onClick={() => removeCard(index)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><X size={18} /></button>
-                    <input type="text" name="title" value={card.title} onChange={(e) => handleCardChange(index, e)} placeholder="Card Title" required className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md" />
-                    <textarea name="description" value={card.description} onChange={(e) => handleCardChange(index, e)} placeholder="Card Description" required className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md" rows="2"></textarea>
-                  </div>
-                ))}
-                <button type="button" onClick={addCard} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md text-sm">Add Card</button>
-              </div>
-
-              <div className="flex justify-end space-x-4 pt-6">
-                <button type="button" onClick={closeModal} className="bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded-md">Cancel</button>
-                <button type="submit" className="bg-black hover:bg-gray-800 border border-gray-600 text-white font-bold py-2 px-4 rounded-md">Save</button>
-              </div>
-            </form>
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={editingWeek ? 'Edit Week' : 'Add Week'}>
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          {/* Main week details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="number" name="week_number" value={formData.week_number} onChange={handleFormChange} placeholder="Week Number" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
+            <input type="text" name="title" value={formData.title} onChange={handleFormChange} placeholder="Title" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
           </div>
-        </div>
-      )}
+          <input type="text" name="video_url" value={formData.video_url} onChange={handleFormChange} placeholder="Video URL" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
+          <label className="flex items-center space-x-2 text-gray-300">
+            <input type="checkbox" name="unlocked" checked={formData.unlocked} onChange={handleFormChange} className="form-checkbox h-5 w-5 bg-gray-700 border-gray-600 rounded text-gray-400 focus:ring-gray-500" />
+            <span>Unlocked</span>
+          </label>
+
+          {/* Content Cards */}
+          <div className="pt-4">
+            <h3 className="text-lg font-semibold mb-2">Content Cards</h3>
+            {formData.content_cards.map((card, index) => (
+              <div key={index} className="bg-gray-700 p-4 rounded-md mb-4 space-y-3 relative border border-gray-600">
+                <button type="button" onClick={() => removeCard(index)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500"><X size={18} /></button>
+                <input type="text" name="title" value={card.title} onChange={(e) => handleCardChange(index, e)} placeholder="Card Title" required className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md" />
+                <textarea name="description" value={card.description} onChange={(e) => handleCardChange(index, e)} placeholder="Card Description" required className="w-full bg-gray-800 border border-gray-600 p-2 rounded-md" rows="2"></textarea>
+              </div>
+            ))}
+            <button type="button" onClick={addCard} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md text-sm">Add Card</button>
+          </div>
+
+          <div className="flex justify-end space-x-4 pt-6">
+            <button type="button" onClick={closeModal} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md">Cancel</button>
+            <button type="submit" className="bg-black hover:bg-gray-800 border border-gray-600 text-white font-bold py-2 px-4 rounded-md">Save</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
