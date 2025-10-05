@@ -1,0 +1,13 @@
+{
+  "name": "ghars-monorepo-root",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "install:frontend": "npm install --prefix frontend",
+    "build": "npm run build --workspace=frontend",
+    "dev": "npm run dev --workspace=frontend"
+  },
+  "workspaces": [
+    "frontend"
+  ]
+}
