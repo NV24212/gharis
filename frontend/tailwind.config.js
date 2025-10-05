@@ -13,6 +13,7 @@ export default {
           gray: "#6e6c6f",
           white: "#ffffff",
           black: "#000000",
+          primary: "#a3885f",
         },
       },
       borderRadius: {
