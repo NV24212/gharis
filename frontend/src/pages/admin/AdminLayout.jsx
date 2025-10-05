@@ -15,19 +15,19 @@ const AdminLayout = () => {
       {/* Sidebar */}
       <aside className="w-64 flex-shrink-0 border-r border-gray-800 bg-gray-900 p-4">
         <div className="flex flex-col h-full">
-          <h2 className="text-xl font-semibold mb-6 px-2">Admin Panel</h2>
+          <h2 className="text-xl font-semibold mb-6 px-2">لوحة التحكم</h2>
           <nav className="flex flex-col space-y-2">
             <NavLink to="/admin/students" className={navLinkClasses}>
               <Users className="mr-3 h-5 w-5" />
-              Student Management
+              إدارة الطلاب
             </NavLink>
             <NavLink to="/admin/weeks" className={navLinkClasses}>
               <Video className="mr-3 h-5 w-5" />
-              Week Management
+              إدارة الأسابيع
             </NavLink>
             <NavLink to="/admin/classes" className={navLinkClasses}>
               <ClipboardList className="mr-3 h-5 w-5" />
-              Class Management
+              إدارة الفصول
             </NavLink>
           </nav>
         </div>
