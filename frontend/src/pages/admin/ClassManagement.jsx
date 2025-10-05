@@ -40,7 +40,7 @@ const ClassManagement = () => {
   };
 
   const handleDeleteClass = async (classId) => {
-    if (window.confirm("Are you sure you want to delete this class?")) {
+    if (window.confirm("هل أنت متأكد أنك تريد حذف هذا الفصل؟")) {
       try {
         await classService.deleteClass(classId);
         fetchClasses(); // Refresh the list
@@ -50,23 +50,24 @@ const ClassManagement = () => {
       }
     }
   };
-    return (
-    <div className="p-6 bg-brand-background text-brand-white min-h-screen">
+
+  return (
+    <div className="p-6 bg-gray-900 text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">إدارة الفصول</h1>
 
-      {error && <p className="text-red-500 bg-red-900 border border-red-700 p-3 rounded-lg mb-6">{error}</p>}
+      {error && <p className="text-red-500 bg-red-800 p-3 rounded-md mb-6">{error}</p>}
 
-      <form onSubmit={handleAddClass} className="mb-8 flex items-center gap-4 bg-gray-800 p-4 rounded-lg shadow-lg">
+      <form onSubmit={handleAddClass} className="mb-8 flex items-center gap-4 bg-gray-800 p-4 rounded-lg">
         <input
           type="text"
           value={newClassName}
           onChange={(e) => setNewClassName(e.target.value)}
           placeholder="اسم الفصل الجديد"
-          className="flex-grow p-3 bg-gray-700 text-white rounded-md border border-gray-600 focus:ring-2 focus:ring-brand-primary focus:outline-none"
+          className="flex-grow p-3 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none"
         />
         <button
           type="submit"
-          className="bg-brand-primary text-white p-3 rounded-md hover:bg-opacity-80 transition-colors flex items-center gap-2"
+          className="bg-gray-700 text-white p-3 rounded-md hover:bg-gray-600 transition-colors flex items-center gap-2"
         >
           <Plus size={20} />
           إضافة فصل
@@ -78,11 +79,11 @@ const ClassManagement = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {classes.map((cls) => (
-            <div key={cls.id} className="bg-gray-800 p-4 rounded-lg shadow-lg flex justify-between items-center">
+            <div key={cls.id} className="bg-gray-800 p-4 rounded-lg flex justify-between items-center">
               <span className="text-lg">{cls.name}</span>
               <button
                 onClick={() => handleDeleteClass(cls.id)}
-                className="text-red-500 hover:text-red-400 transition-colors"
+                className="text-gray-400 hover:text-red-500 transition-colors"
               >
                 <Trash2 size={20} />
               </button>
@@ -93,4 +94,5 @@ const ClassManagement = () => {
     </div>
   );
 };
+
 export default ClassManagement;
