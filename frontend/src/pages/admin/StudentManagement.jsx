@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import api, { classService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { Plus, Edit, Trash2, X } from 'lucide-react';
-import LoadingScreen from '../../components/LoadingScreen';
+import { Plus, Edit, Trash2 } from 'lucide-react';
+import Modal from '../../components/Modal';
 
 const StudentManagement = () => {
   const { t } = useTranslation();
@@ -172,6 +172,22 @@ const StudentManagement = () => {
         </div>
       )}
     </>
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={editingStudent ? 'تعديل طالب' : 'إضافة طالب'}>
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          <input type="text" name="name" value={formData.name} onChange={handleFormChange} placeholder="الاسم" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
+          <input type="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? 'كلمة مرور جديدة (اختياري)' : 'كلمة المرور'} required={!editingStudent} className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
+          <select name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md">
+            <option value="">اختر فصلًا</option>
+            {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+          </select>
+          {editingStudent && (<input type="number" name="points" value={formData.points} onChange={handleFormChange} placeholder="النقاط" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />)}
+          <div className="flex justify-end space-x-4 pt-4">
+            <button type="button" onClick={closeModal} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md">إلغاء</button>
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">حفظ</button>
+          </div>
+        </form>
+      </Modal>
+    </div>
   );
 };
 
