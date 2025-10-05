@@ -190,14 +190,14 @@ const WeekManagement = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in-up">
-          <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-3xl flex flex-col max-h-[90vh]">
-            <div className="flex-shrink-0 flex justify-between items-center p-6 border-b border-brand-border">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-start z-50 animate-fade-in-up overflow-y-auto p-4 md:p-10">
+          <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-3xl">
+            <div className="flex justify-between items-center p-6 border-b border-brand-border">
                 <h2 className="text-xl font-bold">{editingWeek ? t('weekManagement.editWeek') : t('weekManagement.addWeek')}</h2>
                 <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
             </div>
-            <form onSubmit={handleFormSubmit} className="p-8 space-y-6 overflow-y-auto flex-grow">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="week_number" className="block text-sm font-medium text-brand-secondary mb-2">{t('weekManagement.form.weekNumber')}</label>
                   <input type="number" id="week_number" name="week_number" value={formData.week_number} onChange={handleFormChange} placeholder={t('weekManagement.form.weekNumber')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
@@ -247,7 +247,7 @@ const WeekManagement = () => {
                 <button type="button" onClick={addCard} className="mt-4 bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-semibold py-2 px-4 rounded-lg text-sm transition-colors">{t('weekManagement.form.addCard')}</button>
               </div>
 
-              <div className="flex justify-end gap-4">
+              <div className="flex justify-end gap-4 pt-4">
                 <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
                 <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
               </div>
