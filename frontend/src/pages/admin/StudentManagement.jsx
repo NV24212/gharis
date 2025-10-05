@@ -133,61 +133,40 @@ const StudentManagement = () => {
           </tbody>
         </table>
       </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex justify-center items-center p-4 animate-fade-in-up">
-            <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-md m-auto">
-                <div className="flex justify-between items-center p-6 border-b border-brand-border">
-                    <h2 className="text-xl font-bold">{editingStudent ? t('studentManagement.editStudent') : t('studentManagement.addStudent')}</h2>
-                    <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
-                </div>
-                <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
-                <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.form.name')}</label>
-                    <input type="text" id="name" name="name" value={formData.name} onChange={handleFormChange} placeholder={t('studentManagement.form.name')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-                </div>
-                <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-brand-secondary mb-2">{editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')}</label>
-                    <input type="password" id="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-                </div>
-                <div>
-                    <label htmlFor="class_id" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.class')}</label>
-                    <select id="class_id" name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50">
-                    <option value="">{t('studentManagement.form.selectClass')}</option>
-                    {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-                    </select>
-                </div>
-                {editingStudent && (
-                <div>
-                    <label htmlFor="points" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.points')}</label>
-                    <input type="number" id="points" name="points" value={formData.points} onChange={handleFormChange} placeholder={t('studentManagement.table.points')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-                </div>
-                )}
-                <div className="flex justify-end gap-4 pt-4">
-                    <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-                    <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
-                </div>
-                </form>
-            </div>
-        </div>
-      )}
-    </>
-      <Modal isOpen={isModalOpen} onClose={closeModal} title={editingStudent ? 'تعديل طالب' : 'إضافة طالب'}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={editingStudent ? t('studentManagement.editStudent') : t('studentManagement.addStudent')}
+      >
         <form onSubmit={handleFormSubmit} className="space-y-4">
-          <input type="text" name="name" value={formData.name} onChange={handleFormChange} placeholder="الاسم" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
-          <input type="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? 'كلمة مرور جديدة (اختياري)' : 'كلمة المرور'} required={!editingStudent} className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />
-          <select name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md">
-            <option value="">اختر فصلًا</option>
+        <div>
+            <label htmlFor="name" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.form.name')}</label>
+            <input type="text" id="name" name="name" value={formData.name} onChange={handleFormChange} placeholder={t('studentManagement.form.name')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+        </div>
+        <div>
+            <label htmlFor="password" className="block text-sm font-medium text-brand-secondary mb-2">{editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')}</label>
+            <input type="password" id="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+        </div>
+        <div>
+            <label htmlFor="class_id" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.class')}</label>
+            <select id="class_id" name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50">
+            <option value="">{t('studentManagement.form.selectClass')}</option>
             {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-          </select>
-          {editingStudent && (<input type="number" name="points" value={formData.points} onChange={handleFormChange} placeholder="النقاط" required className="w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-md" />)}
-          <div className="flex justify-end space-x-4 pt-4">
-            <button type="button" onClick={closeModal} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md">إلغاء</button>
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">حفظ</button>
-          </div>
+            </select>
+        </div>
+        {editingStudent && (
+        <div>
+            <label htmlFor="points" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.points')}</label>
+            <input type="number" id="points" name="points" value={formData.points} onChange={handleFormChange} placeholder={t('studentManagement.table.points')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+        </div>
+        )}
+        <div className="flex justify-end gap-4 pt-4">
+            <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+            <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
+        </div>
         </form>
       </Modal>
-    </div>
+    </>
   );
 };
 
