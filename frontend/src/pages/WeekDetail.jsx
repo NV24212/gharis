@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import api, { setAuthToken } from '../services/api';
+import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import Section from '../components/Section.jsx';
 
@@ -13,15 +13,8 @@ export default function WeekDetail() {
 
   useEffect(() => {
     const fetchWeekDetail = async () => {
-      if (!token) {
-        setError('Authentication required.');
-        setLoading(false);
-        return;
-      }
-      setAuthToken(token);
-
+      setLoading(true);
       try {
-        setLoading(true);
         const response = await api.get(`/weeks/${id}`);
         setWeek(response.data);
         setError('');
@@ -34,7 +27,7 @@ export default function WeekDetail() {
     };
 
     fetchWeekDetail();
-  }, [id, token]);
+  }, [id]);
 
   if (loading) {
     return <Section title="Loading..."><p className="text-center text-white">Fetching week details...</p></Section>;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { setAuthToken, weekService } from '../services/api';
+import { weekService } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import Section from '../components/Section.jsx';
 
@@ -41,15 +41,8 @@ export default function Weeks() {
 
   useEffect(() => {
     const fetchWeeks = async () => {
-      if (!token) {
-        setError('Authentication required.');
-        setLoading(false);
-        return;
-      }
-      setAuthToken(token);
-
+      setLoading(true);
       try {
-        setLoading(true);
         const data = await weekService.getAllWeeks();
         setWeeks(data);
         setError('');
@@ -62,7 +55,7 @@ export default function Weeks() {
     };
 
     fetchWeeks();
-  }, [token]);
+  }, []);
 
   if (loading) {
     return <Section title="الأسابيع"><p className="text-center text-white">Loading weeks...</p></Section>;

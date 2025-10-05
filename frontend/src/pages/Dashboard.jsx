@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import api, { setAuthToken } from '../services/api';
+import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { User, Star, Award } from 'lucide-react';
 
@@ -18,7 +18,6 @@ const Dashboard = () => {
         setError('Not authenticated'); // Should be handled by ProtectedRoute, but as a fallback
         return;
       }
-      setAuthToken(token);
       try {
         const response = await api.get('/dashboard/me');
         setStudentData(response.data);

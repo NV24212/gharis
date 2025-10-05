@@ -26,13 +26,15 @@ class ContentCard(ContentCardInDB):
 # Week Schemas
 class WeekBase(BaseModel):
     title: str
-    is_locked: bool = True
+    week_number: int
+    is_locked: bool = False
 
 class WeekCreate(WeekBase):
     pass
 
 class WeekUpdate(BaseModel):
     title: Optional[str] = None
+    week_number: Optional[int] = None
     is_locked: Optional[bool] = None
     video_url: Optional[str] = None
 

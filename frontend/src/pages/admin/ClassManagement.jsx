@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { classService } from "../../services/api";
-import { Plus, Trash2 } from "lucide-react";
+import api, { classService } from "../../services/api";
+import { Plus, Trash2, Edit, X } from "lucide-react";
 import LoadingScreen from "../../components/LoadingScreen";
 
 const ClassManagement = () => {
   const { t } = useTranslation();
   const [classes, setClasses] = useState([]);
-  const [newClassName, setNewClassName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingClass, setEditingClass] = useState(null);
+  const [formData, setFormData] = useState({ name: "" });
 
   const fetchClasses = useCallback(async () => {
     setIsLoading(true);
@@ -29,16 +31,36 @@ const ClassManagement = () => {
     fetchClasses();
   }, [fetchClasses]);
 
-  const handleAddClass = async (e) => {
-    e.preventDefault();
-    if (!newClassName.trim()) return;
+  const openModal = (cls = null) => {
+    setEditingClass(cls);
+    setFormData(cls ? { name: cls.name } : { name: "" });
+    setIsModalOpen(true);
+  };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingClass(null);
+  };
+
+  const handleFormChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return;
+
+    const errorKey = editingClass ? "classManagement.errors.update" : "classManagement.errors.add";
     try {
-      await classService.createClass({ name: newClassName });
-      setNewClassName("");
+      if (editingClass) {
+        await api.put(`/admin/classes/${editingClass.id}`, formData);
+      } else {
+        await classService.createClass(formData);
+      }
       fetchClasses();
+      closeModal();
     } catch (err) {
-      setError(t("classManagement.errors.add"));
+      setError(t(errorKey));
       console.error(err);
     }
   };
@@ -57,26 +79,17 @@ const ClassManagement = () => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold mb-8 text-brand-primary">{t("classManagement.title")}</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-brand-primary">{t("classManagement.title")}</h1>
+        <button
+          onClick={() => openModal()}
+          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200"
+        >
+          <Plus size={20} /> {t("classManagement.addClass")}
+        </button>
+      </div>
 
       {error && <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg mb-6">{error}</div>}
-
-      <form onSubmit={handleAddClass} className="mb-8 flex items-center gap-4 bg-black/20 border border-brand-border p-4 rounded-20">
-        <input
-          type="text"
-          value={newClassName}
-          onChange={(e) => setNewClassName(e.target.value)}
-          placeholder={t("classManagement.newClassName")}
-          className="flex-grow p-3 bg-transparent text-brand-primary rounded-lg focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 flex items-center gap-2"
-        >
-          <Plus size={20} />
-          {t("classManagement.addClass")}
-        </button>
-      </form>
 
       {isLoading ? (
         <LoadingScreen fullScreen={false} />
@@ -88,14 +101,48 @@ const ClassManagement = () => {
               className="bg-black/20 border border-brand-border rounded-20 p-5 flex justify-between items-center transition-all duration-300 hover:border-brand-primary/50 hover:-translate-y-1"
             >
               <span className="text-lg font-semibold">{cls.name}</span>
-              <button
-                onClick={() => handleDeleteClass(cls.id)}
-                className="text-brand-secondary hover:text-red-500 transition-colors"
-              >
-                <Trash2 size={20} />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => openModal(cls)}
+                  className="text-brand-secondary hover:text-brand-primary transition-colors"
+                >
+                  <Edit size={20} />
+                </button>
+                <button
+                  onClick={() => handleDeleteClass(cls.id)}
+                  className="text-brand-secondary hover:text-red-500 transition-colors"
+                >
+                  <Trash2 size={20} />
+                </button>
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 animate-fade-in-up">
+          <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-md m-4">
+            <div className="flex justify-between items-center p-6 border-b border-brand-border">
+                <h2 className="text-xl font-bold">{editingClass ? t('classManagement.editClass') : t('classManagement.addClass')}</h2>
+                <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
+            </div>
+            <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleFormChange}
+                placeholder={t('classManagement.newClassName')}
+                required
+                className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+              />
+              <div className="flex justify-end gap-4 pt-4">
+                <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+                <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </>

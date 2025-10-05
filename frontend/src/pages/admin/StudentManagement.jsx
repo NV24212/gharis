@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import api, { setAuthToken, classService } from '../../services/api';
+import api, { classService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2, Search, X } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
@@ -19,7 +19,6 @@ const StudentManagement = () => {
   const fetchData = useCallback(async () => {
     if (!token) return;
     setLoading(true);
-    setAuthToken(token);
     try {
       const [studentsRes, classesRes] = await Promise.all([
         api.get('/admin/students'),

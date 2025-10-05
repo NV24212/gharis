@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../context/AuthContext';
-import api, { setAuthToken } from '../services/api';
+import api from '../services/api';
 import { jwtDecode } from 'jwt-decode';
 import { KeyRound } from 'lucide-react';
 import { logoUrl } from '../data/site';
@@ -30,7 +30,6 @@ const Login = () => {
 
       const token = response.data.access_token;
       login(token); // Update context
-      setAuthToken(token); // Set token for subsequent requests
 
       const decoded = jwtDecode(token);
       navigate(decoded.role === 'admin' ? '/admin' : '/dashboard');

@@ -65,6 +65,8 @@ i18next
           "classManagement.errors.fetch": "فشل في جلب الفصول.",
           "classManagement.errors.add": "فشل في إضافة الفصل.",
           "classManagement.errors.delete": "فشل في حذف الفصل.",
+          "classManagement.editClass": "تعديل الفصل",
+          "classManagement.errors.update": "فشل في تحديث الفصل.",
           "weekManagement.title": "إدارة الأسابيع",
           "weekManagement.addWeek": "إضافة أسبوع",
           "weekManagement.editWeek": "تعديل أسبوع",

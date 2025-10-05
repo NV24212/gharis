@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from typing import List, Any
 from supabase import Client
 
-from app.schemas.class_schema import Class, ClassCreate
+from app.schemas.class_schema import Class, ClassCreate, ClassUpdate
 from app.services.class_service import ClassService
 from app.api import deps
 
@@ -32,6 +32,23 @@ def read_classes(
     """
     class_service = ClassService(db)
     return class_service.get_all_classes()
+
+@router.put("/{class_id}", response_model=Class)
+def update_class(
+    *,
+    db: Client = Depends(deps.get_supabase_client),
+    class_id: int,
+    class_in: ClassUpdate,
+    current_user: Any = Depends(deps.get_current_admin_user)
+) -> Any:
+    """
+    Update a class's info (Admin only).
+    """
+    class_service = ClassService(db)
+    updated_class = class_service.update_class(class_id=class_id, class_in=class_in)
+    if not updated_class:
+        raise HTTPException(status_code=404, detail="Class not found")
+    return updated_class
 
 @router.delete("/{class_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_class(

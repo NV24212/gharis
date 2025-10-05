@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import api, { setAuthToken } from '../services/api';
+import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 
 const Leaderboard = () => {
@@ -10,16 +10,9 @@ const Leaderboard = () => {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      if (!token) {
-        setLoading(false);
-        setError('Authentication required.');
-        return;
-      }
-      setAuthToken(token);
-
+      setLoading(true);
       try {
-        setLoading(true);
-        const response = await api.get('/students/leaderboard');
+        const response = await api.get('/leaderboard');
         setLeaderboard(response.data);
         setError('');
       } catch (err) {
@@ -31,7 +24,7 @@ const Leaderboard = () => {
     };
 
     fetchLeaderboard();
-  }, [token]);
+  }, []);
 
   if (loading) {
     return (
