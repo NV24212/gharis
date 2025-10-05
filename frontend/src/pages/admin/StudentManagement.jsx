@@ -135,8 +135,8 @@ const StudentManagement = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto p-4 md:p-10 flex justify-center items-center">
-            <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-md m-auto animate-fade-in-up">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex justify-center items-center p-4 animate-fade-in-up">
+            <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-md m-auto">
                 <div className="flex justify-between items-center p-6 border-b border-brand-border">
                     <h2 className="text-xl font-bold">{editingStudent ? t('studentManagement.editStudent') : t('studentManagement.addStudent')}</h2>
                     <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
