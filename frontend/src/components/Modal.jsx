@@ -6,7 +6,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-start z-[1000] overflow-y-auto py-10"
+      className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-start z-[9999] overflow-y-auto py-10"
       onClick={onClose}
     >
       <div
