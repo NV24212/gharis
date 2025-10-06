@@ -72,7 +72,7 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-black text-brand-primary flex flex-col font-arabic">
       <Navigation />
-      <main className="flex-grow">{children}</main>
+      <main className="flex-1">{children}</main>
       <Footer />
     </div>
   );
