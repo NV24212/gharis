@@ -339,7 +339,7 @@ const UserManagement = () => {
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={t('common.delete') + " " + t('studentManagement.title')}
+        title={t('common.delete')}
         message={t('studentManagement.confirmDelete')}
       />
 
