@@ -99,7 +99,6 @@ const App = () => {
             <Route index element={<Navigate to="users" />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="weeks" element={<WeekManagement />} />
-            <Route path="classes" element={<ClassManagement />} />
             <Route path="points" element={<PointsManagement />} />
           </Route>
         </Route>
