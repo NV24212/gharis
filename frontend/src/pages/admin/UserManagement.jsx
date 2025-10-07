@@ -2,14 +2,17 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import api, { classService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { Plus, Edit, Trash2, Loader2, ChevronDown } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, ChevronDown, Users, Shield } from 'lucide-react';
 import Modal from '../../components/Modal';
 import LoadingScreen from '../../components/LoadingScreen';
 import ConfirmationModal from '../../components/ConfirmationModal';
 
-const StudentManagement = () => {
+const UserManagement = () => {
   const { t } = useTranslation();
   const { token } = useContext(AuthContext);
+  const [activeTab, setActiveTab] = useState('students'); // 'students' or 'admins'
+
+  // Students State
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,8 +23,23 @@ const StudentManagement = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [deletingStudentId, setDeletingStudentId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [classFilter, setClassFilter] = useState('');
 
-  const fetchData = useCallback(async (isInitialLoad = false) => {
+  const filteredStudents = useMemo(() => {
+    if (!classFilter) {
+      return students;
+    }
+    return students.filter(student => student.class_id === parseInt(classFilter));
+  }, [students, classFilter]);
+
+  // Admins State
+  const [admins, setAdmins] = useState([]);
+  const [isAdminsLoading, setIsAdminsLoading] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+
+
+  const fetchStudentsData = useCallback(async (isInitialLoad = false) => {
     if (!token) return;
     if (isInitialLoad) setLoading(true);
     try {
@@ -40,9 +58,27 @@ const StudentManagement = () => {
     }
   }, [token, t]);
 
+  const fetchAdminsData = useCallback(async () => {
+    if (!token) return;
+    setIsAdminsLoading(true);
+    try {
+      const response = await api.get('/admin/admins');
+      setAdmins(response.data);
+    } catch (err) {
+      setError(t('userManagement.errors.fetchAdmins'));
+      console.error(err);
+    } finally {
+      setIsAdminsLoading(false);
+    }
+  }, [token, t]);
+
   useEffect(() => {
-    fetchData(true);
-  }, [fetchData]);
+    if (activeTab === 'students') {
+      fetchStudentsData(true);
+    } else if (activeTab === 'admins') {
+      fetchAdminsData();
+    }
+  }, [activeTab, fetchStudentsData, fetchAdminsData]);
 
   const openModal = (student = null) => {
     setEditingStudent(student);
@@ -119,13 +155,27 @@ const StudentManagement = () => {
     }, 300);
   };
 
-  if (loading) return <LoadingScreen fullScreen={false} />;
-  if (error) return <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg">{error}</div>;
-
-  return (
+  const renderStudentsTab = () => (
     <>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-brand-primary">{t('studentManagement.title')}</h1>
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-bold text-brand-primary">{t('userManagement.tabs.students')}</h2>
+          <div className="relative">
+            <label htmlFor="classFilter" className="sr-only">{t('userManagement.filterByClass')}</label>
+            <select
+              id="classFilter"
+              value={classFilter}
+              onChange={(e) => setClassFilter(e.target.value)}
+              className="bg-black/30 border border-brand-border text-brand-primary p-2.5 pl-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 appearance-none"
+            >
+              <option value="">{t('userManagement.allClasses')}</option>
+              {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-2">
+              <ChevronDown className="h-4 w-4 text-brand-secondary" />
+            </div>
+          </div>
+        </div>
         <button
           onClick={() => openModal()}
           className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
@@ -145,22 +195,108 @@ const StudentManagement = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-border">
-            {students.map((student) => (
+            {filteredStudents.map((student) => (
               <tr key={student.id} className={`hover:bg-brand-border/5 transition-colors ${student.deleting ? 'animate-fade-out' : ''}`}>
                 <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.classes?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
-                <td className="px-6 py-4 text-left">
-                  <div className="flex items-center gap-6">
-                    <button onClick={() => openModal(student)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
-                    <button onClick={() => openDeleteConfirm(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <td className="px-6 py-4 whitespace-nowrap">{student.classes?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
+                    <td className="px-6 py-4 text-left">
+                    <div className="flex items-center gap-6">
+                        <button onClick={() => openModal(student)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
+                        <button onClick={() => openDeleteConfirm(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                    </div>
+                    </td>
+                </tr>
+                ))}
+            </tbody>
+            </table>
+        </div>
+    </>
+  );
+
+  const handleAdminFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!adminPassword) return;
+
+    setIsSubmitting(true);
+    try {
+      await api.post('/admin/admins', { password: adminPassword });
+      fetchAdminsData();
+      setIsAdminModalOpen(false);
+      setAdminPassword('');
+    } catch (err) {
+      setError(t('userManagement.errors.createAdmin'));
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const renderAdminsTab = () => (
+    <>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-bold text-brand-primary">{t('userManagement.tabs.admins')}</h2>
+        <button
+          onClick={() => setIsAdminModalOpen(true)}
+          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
+        >
+          <Plus size={20} /> {t('userManagement.addAdmin')}
+        </button>
       </div>
+      {isAdminsLoading ? (
+        <LoadingScreen fullScreen={false} />
+      ) : (
+        <div className="bg-black/20 border border-brand-border rounded-20 overflow-hidden">
+          <table className="min-w-full text-brand-primary">
+            <thead className="bg-brand-border/5">
+              <tr>
+                <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminId')}</th>
+                <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('userManagement.createdAt')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-brand-border">
+              {admins.map((admin) => (
+                <tr key={admin.id} className="hover:bg-brand-border/5 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">{admin.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{new Date(admin.created_at).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  );
+
+  if (loading) return <LoadingScreen fullScreen={false} />;
+
+  return (
+    <>
+      <h1 className="text-3xl font-bold text-brand-primary mb-8">{t('userManagement.title')}</h1>
+
+      <div className="flex border-b border-brand-border mb-8">
+        <button
+          onClick={() => setActiveTab('students')}
+          className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === 'students' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-brand-secondary hover:text-brand-primary'}`}
+        >
+          <Users size={20} />
+          <span>{t('userManagement.tabs.students')}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('admins')}
+          className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === 'admins' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-brand-secondary hover:text-brand-primary'}`}
+        >
+          <Shield size={20} />
+          <span>{t('userManagement.tabs.admins')}</span>
+        </button>
+      </div>
+
+      {error && <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg mb-6">{error}</div>}
+
+      <div>
+        {activeTab === 'students' ? renderStudentsTab() : renderAdminsTab()}
+      </div>
+
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
@@ -206,8 +342,39 @@ const StudentManagement = () => {
         title={t('common.delete') + " " + t('studentManagement.title')}
         message={t('studentManagement.confirmDelete')}
       />
+
+      <Modal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        title={t('userManagement.addAdmin')}
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleAdminFormSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="adminPassword" className="block text-sm font-medium text-brand-secondary mb-2">{t('userManagement.adminPassword')}</label>
+            <input
+              type="password"
+              id="adminPassword"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              required
+              className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+            />
+          </div>
+          <div className="flex justify-end gap-4 pt-4">
+            <button type="button" onClick={() => setIsAdminModalOpen(false)} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+            <button
+              type="submit"
+              className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center w-24"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" /> : t('common.save')}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </>
   );
 };
 
-export default StudentManagement;
+export default UserManagement;

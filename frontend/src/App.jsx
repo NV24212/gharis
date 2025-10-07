@@ -10,7 +10,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
-import StudentManagement from './pages/admin/StudentManagement.jsx';
+import UserManagement from './pages/admin/UserManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
 import ClassManagement from './pages/admin/ClassManagement.jsx';
 import PointsManagement from './pages/admin/PointsManagement.jsx';
@@ -96,8 +96,8 @@ const App = () => {
         {/* Protected Routes for Admin */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route element={<AdminLayout />}>
-            <Route index element={<Navigate to="students" />} />
-            <Route path="students" element={<StudentManagement />} />
+            <Route index element={<Navigate to="users" />} />
+            <Route path="users" element={<UserManagement />} />
             <Route path="weeks" element={<WeekManagement />} />
             <Route path="classes" element={<ClassManagement />} />
             <Route path="points" element={<PointsManagement />} />
