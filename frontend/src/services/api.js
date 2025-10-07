@@ -38,12 +38,18 @@ export const weekService = {
     const response = await api.get('/weeks/');
     return response.data;
   },
-  uploadWeekVideo: async (weekId, file) => {
+  uploadWeekVideo: async (weekId, file, onUploadProgress) => {
     const formData = new FormData();
     formData.append('file', file);
     const response = await api.post(`/admin/weeks/${weekId}/video`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        if (onUploadProgress) {
+          onUploadProgress(percentCompleted);
+        }
       },
     });
     return response.data;

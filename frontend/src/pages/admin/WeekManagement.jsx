@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import api, { weekService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { Plus, Edit, Trash2, X, UploadCloud, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, X, UploadCloud, Loader2, Video, FileCheck, Trash } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
 import Modal from '../../components/Modal';
 import ConfirmationModal from '../../components/ConfirmationModal';
@@ -20,8 +20,9 @@ const WeekManagement = () => {
   const [deletingWeekId, setDeletingWeekId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState('');
-  const [modalStep, setModalStep] = useState(1); // 1 for upload, 2 for details
-  const [uploadedVideoUrl, setUploadedVideoUrl] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [videoPreview, setVideoPreview] = useState(null);
+  const [removeVideo, setRemoveVideo] = useState(false);
 
   const initialFormState = {
     week_number: '',
@@ -53,15 +54,16 @@ const WeekManagement = () => {
   const openModal = (week = null) => {
     setEditingWeek(week);
     setVideoFile(null);
-    setModalStep(1);
-    setUploadedVideoUrl('');
     setSubmissionStatus('');
+    setUploadProgress(0);
+    setRemoveVideo(false);
+    setVideoPreview(null);
+
     if (week) {
       const cards = week.content_cards?.length > 0 ? week.content_cards : [{ title: '', description: '' }];
       setFormData({ ...week, content_cards: cards });
       if (week.video_url) {
-        setUploadedVideoUrl(week.video_url);
-        setModalStep(2);
+        setVideoPreview(week.video_url);
       }
     } else {
       setFormData(initialFormState);
@@ -74,23 +76,31 @@ const WeekManagement = () => {
     setEditingWeek(null);
     setVideoFile(null);
     setSubmissionStatus('');
-    setModalStep(1);
-    setUploadedVideoUrl('');
+    setUploadProgress(0);
+    setVideoPreview(null);
   };
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name === 'is_locked') {
-        setFormData({ ...formData, is_locked: !checked });
+      setFormData({ ...formData, is_locked: !checked });
     } else {
-        setFormData({ ...formData, [name]: value });
+      setFormData({ ...formData, [name]: value });
     }
   };
 
   const handleVideoFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setVideoFile(e.target.files[0]);
+      setVideoPreview(URL.createObjectURL(e.target.files[0]));
+      setRemoveVideo(false);
     }
+  };
+
+  const handleRemoveVideo = () => {
+    setVideoFile(null);
+    setVideoPreview(null);
+    setRemoveVideo(true);
   };
 
   const handleCardChange = (index, e) => {
@@ -109,71 +119,65 @@ const WeekManagement = () => {
     setFormData({ ...formData, content_cards: newCards });
   };
 
-  const handleVideoUpload = async () => {
-    if (!videoFile) return;
-    setIsSubmitting(true);
-    setSubmissionStatus(t('weekManagement.status.uploadingVideo'));
-    try {
-      // Create a temporary week to get an ID for the video path
-      const tempWeekData = { title: "temp", week_number: 999, is_locked: true };
-      const tempWeek = await api.post('/admin/weeks', tempWeekData);
-
-      const response = await weekService.uploadWeekVideo(tempWeek.data.id, videoFile);
-      setUploadedVideoUrl(response.video_url);
-      setFormData({...formData, temp_week_id: tempWeek.data.id});
-      setModalStep(2);
-    } catch (err) {
-      setError(t('weekManagement.errors.add')); // Generic error
-    } finally {
-      setIsSubmitting(false);
-      setSubmissionStatus('');
-    }
-  };
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmissionStatus(t('weekManagement.status.creatingWeek'));
     const errorKey = editingWeek ? 'weekManagement.errors.update' : 'weekManagement.errors.add';
 
     try {
+      // Step 1: Create or Update week details
+      setSubmissionStatus(t(editingWeek ? 'weekManagement.status.updatingWeek' : 'weekManagement.status.creatingWeek'));
       const weekPayload = {
-        ...formData,
-        video_url: uploadedVideoUrl,
+        title: formData.title,
+        week_number: formData.week_number,
+        is_locked: formData.is_locked,
       };
 
-      let weekId;
+      let weekResponse;
       if (editingWeek) {
-        await api.put(`/admin/weeks/${editingWeek.id}`, weekPayload);
-        weekId = editingWeek.id;
+        weekResponse = await api.put(`/admin/weeks/${editingWeek.id}`, weekPayload);
       } else {
-        // Use the temp week's ID to update it with the real data
-        await api.put(`/admin/weeks/${formData.temp_week_id}`, weekPayload);
-        weekId = formData.temp_week_id;
+        weekResponse = await api.post('/admin/weeks', weekPayload);
+      }
+      const weekId = weekResponse.data.id;
+
+      // Step 2: Upload video if a new one is provided
+      if (videoFile) {
+        setSubmissionStatus(t('weekManagement.status.uploadingVideo'));
+        await weekService.uploadWeekVideo(weekId, videoFile, setUploadProgress);
+      } else if (removeVideo && editingWeek) {
+        setSubmissionStatus(t('weekManagement.status.removingVideo'));
+        await api.delete(`/admin/weeks/${weekId}/video`);
       }
 
+      // Step 3: Update content cards
       setSubmissionStatus(t('weekManagement.status.savingCards'));
       if (editingWeek) {
-          for (const card of editingWeek.content_cards) {
-              if(card.id) {
-                await api.delete(`/admin/weeks/cards/${card.id}`);
-              }
+        for (const card of editingWeek.content_cards) {
+          if (card.id) {
+            await api.delete(`/admin/weeks/cards/${card.id}`);
           }
+        }
       }
       for (const card of formData.content_cards) {
-          if(card.title && card.description) {
-              await api.post(`/admin/weeks/${weekId}/cards`, card);
-          }
+        if (card.title && card.description) {
+          await api.post(`/admin/weeks/${weekId}/cards`, card);
+        }
       }
 
+      setSubmissionStatus(t('weekManagement.status.completed'));
       fetchWeeks();
-      closeModal();
+      setTimeout(() => {
+        closeModal();
+      }, 1000);
+
     } catch (err) {
       setError(t(errorKey));
       console.error(err);
-    } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Stop submission on error
       setSubmissionStatus('');
+    } finally {
+        // Keep modal open to show completion status
     }
   };
 
@@ -200,82 +204,96 @@ const WeekManagement = () => {
     }, 300);
   };
 
-  const renderUploadStep = () => (
-    <div>
-        <label className="block text-sm font-bold text-brand-secondary mb-2">
-            {t('weekManagement.form.uploadLabel')}
-        </label>
-        <label htmlFor="file-upload" className="mt-1 flex justify-center items-center w-full h-48 px-6 pt-5 pb-6 border-2 border-brand-border border-dashed rounded-lg cursor-pointer hover:border-brand-primary/50 transition-colors">
-            <div className="space-y-1 text-center">
-                <UploadCloud className="mx-auto h-12 w-12 text-brand-secondary" />
-                <div className="flex text-sm text-brand-secondary">
-                    <span className="font-medium text-brand-primary">{t('weekManagement.form.uploadButton')}</span>
-                </div>
-                <p className="text-xs text-brand-secondary">{videoFile ? videoFile.name : t('weekManagement.form.uploadHint')}</p>
-            </div>
-            <input id="file-upload" name="video_file" type="file" className="sr-only" onChange={handleVideoFileChange} accept="video/*" />
-        </label>
-        <div className="flex justify-end gap-4 pt-6">
-            <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-            <button
-              type="button"
-              onClick={handleVideoUpload}
-              className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center min-w-24"
-              disabled={isSubmitting || !videoFile}
-            >
-              {isSubmitting ? <><Loader2 className="animate-spin mr-2" /><span>{submissionStatus}</span></> : t('common.upload')}
-            </button>
-        </div>
-    </div>
-  );
-
-  const renderDetailsStep = () => (
+  const renderAddEditForm = () => (
     <form onSubmit={handleFormSubmit} className="space-y-6 p-2">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-              <label htmlFor="week_number" className="block text-sm font-bold text-brand-secondary mb-2">{t('weekManagement.form.weekNumber')}</label>
-              <input type="number" id="week_number" name="week_number" value={formData.week_number} onChange={handleFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-          </div>
-          <div>
-              <label htmlFor="title" className="block text-sm font-bold text-brand-secondary mb-2">{t('weekManagement.form.title')}</label>
-              <input type="text" id="title" name="title" value={formData.title} onChange={handleFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-          </div>
+        <div>
+          <label htmlFor="week_number" className="block text-sm font-bold text-brand-secondary mb-2">{t('weekManagement.form.weekNumber')}</label>
+          <input type="number" id="week_number" name="week_number" value={formData.week_number} onChange={handleFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+        </div>
+        <div>
+          <label htmlFor="title" className="block text-sm font-bold text-brand-secondary mb-2">{t('weekManagement.form.title')}</label>
+          <input type="text" id="title" name="title" value={formData.title} onChange={handleFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+        </div>
       </div>
       <div className="pt-2">
-          <label className="flex items-center gap-3 text-brand-primary cursor-pointer">
+        <label className="flex items-center gap-3 text-brand-primary cursor-pointer">
           <input type="checkbox" name="is_locked" checked={!formData.is_locked} onChange={handleFormChange} className="form-checkbox h-5 w-5 bg-black/30 border-brand-border rounded text-brand-primary focus:ring-brand-primary/50" />
           <span className="font-medium">{t('weekManagement.form.unlocked')}</span>
-          </label>
+        </label>
       </div>
+
+      {/* Video Upload Section */}
       <div className="border-t border-brand-border pt-6">
-          <h3 className="text-lg font-bold mb-4 text-brand-primary">{t('weekManagement.form.contentCards')}</h3>
-          <div className="space-y-4">
-          {formData.content_cards.map((card, index) => (
-              <div key={index} className="bg-black/20 border border-brand-border/50 p-4 rounded-lg space-y-3 relative">
-                  <div className="flex justify-between items-center">
-                      <label className="text-sm font-bold text-brand-secondary">{t('weekManagement.form.cardTitle')}</label>
-                      <button type="button" onClick={() => removeCard(index)} className="text-brand-secondary hover:text-red-500 transition-colors"><X size={18} /></button>
-                  </div>
-                  <input type="text" name="title" value={card.title} onChange={(e) => handleCardChange(index, e)} required className="w-full bg-black/30 border border-brand-border p-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary/50" />
-                  <label className="text-sm font-bold text-brand-secondary mt-2 block">{t('weekManagement.form.cardDescription')}</label>
-                  <textarea name="description" value={card.description} onChange={(e) => handleCardChange(index, e)} required className="w-full bg-black/30 border border-brand-border p-2.5 rounded-md" rows="2"></textarea>
+        <h3 className="text-lg font-bold mb-4 text-brand-primary">{t('weekManagement.form.video')}</h3>
+        {videoPreview ? (
+          <div className="relative group">
+            <div className="bg-black/30 p-3 rounded-lg flex items-center gap-4">
+              <Video className="w-10 h-10 text-brand-primary"/>
+              <div className="flex-grow">
+                <p className="text-brand-primary font-medium truncate">{videoFile ? videoFile.name : t('weekManagement.form.currentVideo')}</p>
+                <a href={videoPreview} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-secondary hover:underline">{t('weekManagement.form.preview')}</a>
               </div>
-          ))}
+            </div>
+            <button type="button" onClick={handleRemoveVideo} className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+              <Trash size={16}/>
+            </button>
           </div>
-          <button type="button" onClick={addCard} className="mt-4 flex items-center gap-2 bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-semibold py-2 px-4 rounded-lg text-sm transition-colors transform active:scale-95">
-              <Plus size={16}/> {t('weekManagement.form.addCard')}
-          </button>
+        ) : (
+          <label htmlFor="file-upload" className="mt-1 flex justify-center items-center w-full h-32 px-6 pt-5 pb-6 border-2 border-brand-border border-dashed rounded-lg cursor-pointer hover:border-brand-primary/50 transition-colors">
+            <div className="space-y-1 text-center">
+              <UploadCloud className="mx-auto h-10 w-10 text-brand-secondary" />
+              <p className="text-sm text-brand-secondary">{t('weekManagement.form.uploadHint')}</p>
+            </div>
+            <input id="file-upload" name="video_file" type="file" className="sr-only" onChange={handleVideoFileChange} accept="video/*" />
+          </label>
+        )}
       </div>
+
+      {/* Content Cards Section */}
+      <div className="border-t border-brand-border pt-6">
+        <h3 className="text-lg font-bold mb-4 text-brand-primary">{t('weekManagement.form.contentCards')}</h3>
+        <div className="space-y-4">
+          {formData.content_cards.map((card, index) => (
+            <div key={index} className="bg-black/20 border border-brand-border/50 p-4 rounded-lg space-y-3 relative">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-bold text-brand-secondary">{t('weekManagement.form.cardTitle')}</label>
+                <button type="button" onClick={() => removeCard(index)} className="text-brand-secondary hover:text-red-500 transition-colors"><X size={18} /></button>
+              </div>
+              <input type="text" name="title" value={card.title} onChange={(e) => handleCardChange(index, e)} required className="w-full bg-black/30 border border-brand-border p-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary/50" />
+              <label className="text-sm font-bold text-brand-secondary mt-2 block">{t('weekManagement.form.cardDescription')}</label>
+              <textarea name="description" value={card.description} onChange={(e) => handleCardChange(index, e)} required className="w-full bg-black/30 border border-brand-border p-2.5 rounded-md" rows="2"></textarea>
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={addCard} className="mt-4 flex items-center gap-2 bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-semibold py-2 px-4 rounded-lg text-sm transition-colors transform active:scale-95">
+          <Plus size={16}/> {t('weekManagement.form.addCard')}
+        </button>
+      </div>
+
+      {/* Submission Controls */}
       <div className="flex justify-end gap-4 pt-4 border-t border-brand-border">
-          <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-          <button
-            type="submit"
-            className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center min-w-24"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? <><Loader2 className="animate-spin mr-2" /><span>{submissionStatus}</span></> : t('common.save')}
-          </button>
+        {!isSubmitting && <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>}
+        <button
+          type="submit"
+          className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center min-w-[120px]"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <div className="flex items-center">
+              {submissionStatus === t('weekManagement.status.completed') ? <FileCheck className="mr-2"/> : <Loader2 className="animate-spin mr-2" />}
+              <span>{submissionStatus}</span>
+            </div>
+          ) : (
+            <span>{editingWeek ? t('common.saveChanges') : t('common.create')}</span>
+          )}
+        </button>
       </div>
+       {isSubmitting && uploadProgress > 0 && uploadProgress < 100 && (
+          <div className="w-full bg-brand-border/20 rounded-full h-2.5 mt-4">
+            <div className="bg-brand-primary h-2.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+          </div>
+        )}
     </form>
   );
 
@@ -329,14 +347,14 @@ const WeekManagement = () => {
         onClose={closeModal}
         title={editingWeek ? t('weekManagement.editWeek') : t('weekManagement.addWeek')}
       >
-        {modalStep === 1 && !editingWeek ? renderUploadStep() : renderDetailsStep()}
+        {renderAddEditForm()}
       </Modal>
 
       <ConfirmationModal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={t('common.delete') + " " + t('weekManagement.title')}
+        title={t('common.deleteConfirmation')}
         message={t('weekManagement.confirmDelete')}
       />
     </>
