@@ -3,6 +3,8 @@ from typing import List, Optional, Dict, Any
 from app.schemas.week import WeekCreate, WeekUpdate, ContentCardCreate, ContentCardUpdate
 from fastapi import UploadFile
 import uuid
+import os
+import re
 
 class WeekService:
     def __init__(self, db_client: Client):
@@ -51,7 +53,9 @@ class WeekService:
         return response.data[0] if response.data else None
 
     def upload_video(self, week_id: int, file: UploadFile, bucket_name: str) -> Optional[Dict[str, Any]]:
-        file_path = f"week_{week_id}/{uuid.uuid4()}_{file.filename}"
+        _, extension = os.path.splitext(file.filename)
+        safe_filename = f"{uuid.uuid4()}{extension}"
+        file_path = f"week_{week_id}/{safe_filename}"
 
         # Upload to Supabase Storage
         self.db.storage.from_(bucket_name).upload(file_path, file.file.read(), {"contentType": file.content_type})
