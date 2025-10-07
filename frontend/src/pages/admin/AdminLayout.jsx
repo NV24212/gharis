@@ -16,7 +16,7 @@ const AdminLayout = () => {
   }, [location.pathname]);
 
   const navLinks = [
-    { to: '/admin/students', text: t('admin.nav.students'), icon: Users },
+    { to: '/admin/users', text: t('admin.nav.users'), icon: Users },
     { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video },
     { to: '/admin/classes', text: t('admin.nav.classes'), icon: ClipboardList },
     { to: '/admin/points', text: t('admin.nav.points'), icon: Star },

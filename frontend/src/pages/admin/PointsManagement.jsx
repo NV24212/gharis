@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import api from '../../services/api';
-import { Loader2, PlusCircle, MinusCircle, Search } from 'lucide-react';
+import api, { classService } from '../../services/api';
+import { Loader2, PlusCircle, MinusCircle, Search, ChevronDown } from 'lucide-react';
 import Modal from '../../components/Modal';
 
 const PointsManagement = () => {
   const { t } = useTranslation();
   const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [classFilter, setClassFilter] = useState('');
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,8 +24,12 @@ const PointsManagement = () => {
   const fetchStudents = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/admin/students');
-      setStudents(response.data);
+      const [studentsRes, classesRes] = await Promise.all([
+        api.get('/admin/students'),
+        classService.getAllClasses(),
+      ]);
+      setStudents(studentsRes.data);
+      setClasses(classesRes);
     } catch (err) {
       setError(t('pointsManagement.errors.fetchStudents'));
       console.error(err);
@@ -37,10 +43,15 @@ const PointsManagement = () => {
   }, [fetchStudents]);
 
   const filteredStudents = useMemo(() => {
-    return students.filter(student =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [students, searchTerm]);
+    return students
+      .filter(student =>
+        student.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .filter(student => {
+        if (!classFilter) return true;
+        return student.class_id === parseInt(classFilter);
+      });
+  }, [students, searchTerm, classFilter]);
 
   const openModal = (student, type) => {
     setSelectedStudent(student);
@@ -91,17 +102,34 @@ const PointsManagement = () => {
     <>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-brand-primary">{t('pointsManagement.title')}</h1>
-        <div className="relative w-full max-w-xs">
-          <input
-            type="text"
-            placeholder={t('pointsManagement.searchPlaceholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
-          />
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-5 w-5 text-brand-secondary" />
-          </div>
+        <div className="flex items-center gap-4">
+            <div className="relative">
+                <label htmlFor="classFilter" className="sr-only">{t('userManagement.filterByClass')}</label>
+                <select
+                id="classFilter"
+                value={classFilter}
+                onChange={(e) => setClassFilter(e.target.value)}
+                className="bg-black/30 border border-brand-border text-brand-primary p-3 pl-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 appearance-none"
+                >
+                <option value="">{t('userManagement.allClasses')}</option>
+                {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-2">
+                    <ChevronDown className="h-5 w-5 text-brand-secondary" />
+                </div>
+            </div>
+            <div className="relative w-full max-w-xs">
+                <input
+                    type="text"
+                    placeholder={t('pointsManagement.searchPlaceholder')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+                />
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <Search className="h-5 w-5 text-brand-secondary" />
+                </div>
+            </div>
         </div>
       </div>
 
