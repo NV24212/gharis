@@ -14,7 +14,6 @@ export default {
           white: "#ffffff",
           black: "#000000",
           primary: "#ffffff",
-          accent: "#a3885f",
           secondary: "#a0a0a0",
           border: "rgba(255, 255, 255, 0.1)",
         },
@@ -46,5 +45,7 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/aspect-ratio'),
+  ],
 };

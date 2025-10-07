@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import api, { classService } from "../../services/api";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, Trash2, Edit, Loader2 } from "lucide-react";
 import LoadingScreen from "../../components/LoadingScreen";
 import Modal from "../../components/Modal";
 import ConfirmationModal from "../../components/ConfirmationModal";
@@ -16,9 +16,10 @@ const ClassManagement = () => {
   const [formData, setFormData] = useState({ name: "" });
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [deletingClassId, setDeletingClassId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchClasses = useCallback(async () => {
-    setIsLoading(true);
+  const fetchClasses = useCallback(async (isInitialLoad = false) => {
+    if (isInitialLoad) setIsLoading(true);
     try {
       const data = await classService.getAllClasses();
       setClasses(data);
@@ -27,12 +28,12 @@ const ClassManagement = () => {
       setError(t("classManagement.errors.fetch"));
       console.error(err);
     } finally {
-      setIsLoading(false);
+      if (isInitialLoad) setIsLoading(false);
     }
   }, [t]);
 
   useEffect(() => {
-    fetchClasses();
+    fetchClasses(true);
   }, [fetchClasses]);
 
   const openModal = (cls = null) => {
@@ -54,6 +55,7 @@ const ClassManagement = () => {
     e.preventDefault();
     if (!formData.name.trim()) return;
 
+    setIsSubmitting(true);
     const errorKey = editingClass ? "classManagement.errors.update" : "classManagement.errors.add";
     try {
       if (editingClass) {
@@ -66,6 +68,8 @@ const ClassManagement = () => {
     } catch (err) {
       setError(t(errorKey));
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -104,7 +108,7 @@ const ClassManagement = () => {
         <h1 className="text-3xl font-bold text-brand-primary">{t("classManagement.title")}</h1>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 bg-brand-accent text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
+          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t("classManagement.addClass")}
         </button>
@@ -156,14 +160,19 @@ const ClassManagement = () => {
               name="name"
               value={formData.name}
               onChange={handleFormChange}
-              placeholder={t('classManagement.newClassName')}
               required
               className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
             />
           </div>
           <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-            <button type="submit" className="bg-brand-accent hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95">{t('common.save')}</button>
+            <button
+              type="submit"
+              className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center w-24"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" /> : t('common.save')}
+            </button>
           </div>
         </form>
       </Modal>

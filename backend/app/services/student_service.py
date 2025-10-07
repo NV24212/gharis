@@ -39,6 +39,22 @@ class StudentService:
             return response.data[0]
         return None
 
+    def add_points(self, student_id: int, points_to_add: int) -> Optional[Dict[str, Any]]:
+        """
+        Adds points to a student's current score.
+        """
+        student = self.get_student_by_id(student_id)
+        if not student:
+            return None
+
+        current_points = student.get("points", 0)
+        new_points = current_points + points_to_add
+
+        response = self.db.table(self.table).update({"points": new_points}).eq("id", student_id).execute()
+        if response.data:
+            return response.data[0]
+        return None
+
     def delete_student(self, student_id: int) -> Optional[Dict[str, Any]]:
         response = self.db.table(self.table).delete().eq("id", student_id).execute()
         if response.data:

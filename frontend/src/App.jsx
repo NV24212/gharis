@@ -13,6 +13,7 @@ import AdminLayout from './pages/admin/AdminLayout.jsx';
 import StudentManagement from './pages/admin/StudentManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
 import ClassManagement from './pages/admin/ClassManagement.jsx';
+import PointsManagement from './pages/admin/PointsManagement.jsx';
 import { logoUrl } from './data/site.js';
 
 const Navigation = () => {
@@ -99,6 +100,7 @@ const App = () => {
             <Route path="students" element={<StudentManagement />} />
             <Route path="weeks" element={<WeekManagement />} />
             <Route path="classes" element={<ClassManagement />} />
+            <Route path="points" element={<PointsManagement />} />
           </Route>
         </Route>
 

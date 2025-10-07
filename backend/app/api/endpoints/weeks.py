@@ -61,6 +61,24 @@ def upload_week_video(
     updated_week = week_service.upload_video(week_id, file, settings.SUPABASE_BUCKET)
     return week_service.get_week_by_id(updated_week["id"])
 
+@admin_router.delete("/{week_id}", response_model=Week)
+def delete_week(
+    *,
+    db: Client = Depends(deps.get_supabase_client),
+    week_id: int,
+    current_user: Any = Depends(deps.get_current_admin_user)
+) -> Any:
+    """
+    Delete a week.
+    """
+    week_service = WeekService(db)
+    week = week_service.get_week_by_id(week_id=week_id)
+    if not week:
+        raise HTTPException(status_code=404, detail="Week not found")
+
+    week_service.delete_week(week_id=week_id)
+    return week
+
 # --- Admin Content Card Endpoints ---
 
 @admin_router.post("/{week_id}/cards", response_model=ContentCard)
