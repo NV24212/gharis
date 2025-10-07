@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useCallback, useMemo } from 're
 import { useTranslation } from 'react-i18next';
 import api, { classService, adminService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { Plus, Edit, Trash2, Loader2, ChevronDown, Users, Shield } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, ChevronDown, Users, Shield, BookCopy } from 'lucide-react';
 import Modal from '../../components/Modal';
 import LoadingScreen from '../../components/LoadingScreen';
 import ConfirmationModal from '../../components/ConfirmationModal';
@@ -10,27 +10,21 @@ import ConfirmationModal from '../../components/ConfirmationModal';
 const UserManagement = () => {
   const { t } = useTranslation();
   const { token } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('students'); // 'students' or 'admins'
+  const [activeTab, setActiveTab] = useState('students'); // 'students', 'admins', or 'classes'
+
+  // Common State
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Students State
   const [students, setStudents] = useState([]);
-  const [classes, setClasses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
-  const [formData, setFormData] = useState({ name: '', password: '', class_id: '' });
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [studentFormData, setStudentFormData] = useState({ name: '', password: '', class_id: '' });
+  const [isStudentConfirmModalOpen, setIsStudentConfirmModalOpen] = useState(false);
   const [deletingStudentId, setDeletingStudentId] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [classFilter, setClassFilter] = useState('');
-
-  const filteredStudents = useMemo(() => {
-    if (!classFilter) {
-      return students;
-    }
-    return students.filter(student => student.class_id === parseInt(classFilter));
-  }, [students, classFilter]);
 
   // Admins State
   const [admins, setAdmins] = useState([]);
@@ -38,9 +32,22 @@ const UserManagement = () => {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [newAdminData, setNewAdminData] = useState({ name: '', password: '' });
 
-  const fetchStudentsData = useCallback(async (isInitialLoad = false) => {
+  // Classes State
+  const [classes, setClasses] = useState([]);
+  const [isClassModalOpen, setIsClassModalOpen] = useState(false);
+  const [editingClass, setEditingClass] = useState(null);
+  const [classFormData, setClassFormData] = useState({ name: "" });
+  const [isClassConfirmModalOpen, setIsClassConfirmModalOpen] = useState(false);
+  const [deletingClassId, setDeletingClassId] = useState(null);
+
+  const filteredStudents = useMemo(() => {
+    if (!classFilter) return students;
+    return students.filter(student => student.class?.id === parseInt(classFilter));
+  }, [students, classFilter]);
+
+  const fetchInitialData = useCallback(async () => {
     if (!token) return;
-    if (isInitialLoad) setLoading(true);
+    setLoading(true);
     try {
       const [studentsRes, classesRes] = await Promise.all([
         api.get('/admin/students'),
@@ -50,12 +57,22 @@ const UserManagement = () => {
       setClasses(classesRes);
       setError('');
     } catch (err) {
-      setError(t('studentManagement.errors.fetch'));
+      setError(t('userManagement.errors.fetchInitialData'));
       console.error(err);
     } finally {
-      if (isInitialLoad) setLoading(false);
+      setLoading(false);
     }
   }, [token, t]);
+
+  const fetchStudents = useCallback(async () => {
+    try {
+      const studentsRes = await api.get('/admin/students');
+      setStudents(studentsRes.data);
+    } catch (err) {
+      setError(t('studentManagement.errors.fetch'));
+      console.error(err);
+    }
+  }, [t]);
 
   const fetchAdminsData = useCallback(async () => {
     if (!token) return;
@@ -63,7 +80,6 @@ const UserManagement = () => {
     try {
       const response = await adminService.getAllAdmins();
       setAdmins(response.data);
-      setError('');
     } catch (err) {
       setError(t('userManagement.errors.fetchAdmins'));
       console.error(err);
@@ -72,39 +88,52 @@ const UserManagement = () => {
     }
   }, [token, t]);
 
+  const fetchClasses = useCallback(async () => {
+    try {
+      const data = await classService.getAllClasses();
+      setClasses(data);
+    } catch (err) {
+      setError(t("classManagement.errors.fetch"));
+      console.error(err);
+    }
+  }, [t]);
+
   useEffect(() => {
-    if (activeTab === 'students') {
-      fetchStudentsData(true);
-    } else if (activeTab === 'admins') {
+    fetchInitialData();
+  }, [fetchInitialData]);
+
+  useEffect(() => {
+    if (activeTab === 'admins' && admins.length === 0) {
       fetchAdminsData();
     }
-  }, [activeTab, fetchStudentsData, fetchAdminsData]);
+  }, [activeTab, admins.length, fetchAdminsData]);
 
-  const openModal = (student = null) => {
+  // Student Modal and Form Handlers
+  const openStudentModal = (student = null) => {
     setEditingStudent(student);
-    setFormData(
+    setStudentFormData(
       student
         ? { name: student.name, password: '', class_id: student.class?.id || '' }
         : { name: '', password: '', class_id: '' }
     );
-    setIsModalOpen(true);
+    setIsStudentModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeStudentModal = () => {
+    setIsStudentModalOpen(false);
     setEditingStudent(null);
   };
 
-  const handleFormChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleStudentFormChange = (e) => {
+    setStudentFormData({ ...studentFormData, [e.target.name]: e.target.value });
   };
 
-  const handleFormSubmit = async (e) => {
+  const handleStudentFormSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     const errorKey = editingStudent ? 'studentManagement.errors.update' : 'studentManagement.errors.add';
     try {
-      let payload = { ...formData, class_id: formData.class_id ? Number(formData.class_id) : null };
+      let payload = { ...studentFormData, class_id: studentFormData.class_id ? Number(studentFormData.class_id) : null };
       if (editingStudent) {
         if (!payload.password) delete payload.password;
         await api.put(`/admin/students/${editingStudent.id}`, payload);
@@ -116,8 +145,8 @@ const UserManagement = () => {
         }
         await api.post('/admin/students', payload);
       }
-      fetchStudentsData();
-      closeModal();
+      await fetchStudents();
+      closeStudentModal();
     } catch (err) {
       setError(t(errorKey));
       console.error(err);
@@ -126,33 +155,30 @@ const UserManagement = () => {
     }
   };
 
-  const openDeleteConfirm = (id) => {
+  const openStudentDeleteConfirm = (id) => {
     setDeletingStudentId(id);
-    setIsConfirmModalOpen(true);
+    setIsStudentConfirmModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleStudentConfirmDelete = () => {
     if (!deletingStudentId) return;
-    setIsConfirmModalOpen(false);
-    setStudents(prevStudents =>
-      prevStudents.map(s =>
-        s.id === deletingStudentId ? { ...s, deleting: true } : s
-      )
-    );
+    setIsStudentConfirmModalOpen(false);
+    setStudents(prev => prev.map(s => s.id === deletingStudentId ? { ...s, deleting: true } : s));
     setTimeout(async () => {
       try {
         await api.delete(`/admin/students/${deletingStudentId}`);
-        setStudents(prevStudents => prevStudents.filter(s => s.id !== deletingStudentId));
+        setStudents(prev => prev.filter(s => s.id !== deletingStudentId));
       } catch (err) {
         setError(t('studentManagement.errors.delete'));
         console.error(err);
-        fetchStudentsData();
+        await fetchStudents();
       } finally {
         setDeletingStudentId(null);
       }
     }, 300);
   };
 
+  // Admin Modal and Form Handlers
   const handleAdminFormChange = (e) => {
     setNewAdminData({ ...newAdminData, [e.target.name]: e.target.value });
   };
@@ -172,6 +198,66 @@ const UserManagement = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Class Modal and Form Handlers
+  const openClassModal = (cls = null) => {
+    setEditingClass(cls);
+    setClassFormData(cls ? { name: cls.name } : { name: "" });
+    setIsClassModalOpen(true);
+  };
+
+  const closeClassModal = () => {
+    setIsClassModalOpen(false);
+    setEditingClass(null);
+  };
+
+  const handleClassFormChange = (e) => {
+    setClassFormData({ ...classFormData, [e.target.name]: e.target.value });
+  };
+
+  const handleClassFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!classFormData.name.trim()) return;
+    setIsSubmitting(true);
+    const errorKey = editingClass ? "classManagement.errors.update" : "classManagement.errors.add";
+    try {
+      if (editingClass) {
+        await api.put(`/admin/classes/${editingClass.id}`, classFormData);
+      } else {
+        await classService.createClass(classFormData);
+      }
+      await fetchClasses();
+      closeClassModal();
+    } catch (err) {
+      setError(t(errorKey));
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openClassDeleteConfirm = (classId) => {
+    setDeletingClassId(classId);
+    setIsClassConfirmModalOpen(true);
+  };
+
+  const handleClassConfirmDelete = () => {
+    if (!deletingClassId) return;
+    setIsClassConfirmModalOpen(false);
+    setClasses(prev => prev.map(c => c.id === deletingClassId ? { ...c, deleting: true } : c));
+    setTimeout(async () => {
+      try {
+        await classService.deleteClass(deletingClassId);
+        setClasses(prev => prev.filter(c => c.id !== deletingClassId));
+      } catch (err) {
+        setError(t("classManagement.errors.delete"));
+        console.error(err);
+        await fetchClasses();
+      } finally {
+        setDeletingClassId(null);
+      }
+    }, 300);
   };
 
   const renderStudentsTab = () => (
@@ -196,7 +282,7 @@ const UserManagement = () => {
           </div>
         </div>
         <button
-          onClick={() => openModal()}
+          onClick={() => openStudentModal()}
           className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t('studentManagement.addStudent')}
@@ -221,8 +307,8 @@ const UserManagement = () => {
                 <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
                 <td className="px-6 py-4 text-left">
                   <div className="flex items-center gap-6">
-                    <button onClick={() => openModal(student)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
-                    <button onClick={() => openDeleteConfirm(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                    <button onClick={() => openStudentModal(student)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
+                    <button onClick={() => openStudentDeleteConfirm(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
                   </div>
                 </td>
               </tr>
@@ -274,6 +360,34 @@ const UserManagement = () => {
     </>
   );
 
+  const renderClassesTab = () => (
+    <>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-bold text-brand-primary">{t("classManagement.title")}</h2>
+        <button
+          onClick={() => openClassModal()}
+          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
+        >
+          <Plus size={20} /> {t("classManagement.addClass")}
+        </button>
+      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {classes.map((cls) => (
+            <div
+              key={cls.id}
+              className={`bg-black/20 border border-brand-border rounded-20 p-5 flex justify-between items-center transition-all duration-300 hover:border-brand-primary/50 hover:-translate-y-1 ${cls.deleting ? 'animate-fade-out' : ''}`}
+            >
+              <span className="text-lg font-semibold">{cls.name}</span>
+              <div className="flex gap-3">
+                <button onClick={() => openClassModal(cls)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={20} /></button>
+                <button onClick={() => openClassDeleteConfirm(cls.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={20} /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+    </>
+  );
+
   if (loading) return <LoadingScreen fullScreen={false} />;
 
   return (
@@ -294,29 +408,40 @@ const UserManagement = () => {
           <Shield size={20} />
           <span>{t('userManagement.tabs.admins')}</span>
         </button>
+        <button
+          onClick={() => setActiveTab('classes')}
+          className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === 'classes' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-brand-secondary hover:text-brand-primary'}`}
+        >
+          <BookCopy size={20} />
+          <span>{t('userManagement.tabs.classes')}</span>
+        </button>
       </div>
       {error && <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg mb-6">{error}</div>}
       <div>
-        {activeTab === 'students' ? renderStudentsTab() : renderAdminsTab()}
+        {activeTab === 'students' && renderStudentsTab()}
+        {activeTab === 'admins' && renderAdminsTab()}
+        {activeTab === 'classes' && renderClassesTab()}
       </div>
+
+      {/* Student Modal */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={closeModal}
+        isOpen={isStudentModalOpen}
+        onClose={closeStudentModal}
         title={editingStudent ? t('studentManagement.editStudent') : t('studentManagement.addStudent')}
         maxWidth="max-w-lg"
       >
-        <form onSubmit={handleFormSubmit} className="space-y-4">
+        <form onSubmit={handleStudentFormSubmit} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.form.name')}</label>
-            <input type="text" id="name" name="name" value={formData.name} onChange={handleFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <input type="text" id="name" name="name" value={studentFormData.name} onChange={handleStudentFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-brand-secondary mb-2">{editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')}</label>
-            <input type="password" id="password" name="password" value={formData.password} onChange={handleFormChange} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <input type="password" id="password" name="password" value={studentFormData.password} onChange={handleStudentFormChange} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
           </div>
           <div className="relative">
             <label htmlFor="class_id" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.class')}</label>
-            <select id="class_id" name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 appearance-none">
+            <select id="class_id" name="class_id" value={studentFormData.class_id} onChange={handleStudentFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 appearance-none">
               <option value="">{t('studentManagement.form.selectClass')}</option>
               {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
             </select>
@@ -325,7 +450,7 @@ const UserManagement = () => {
             </div>
           </div>
           <div className="flex justify-end gap-4 pt-4">
-            <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+            <button type="button" onClick={closeStudentModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
             <button
               type="submit"
               className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center w-24"
@@ -336,13 +461,8 @@ const UserManagement = () => {
           </div>
         </form>
       </Modal>
-      <ConfirmationModal
-        isOpen={isConfirmModalOpen}
-        onClose={() => setIsConfirmModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title={t('common.delete')}
-        message={t('studentManagement.confirmDelete')}
-      />
+
+      {/* Admin Modal */}
       <Modal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
@@ -351,12 +471,12 @@ const UserManagement = () => {
       >
         <form onSubmit={handleAdminFormSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-bold text-brand-secondary mb-2">{t('userManagement.adminForm.name')}</label>
-            <input type="text" id="name" name="name" value={newAdminData.name} onChange={handleAdminFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <label htmlFor="admin-name" className="block text-sm font-bold text-brand-secondary mb-2">{t('userManagement.adminForm.name')}</label>
+            <input type="text" id="admin-name" name="name" value={newAdminData.name} onChange={handleAdminFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-bold text-brand-secondary mb-2">{t('userManagement.adminForm.password')}</label>
-            <input type="password" id="password" name="password" value={newAdminData.password} onChange={handleAdminFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <label htmlFor="admin-password" className="block text-sm font-bold text-brand-secondary mb-2">{t('userManagement.adminForm.password')}</label>
+            <input type="password" id="admin-password" name="password" value={newAdminData.password} onChange={handleAdminFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
           </div>
           <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={() => setIsAdminModalOpen(false)} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
@@ -370,6 +490,55 @@ const UserManagement = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Class Modal */}
+      <Modal
+        isOpen={isClassModalOpen}
+        onClose={closeClassModal}
+        title={editingClass ? t('classManagement.editClass') : t('classManagement.addClass')}
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleClassFormSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="class-name" className="block text-sm font-medium text-brand-secondary mb-2">{t('classManagement.newClassName')}</label>
+            <input
+              type="text"
+              id="class-name"
+              name="name"
+              value={classFormData.name}
+              onChange={handleClassFormChange}
+              required
+              className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+            />
+          </div>
+          <div className="flex justify-end gap-4 pt-4">
+            <button type="button" onClick={closeClassModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+            <button
+              type="submit"
+              className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center w-24"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" /> : t('common.save')}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Confirmation Modals */}
+      <ConfirmationModal
+        isOpen={isStudentConfirmModalOpen}
+        onClose={() => setIsStudentConfirmModalOpen(false)}
+        onConfirm={handleStudentConfirmDelete}
+        title={t('common.delete')}
+        message={t('studentManagement.confirmDelete')}
+      />
+      <ConfirmationModal
+        isOpen={isClassConfirmModalOpen}
+        onClose={() => setIsClassConfirmModalOpen(false)}
+        onConfirm={handleClassConfirmDelete}
+        title={t('common.delete')}
+        message={t('classManagement.confirmDelete')}
+      />
     </>
   );
 };

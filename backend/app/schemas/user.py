@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
+from .class_schema import Class
 
 class UserBase(BaseModel):
     name: str
@@ -10,12 +11,14 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
+    password: Optional[str] = None
     class_id: Optional[int] = None
     points: Optional[int] = None
 
 class UserInDBBase(UserBase):
     id: int
     points: int
+    class_info: Optional[Class] = Field(None, alias='class')
 
     class Config:
         from_attributes = True

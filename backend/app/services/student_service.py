@@ -10,6 +10,7 @@ class StudentService:
 
     def create_student(self, student_in: UserCreate) -> Optional[Dict[str, Any]]:
         student_data = student_in.model_dump()
+        student_data['password'] = get_password_hash(student_data['password'])
         response = self.db.table(self.table).insert(student_data).execute()
         if response.data:
             return response.data[0]
@@ -32,11 +33,25 @@ class StudentService:
 
     def update_student(self, student_id: int, student_update: UserUpdate) -> Optional[Dict[str, Any]]:
         update_data = student_update.model_dump(exclude_unset=True)
+
         if not update_data:
-            return None
-        response = self.db.table(self.table).update(update_data).eq("id", student_id).execute()
+            return None # No data to update
+
+        # Hash password if it's being updated
+        if 'password' in update_data and update_data['password']:
+            update_data['password'] = get_password_hash(update_data['password'])
+        else:
+            # Don't update password if it's not provided or empty
+            update_data.pop('password', None)
+
+        if not update_data:
+            # This can happen if only an empty password was passed
+            return self.get_student_by_id(student_id)
+
+        response = self.db.table(self.table).update(update_data).eq("id", student_id).select("id, name, points, class_id, class:classes(id, name)").single().execute()
+
         if response.data:
-            return response.data[0]
+            return response.data
         return None
 
     def add_points(self, student_id: int, points_to_add: int) -> Optional[Dict[str, Any]]:
