@@ -48,10 +48,13 @@ class StudentService:
             # This can happen if only an empty password was passed
             return self.get_student_by_id(student_id)
 
-        response = self.db.table(self.table).update(update_data).eq("id", student_id).select("id, name, points, class_id, class:classes(id, name)").single().execute()
+        # Perform the update
+        update_response = self.db.table(self.table).update(update_data).eq("id", student_id).execute()
 
-        if response.data:
-            return response.data
+        # If the update was successful, fetch the updated record
+        if update_response.data:
+            return self.get_student_by_id(student_id)
+
         return None
 
     def add_points(self, student_id: int, points_to_add: int) -> Optional[Dict[str, Any]]:
