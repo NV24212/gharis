@@ -160,7 +160,7 @@ const PointsManagement = () => {
             {filteredStudents.map((student) => (
               <tr key={student.id} className="hover:bg-brand-border/5 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.classes?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{student.class?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
                 <td className="px-6 py-4 text-center">
                   <div className="flex items-center justify-center gap-6">
