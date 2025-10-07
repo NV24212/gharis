@@ -53,6 +53,7 @@ i18next
           "common.add": "إضافة",
           "common.edit": "تعديل",
           "common.delete": "حذف",
+          "common.upload": "رفع",
           "studentManagement.title": "إدارة الطلاب",
           "studentManagement.addStudent": "إضافة طالب",
           "studentManagement.editStudent": "تعديل طالب",

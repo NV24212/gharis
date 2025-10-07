@@ -4,6 +4,8 @@ from typing import List, Optional, Dict, Any
 from app.schemas.week import WeekCreate, WeekUpdate, ContentCardCreate, ContentCardUpdate
 from fastapi import UploadFile
 import uuid
+import os
+import re
 
 class WeekService:
     def __init__(self, db_client: Client):
