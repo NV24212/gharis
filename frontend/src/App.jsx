@@ -12,7 +12,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
-import ClassManagement from './pages/admin/ClassManagement.jsx';
 import PointsManagement from './pages/admin/PointsManagement.jsx';
 import { logoUrl } from './data/site.js';
 
