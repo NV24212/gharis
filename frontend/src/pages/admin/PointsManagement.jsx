@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import api, { classService } from '../../services/api';
 import { Loader2, PlusCircle, MinusCircle, Search, ChevronDown } from 'lucide-react';
 import Modal from '../../components/Modal';
+import LoadingScreen from '../../components/LoadingScreen';
 
 const PointsManagement = () => {
   const { t } = useTranslation();
@@ -84,18 +85,27 @@ const PointsManagement = () => {
         : t('pointsManagement.success.deduct', { points: Math.abs(pointsValue), studentName: selectedStudent.name });
 
       setSuccess(successMessage);
+
+      setStudents(prevStudents =>
+        prevStudents.map(student =>
+          student.id === selectedStudent.id
+            ? { ...student, points: student.points + pointsValue }
+            : student
+        )
+      );
+
       closeModal();
-      fetchStudents(); // Refresh student list to show updated points
     } catch (err) {
       setError(t('pointsManagement.errors.addPoints'));
       console.error(err);
+      fetchStudents(); // Re-fetch on error to ensure data consistency
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-full"><Loader2 className="animate-spin h-8 w-8" /></div>;
+    return <LoadingScreen fullScreen={false} />;
   }
 
   return (

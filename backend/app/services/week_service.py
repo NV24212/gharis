@@ -1,3 +1,4 @@
+import os
 from supabase import Client
 from typing import List, Optional, Dict, Any
 from app.schemas.week import WeekCreate, WeekUpdate, ContentCardCreate, ContentCardUpdate
@@ -51,7 +52,8 @@ class WeekService:
         return response.data[0] if response.data else None
 
     def upload_video(self, week_id: int, file: UploadFile, bucket_name: str) -> Optional[Dict[str, Any]]:
-        file_path = f"week_{week_id}/{uuid.uuid4()}_{file.filename}"
+        _, file_extension = os.path.splitext(file.filename)
+        file_path = f"week_{week_id}/{uuid.uuid4()}{file_extension}"
 
         # Upload to Supabase Storage
         self.db.storage.from_(bucket_name).upload(file_path, file.file.read(), {"contentType": file.content_type})

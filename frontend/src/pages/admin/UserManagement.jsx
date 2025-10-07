@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import api, { classService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
@@ -116,7 +116,7 @@ const UserManagement = () => {
         }
         await api.post('/admin/students', payload);
       }
-      fetchData();
+      fetchStudentsData();
       closeModal();
     } catch (err) {
       setError(t(errorKey));
@@ -148,7 +148,7 @@ const UserManagement = () => {
       } catch (err) {
         setError(t('studentManagement.errors.delete'));
         console.error(err);
-        fetchData(); // Revert on error
+        fetchStudentsData(); // Revert on error
       } finally {
         setDeletingStudentId(null);
       }
