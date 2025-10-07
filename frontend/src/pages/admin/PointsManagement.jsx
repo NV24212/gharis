@@ -1,17 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2, PlusCircle, MinusCircle, Search } from 'lucide-react';
+import Modal from '../../components/Modal';
 
 const PointsManagement = () => {
   const { t } = useTranslation();
   const [students, setStudents] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState('');
-  const [points, setPoints] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [actionType, setActionType] = useState('add'); // 'add' or 'deduct'
+  const [points, setPoints] = useState('');
 
   const fetchStudents = useCallback(async () => {
     setIsLoading(true);
@@ -30,22 +36,45 @@ const PointsManagement = () => {
     fetchStudents();
   }, [fetchStudents]);
 
-  const handleSubmit = async (e) => {
+  const filteredStudents = useMemo(() => {
+    return students.filter(student =>
+      student.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [students, searchTerm]);
+
+  const openModal = (student, type) => {
+    setSelectedStudent(student);
+    setActionType(type);
+    setIsModalOpen(true);
+    setPoints('');
+    setError('');
+    setSuccess('');
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedStudent(null);
+  };
+
+  const handlePointsSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedStudent || !points) {
-      setError(t('pointsManagement.errors.fillFields'));
-      return;
-    }
+    if (!points || !selectedStudent) return;
 
     setIsSubmitting(true);
     setError('');
     setSuccess('');
 
+    const pointsValue = actionType === 'deduct' ? -Math.abs(Number(points)) : Math.abs(Number(points));
+
     try {
-      await api.post(`/admin/students/${selectedStudent}/add-points`, { points: Number(points) });
-      setSuccess(t('pointsManagement.success', { points, studentName: students.find(s => s.id === parseInt(selectedStudent))?.name }));
-      setPoints('');
-      // Optionally, refresh student list or points display if needed
+      await api.post(`/admin/students/${selectedStudent.id}/add-points`, { points: pointsValue });
+      const successMessage = actionType === 'add'
+        ? t('pointsManagement.success.add', { points: pointsValue, studentName: selectedStudent.name })
+        : t('pointsManagement.success.deduct', { points: Math.abs(pointsValue), studentName: selectedStudent.name });
+
+      setSuccess(successMessage);
+      closeModal();
+      fetchStudents(); // Refresh student list to show updated points
     } catch (err) {
       setError(t('pointsManagement.errors.addPoints'));
       console.error(err);
@@ -59,55 +88,94 @@ const PointsManagement = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto">
-      <h1 className="text-3xl font-bold text-brand-primary mb-8">{t('pointsManagement.title')}</h1>
+    <>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-brand-primary">{t('pointsManagement.title')}</h1>
+        <div className="relative w-full max-w-xs">
+          <input
+            type="text"
+            placeholder={t('pointsManagement.searchPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+          />
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Search className="h-5 w-5 text-brand-secondary" />
+          </div>
+        </div>
+      </div>
 
-      {error && <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg mb-6">{error}</div>}
+      {error && !isModalOpen && <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg mb-6">{error}</div>}
       {success && <div className="bg-green-900/20 border border-green-500/30 text-green-300 p-4 rounded-lg mb-6">{success}</div>}
 
-      <form onSubmit={handleSubmit} className="bg-black/20 border border-brand-border rounded-20 p-8 space-y-6">
-        <div>
-          <label htmlFor="student" className="block text-sm font-medium text-brand-secondary mb-2">
-            {t('pointsManagement.selectStudent')}
-          </label>
-          <select
-            id="student"
-            value={selectedStudent}
-            onChange={(e) => setSelectedStudent(e.target.value)}
-            className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
-          >
-            <option value="">{t('pointsManagement.selectStudentPlaceholder')}</option>
-            {students.map(student => (
-              <option key={student.id} value={student.id}>{student.name}</option>
+      <div className="bg-black/20 border border-brand-border rounded-20 overflow-hidden">
+        <table className="min-w-full text-brand-primary">
+          <thead className="bg-brand-border/5">
+            <tr>
+              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.name')}</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.class')}</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.points')}</th>
+              <th className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.actions')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-brand-border">
+            {filteredStudents.map((student) => (
+              <tr key={student.id} className="hover:bg-brand-border/5 transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{student.classes?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
+                <td className="px-6 py-4 text-center">
+                  <div className="flex items-center justify-center gap-6">
+                    <button onClick={() => openModal(student, 'add')} className="text-green-400 hover:text-green-300 transition-colors flex items-center gap-2">
+                      <PlusCircle size={20} />
+                      <span>{t('pointsManagement.add')}</span>
+                    </button>
+                    <button onClick={() => openModal(student, 'deduct')} className="text-red-500 hover:text-red-400 transition-colors flex items-center gap-2">
+                      <MinusCircle size={20} />
+                       <span>{t('pointsManagement.deduct')}</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
             ))}
-          </select>
-        </div>
+          </tbody>
+        </table>
+      </div>
 
-        <div>
-          <label htmlFor="points" className="block text-sm font-medium text-brand-secondary mb-2">
-            {t('pointsManagement.pointsToAdd')}
-          </label>
-          <input
-            type="number"
-            id="points"
-            value={points}
-            onChange={(e) => setPoints(e.target.value)}
-            className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
-          />
-        </div>
-
-        <div className="pt-4">
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-brand-primary text-brand-background font-bold py-3 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? <Loader2 className="animate-spin" /> : <Plus size={20} />}
-            {isSubmitting ? t('pointsManagement.submitting') : t('pointsManagement.submitButton')}
-          </button>
-        </div>
-      </form>
-    </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={`${t(actionType === 'add' ? 'pointsManagement.add' : 'pointsManagement.deduct')} ${t('pointsManagement.titleFor')} ${selectedStudent?.name}`}
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handlePointsSubmit} className="space-y-4">
+          {error && <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-3 rounded-lg text-sm">{error}</div>}
+          <div>
+            <label htmlFor="points" className="block text-sm font-medium text-brand-secondary mb-2">
+              {t('pointsManagement.pointsTo', { context: actionType })}
+            </label>
+            <input
+              type="number"
+              id="points"
+              value={points}
+              onChange={(e) => setPoints(e.target.value)}
+              className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+              required
+            />
+          </div>
+          <div className="flex justify-end gap-4 pt-4">
+            <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+            <button
+              type="submit"
+              className={`font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center w-28 ${actionType === 'add' ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white'}`}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" /> : t('common.confirm')}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </>
   );
 };
 
