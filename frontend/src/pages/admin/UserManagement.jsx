@@ -84,7 +84,7 @@ const UserManagement = () => {
     setEditingStudent(student);
     setFormData(
       student
-        ? { name: student.name, password: '', class_id: student.classes?.id || '' }
+        ? { name: student.name, password: '', class_id: student.class?.id || '' }
         : { name: '', password: '', class_id: '' }
     );
     setIsModalOpen(true);
@@ -198,7 +198,7 @@ const UserManagement = () => {
             {filteredStudents.map((student) => (
               <tr key={student.id} className={`hover:bg-brand-border/5 transition-colors ${student.deleting ? 'animate-fade-out' : ''}`}>
                 <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{student.classes?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{student.class?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
                     <td className="px-6 py-4 text-left">
                     <div className="flex items-center gap-6">

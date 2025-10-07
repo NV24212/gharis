@@ -24,10 +24,10 @@ class User(UserInDBBase):
     pass
 
 class AdminBase(BaseModel):
-    password: str
+    name: str
 
 class AdminCreate(AdminBase):
-    pass
+    password: str
 
 class AdminInDB(AdminBase):
     id: int

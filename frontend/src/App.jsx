@@ -11,6 +11,7 @@ import Leaderboard from './pages/Leaderboard.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
+import AdminManagement from './pages/admin/AdminManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
 import ClassManagement from './pages/admin/ClassManagement.jsx';
 import PointsManagement from './pages/admin/PointsManagement.jsx';
@@ -98,6 +99,7 @@ const App = () => {
           <Route element={<AdminLayout />}>
             <Route index element={<Navigate to="users" />} />
             <Route path="users" element={<UserManagement />} />
+            <Route path="admins" element={<AdminManagement />} />
             <Route path="weeks" element={<WeekManagement />} />
             <Route path="classes" element={<ClassManagement />} />
             <Route path="points" element={<PointsManagement />} />

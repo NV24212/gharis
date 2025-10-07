@@ -56,4 +56,15 @@ export const weekService = {
   },
 };
 
+export const adminService = {
+    getAllAdmins: async () => {
+        const response = await api.get('/admin/admins');
+        return response.data;
+    },
+    createAdmin: async (adminData) => {
+        const response = await api.post('/admin/admins', adminData);
+        return response.data;
+    }
+}
+
 export default api;
