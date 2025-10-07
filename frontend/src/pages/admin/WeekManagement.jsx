@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2, X, UploadCloud } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
 import Modal from '../../components/Modal';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 const WeekManagement = () => {
   const { t } = useTranslation();
@@ -15,6 +16,8 @@ const WeekManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingWeek, setEditingWeek] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [deletingWeekId, setDeletingWeekId] = useState(null);
 
   const initialFormState = {
     week_number: '',
@@ -135,16 +138,33 @@ const WeekManagement = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm(t('weekManagement.confirmDelete'))) {
+  const openDeleteConfirm = (id) => {
+    setDeletingWeekId(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deletingWeekId) return;
+
+    setIsConfirmModalOpen(false);
+    setWeeks(prevWeeks =>
+      prevWeeks.map(w =>
+        w.id === deletingWeekId ? { ...w, deleting: true } : w
+      )
+    );
+
+    setTimeout(async () => {
       try {
-        await api.delete(`/admin/weeks/${id}`);
-        fetchWeeks();
+        await api.delete(`/admin/weeks/${deletingWeekId}`);
+        setWeeks(prevWeeks => prevWeeks.filter(w => w.id !== deletingWeekId));
       } catch (err) {
         setError(t('weekManagement.errors.delete'));
         console.error(err);
+        fetchWeeks(); // Revert on error
+      } finally {
+        setDeletingWeekId(null);
       }
-    }
+    }, 300);
   };
 
   if (loading) return <LoadingScreen fullScreen={false} />;
@@ -156,7 +176,7 @@ const WeekManagement = () => {
         <h1 className="text-3xl font-bold text-brand-primary">{t('weekManagement.title')}</h1>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200"
+          className="flex items-center gap-2 bg-brand-accent text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t('weekManagement.addWeek')}
         </button>
@@ -174,7 +194,7 @@ const WeekManagement = () => {
           </thead>
           <tbody className="divide-y divide-brand-border">
             {weeks.map((week) => (
-              <tr key={week.id} className="hover:bg-brand-border/5 transition-colors">
+              <tr key={week.id} className={`hover:bg-brand-border/5 transition-colors ${week.deleting ? 'animate-fade-out' : ''}`}>
                 <td className="px-6 py-4">{week.week_number}</td>
                 <td className="px-6 py-4">{week.title}</td>
                 <td className="px-6 py-4">
@@ -184,7 +204,7 @@ const WeekManagement = () => {
                 </td>
                 <td className="px-6 py-4 text-left">
                   <button onClick={() => openModal(week)} className="text-brand-secondary hover:text-brand-primary mr-4 transition-colors"><Edit size={18} /></button>
-                  <button onClick={() => handleDelete(week.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                  <button onClick={() => openDeleteConfirm(week.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
                 </td>
               </tr>
             ))}
@@ -250,10 +270,18 @@ const WeekManagement = () => {
 
           <div className="flex justify-end gap-4 pt-4">
               <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-              <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
+              <button type="submit" className="bg-brand-accent hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95">{t('common.save')}</button>
           </div>
         </form>
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={t('common.delete') + " " + t('weekManagement.title')}
+        message={t('weekManagement.confirmDelete')}
+      />
     </>
   );
 };
