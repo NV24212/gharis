@@ -138,6 +138,7 @@ const StudentManagement = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         title={editingStudent ? t('studentManagement.editStudent') : t('studentManagement.addStudent')}
+        maxWidth="max-w-lg"
       >
         <form onSubmit={handleFormSubmit} className="space-y-4">
         <div>

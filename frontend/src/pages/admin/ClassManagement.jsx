@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import api, { classService } from "../../services/api";
-import { Plus, Trash2, Edit, X } from "lucide-react";
+import { Plus, Trash2, Edit } from "lucide-react";
 import LoadingScreen from "../../components/LoadingScreen";
+import Modal from "../../components/Modal";
 
 const ClassManagement = () => {
   const { t } = useTranslation();
@@ -120,35 +121,32 @@ const ClassManagement = () => {
         </div>
       )}
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex justify-center items-center p-4 animate-fade-in-up">
-          <div className="bg-brand-background border border-brand-border rounded-20 shadow-card w-full max-w-md m-auto">
-            <div className="flex justify-between items-center p-6 border-b border-brand-border">
-                <h2 className="text-xl font-bold">{editingClass ? t('classManagement.editClass') : t('classManagement.addClass')}</h2>
-                <button onClick={closeModal} className="text-brand-secondary hover:text-brand-primary transition-colors"><X size={24} /></button>
-            </div>
-            <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-brand-secondary mb-2">{t('classManagement.newClassName')}</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleFormChange}
-                  placeholder={t('classManagement.newClassName')}
-                  required
-                  className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
-                />
-              </div>
-              <div className="flex justify-end gap-4 pt-4">
-                <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-                <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
-              </div>
-            </form>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={editingClass ? t('classManagement.editClass') : t('classManagement.addClass')}
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-brand-secondary mb-2">{t('classManagement.newClassName')}</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleFormChange}
+              placeholder={t('classManagement.newClassName')}
+              required
+              className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+            />
           </div>
-        </div>
-      )}
+          <div className="flex justify-end gap-4 pt-4">
+            <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+            <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
+          </div>
+        </form>
+      </Modal>
     </>
   );
 };
