@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Users, Video, ClipboardList, Star, LogOut, PanelLeft, Menu, X, Shield } from 'lucide-react';
+import { Users, Video, ClipboardList, Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
 import { logoUrl } from '../../data/site.js';
 
 const AdminLayout = () => {
@@ -17,7 +17,6 @@ const AdminLayout = () => {
 
   const navLinks = [
     { to: '/admin/users', text: t('admin.nav.users'), icon: Users },
-    { to: 'admins', text: t('admin.nav.admins'), icon: Shield },
     { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video },
     { to: '/admin/classes', text: t('admin.nav.classes'), icon: ClipboardList },
     { to: '/admin/points', text: t('admin.nav.points'), icon: Star },
