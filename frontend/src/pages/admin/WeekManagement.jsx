@@ -354,7 +354,7 @@ const WeekManagement = () => {
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={t('common.deleteConfirmation')}
+        title={t('common.delete')}
         message={t('weekManagement.confirmDelete')}
       />
     </>
