@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import api, { classService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, ChevronDown } from 'lucide-react';
 import Modal from '../../components/Modal';
 import LoadingScreen from '../../components/LoadingScreen';
 import ConfirmationModal from '../../components/ConfirmationModal';
@@ -16,13 +16,14 @@ const StudentManagement = () => {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
-  const [formData, setFormData] = useState({ name: '', password: '', class_id: '', points: 0 });
+  const [formData, setFormData] = useState({ name: '', password: '', class_id: '' });
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [deletingStudentId, setDeletingStudentId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (isInitialLoad = false) => {
     if (!token) return;
-    setLoading(true);
+    if (isInitialLoad) setLoading(true);
     try {
       const [studentsRes, classesRes] = await Promise.all([
         api.get('/admin/students'),
@@ -35,20 +36,20 @@ const StudentManagement = () => {
       setError(t('studentManagement.errors.fetch'));
       console.error(err);
     } finally {
-      setLoading(false);
+      if (isInitialLoad) setLoading(false);
     }
   }, [token, t]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
   }, [fetchData]);
 
   const openModal = (student = null) => {
     setEditingStudent(student);
     setFormData(
       student
-        ? { name: student.name, password: '', class_id: student.classes?.id || '', points: student.points }
-        : { name: '', password: '', class_id: '', points: 0 }
+        ? { name: student.name, password: '', class_id: student.classes?.id || '' }
+        : { name: '', password: '', class_id: '' }
     );
     setIsModalOpen(true);
   };
@@ -64,16 +65,18 @@ const StudentManagement = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const errorKey = editingStudent ? 'studentManagement.errors.update' : 'studentManagement.errors.add';
     try {
-      let payload = { ...formData, points: Number(formData.points) };
+      let payload = { ...formData };
       if (editingStudent) {
         if (!payload.password) delete payload.password;
         await api.put(`/admin/students/${editingStudent.id}`, payload);
       } else {
         if (!payload.password) {
-            setError("Password is required for new students."); // Or use a translation key
-            return;
+          setError(t('studentManagement.errors.passwordRequired'));
+          setIsSubmitting(false); // Stop submission
+          return;
         }
         await api.post('/admin/students', payload);
       }
@@ -82,6 +85,8 @@ const StudentManagement = () => {
     } catch (err) {
       setError(t(errorKey));
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -123,7 +128,7 @@ const StudentManagement = () => {
         <h1 className="text-3xl font-bold text-brand-primary">{t('studentManagement.title')}</h1>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 bg-brand-accent text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
+          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t('studentManagement.addStudent')}
         </button>
@@ -146,8 +151,10 @@ const StudentManagement = () => {
                 <td className="px-6 py-4 whitespace-nowrap">{student.classes?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
                 <td className="px-6 py-4 text-left">
-                  <button onClick={() => openModal(student)} className="text-brand-secondary hover:text-brand-primary mr-4 transition-colors"><Edit size={18} /></button>
-                  <button onClick={() => openDeleteConfirm(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                  <div className="flex items-center gap-6">
+                    <button onClick={() => openModal(student)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
+                    <button onClick={() => openDeleteConfirm(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -163,28 +170,31 @@ const StudentManagement = () => {
         <form onSubmit={handleFormSubmit} className="space-y-4">
         <div>
             <label htmlFor="name" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.form.name')}</label>
-            <input type="text" id="name" name="name" value={formData.name} onChange={handleFormChange} placeholder={t('studentManagement.form.name')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <input type="text" id="name" name="name" value={formData.name} onChange={handleFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
         </div>
         <div>
             <label htmlFor="password" className="block text-sm font-medium text-brand-secondary mb-2">{editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')}</label>
-            <input type="password" id="password" name="password" value={formData.password} onChange={handleFormChange} placeholder={editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <input type="password" id="password" name="password" value={formData.password} onChange={handleFormChange} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
         </div>
-        <div>
+        <div className="relative">
             <label htmlFor="class_id" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.class')}</label>
-            <select id="class_id" name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50">
+            <select id="class_id" name="class_id" value={formData.class_id} onChange={handleFormChange} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 appearance-none">
             <option value="">{t('studentManagement.form.selectClass')}</option>
             {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
             </select>
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 pt-8">
+                <ChevronDown className="h-5 w-5 text-brand-secondary" />
+            </div>
         </div>
-        {editingStudent && (
-        <div>
-            <label htmlFor="points" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.points')}</label>
-            <input type="number" id="points" name="points" value={formData.points} onChange={handleFormChange} placeholder={t('studentManagement.table.points')} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
-        </div>
-        )}
         <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-            <button type="submit" className="bg-brand-accent hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95">{t('common.save')}</button>
+            <button
+              type="submit"
+              className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center w-24"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" /> : t('common.save')}
+            </button>
         </div>
         </form>
       </Modal>

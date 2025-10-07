@@ -9,5 +9,8 @@
   },
   "workspaces": [
     "frontend"
-  ]
+  ],
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2"
+  }
 }
