@@ -68,7 +68,7 @@ const StudentManagement = () => {
     setIsSubmitting(true);
     const errorKey = editingStudent ? 'studentManagement.errors.update' : 'studentManagement.errors.add';
     try {
-      let payload = { ...formData };
+      let payload = { ...formData, class_id: formData.class_id ? Number(formData.class_id) : null };
       if (editingStudent) {
         if (!payload.password) delete payload.password;
         await api.put(`/admin/students/${editingStudent.id}`, payload);
