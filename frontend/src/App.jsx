@@ -65,15 +65,11 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
 
-  if (isAdminPage) {
-    return <main className="font-arabic">{children}</main>;
-  }
-
   return (
-    <div className="min-h-screen bg-black text-brand-primary flex flex-col font-arabic">
-      <Navigation />
-      <main className="flex-1">{children}</main>
-      <Footer />
+    <div className="min-h-screen bg-brand-background text-brand-primary flex flex-col font-arabic">
+      {!isAdminPage && <Navigation />}
+      <main className="flex-1 flex flex-col">{children}</main>
+      {!isAdminPage && <Footer />}
     </div>
   );
 };
