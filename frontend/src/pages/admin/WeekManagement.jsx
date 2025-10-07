@@ -19,6 +19,7 @@ const WeekManagement = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [deletingWeekId, setDeletingWeekId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState('');
 
   const initialFormState = {
     week_number: '',
@@ -99,7 +100,9 @@ const WeekManagement = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmissionStatus(t('weekManagement.status.creatingWeek'));
     const errorKey = editingWeek ? 'weekManagement.errors.update' : 'weekManagement.errors.add';
+
     try {
       const weekPayload = {
         title: formData.title,
@@ -116,9 +119,11 @@ const WeekManagement = () => {
       const weekId = weekResponse.data.id;
 
       if (videoFile) {
+        setSubmissionStatus(t('weekManagement.status.uploadingVideo'));
         await weekService.uploadWeekVideo(weekId, videoFile);
       }
 
+      setSubmissionStatus(t('weekManagement.status.savingCards'));
       if (editingWeek) {
           for (const card of editingWeek.content_cards) {
               if(card.id) {
@@ -139,6 +144,7 @@ const WeekManagement = () => {
       console.error(err);
     } finally {
       setIsSubmitting(false);
+      setSubmissionStatus('');
     }
   };
 
@@ -280,10 +286,17 @@ const WeekManagement = () => {
               <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
               <button
                 type="submit"
-                className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center w-24"
+                className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center min-w-24"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? <Loader2 className="animate-spin" /> : t('common.save')}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2" />
+                    <span>{submissionStatus}</span>
+                  </>
+                ) : (
+                  t('common.save')
+                )}
               </button>
           </div>
         </form>
