@@ -4,6 +4,7 @@ import api, { classService } from "../../services/api";
 import { Plus, Trash2, Edit } from "lucide-react";
 import LoadingScreen from "../../components/LoadingScreen";
 import Modal from "../../components/Modal";
+import ConfirmationModal from "../../components/ConfirmationModal";
 
 const ClassManagement = () => {
   const { t } = useTranslation();
@@ -13,6 +14,8 @@ const ClassManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
   const [formData, setFormData] = useState({ name: "" });
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [deletingClassId, setDeletingClassId] = useState(null);
 
   const fetchClasses = useCallback(async () => {
     setIsLoading(true);
@@ -66,16 +69,33 @@ const ClassManagement = () => {
     }
   };
 
-  const handleDeleteClass = async (classId) => {
-    if (window.confirm(t("classManagement.confirmDelete"))) {
+  const openDeleteConfirm = (classId) => {
+    setDeletingClassId(classId);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deletingClassId) return;
+
+    setIsConfirmModalOpen(false);
+    setClasses(prevClasses =>
+      prevClasses.map(c =>
+        c.id === deletingClassId ? { ...c, deleting: true } : c
+      )
+    );
+
+    setTimeout(async () => {
       try {
-        await classService.deleteClass(classId);
-        fetchClasses();
+        await classService.deleteClass(deletingClassId);
+        setClasses(prevClasses => prevClasses.filter(c => c.id !== deletingClassId));
       } catch (err) {
         setError(t("classManagement.errors.delete"));
         console.error(err);
+        fetchClasses(); // Revert on error
+      } finally {
+        setDeletingClassId(null);
       }
-    }
+    }, 300);
   };
 
   return (
@@ -84,7 +104,7 @@ const ClassManagement = () => {
         <h1 className="text-3xl font-bold text-brand-primary">{t("classManagement.title")}</h1>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200"
+          className="flex items-center gap-2 bg-brand-accent text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t("classManagement.addClass")}
         </button>
@@ -99,7 +119,7 @@ const ClassManagement = () => {
           {classes.map((cls) => (
             <div
               key={cls.id}
-              className="bg-black/20 border border-brand-border rounded-20 p-5 flex justify-between items-center transition-all duration-300 hover:border-brand-primary/50 hover:-translate-y-1"
+              className={`bg-black/20 border border-brand-border rounded-20 p-5 flex justify-between items-center transition-all duration-300 hover:border-brand-primary/50 hover:-translate-y-1 ${cls.deleting ? 'animate-fade-out' : ''}`}
             >
               <span className="text-lg font-semibold">{cls.name}</span>
               <div className="flex gap-3">
@@ -110,7 +130,7 @@ const ClassManagement = () => {
                   <Edit size={20} />
                 </button>
                 <button
-                  onClick={() => handleDeleteClass(cls.id)}
+                  onClick={() => openDeleteConfirm(cls.id)}
                   className="text-brand-secondary hover:text-red-500 transition-colors"
                 >
                   <Trash2 size={20} />
@@ -143,10 +163,18 @@ const ClassManagement = () => {
           </div>
           <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-            <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
+            <button type="submit" className="bg-brand-accent hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95">{t('common.save')}</button>
           </div>
         </form>
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={t('common.delete') + " " + t('classManagement.title')}
+        message={t('classManagement.confirmDelete')}
+      />
     </>
   );
 };

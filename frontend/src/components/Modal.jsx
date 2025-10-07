@@ -6,11 +6,11 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-3xl' }) => 
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex justify-center items-center p-4 animate-fade-in-up"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex justify-center items-center p-4"
       onClick={onClose}
     >
       <div
-        className={`bg-brand-background border border-brand-border rounded-20 shadow-card w-full ${maxWidth} m-auto flex flex-col max-h-[90vh]`}
+        className={`bg-brand-background border border-brand-border rounded-20 shadow-card w-full ${maxWidth} m-auto flex flex-col max-h-[90vh] animate-modal-in`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex-shrink-0 flex justify-between items-center p-6 border-b border-brand-border">

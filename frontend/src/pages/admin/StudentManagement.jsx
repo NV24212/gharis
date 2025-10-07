@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import Modal from '../../components/Modal';
 import LoadingScreen from '../../components/LoadingScreen';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 const StudentManagement = () => {
   const { t } = useTranslation();
@@ -16,6 +17,8 @@ const StudentManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [formData, setFormData] = useState({ name: '', password: '', class_id: '', points: 0 });
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [deletingStudentId, setDeletingStudentId] = useState(null);
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -82,16 +85,33 @@ const StudentManagement = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm(t('studentManagement.confirmDelete'))) {
+  const openDeleteConfirm = (id) => {
+    setDeletingStudentId(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deletingStudentId) return;
+
+    setIsConfirmModalOpen(false);
+    setStudents(prevStudents =>
+      prevStudents.map(s =>
+        s.id === deletingStudentId ? { ...s, deleting: true } : s
+      )
+    );
+
+    setTimeout(async () => {
       try {
-        await api.delete(`/admin/students/${id}`);
-        fetchData();
+        await api.delete(`/admin/students/${deletingStudentId}`);
+        setStudents(prevStudents => prevStudents.filter(s => s.id !== deletingStudentId));
       } catch (err) {
         setError(t('studentManagement.errors.delete'));
         console.error(err);
+        fetchData(); // Revert on error
+      } finally {
+        setDeletingStudentId(null);
       }
-    }
+    }, 300);
   };
 
   if (loading) return <LoadingScreen fullScreen={false} />;
@@ -103,7 +123,7 @@ const StudentManagement = () => {
         <h1 className="text-3xl font-bold text-brand-primary">{t('studentManagement.title')}</h1>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200"
+          className="flex items-center gap-2 bg-brand-accent text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t('studentManagement.addStudent')}
         </button>
@@ -121,13 +141,13 @@ const StudentManagement = () => {
           </thead>
           <tbody className="divide-y divide-brand-border">
             {students.map((student) => (
-              <tr key={student.id} className="hover:bg-brand-border/5 transition-colors">
+              <tr key={student.id} className={`hover:bg-brand-border/5 transition-colors ${student.deleting ? 'animate-fade-out' : ''}`}>
                 <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.classes?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
                 <td className="px-6 py-4 text-left">
                   <button onClick={() => openModal(student)} className="text-brand-secondary hover:text-brand-primary mr-4 transition-colors"><Edit size={18} /></button>
-                  <button onClick={() => handleDelete(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                  <button onClick={() => openDeleteConfirm(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
                 </td>
               </tr>
             ))}
@@ -164,10 +184,18 @@ const StudentManagement = () => {
         )}
         <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={closeModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
-            <button type="submit" className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.save')}</button>
+            <button type="submit" className="bg-brand-accent hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95">{t('common.save')}</button>
         </div>
         </form>
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={t('common.delete') + " " + t('studentManagement.title')}
+        message={t('studentManagement.confirmDelete')}
+      />
     </>
   );
 };
