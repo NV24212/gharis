@@ -6,10 +6,8 @@ import uuid
 from app.api import deps
 from app.db.supabase import get_supabase_client
 from app.services.student_service import StudentService
-from app.services.student_service import StudentService
 from app.services.admin_service import AdminService
-from app.schemas.student import StudentInDB
-from app.schemas.admin import AdminInDB
+from app.schemas.user import UserInDBBase, AdminInDB
 from typing import Union
 
 # This router is for actions the current user performs on their own profile
@@ -17,12 +15,12 @@ user_router = APIRouter()
 # This router is for actions an admin performs on other users' profiles
 admin_router = APIRouter()
 
-@user_router.get("/", response_model=Union[AdminInDB, StudentInDB])
+@user_router.get("/", response_model=Union[AdminInDB, UserInDBBase])
 def get_current_user_profile(
     *,
     db: Client = Depends(get_supabase_client),
     current_user: deps.TokenData = Depends(deps.get_current_user)
-) -> Union[AdminInDB, StudentInDB]:
+) -> Any:
     """
     Get the profile for the currently logged-in user.
     """
@@ -34,13 +32,13 @@ def get_current_user_profile(
         user_profile = service.get_admin_by_id(user_id)
         if not user_profile:
             raise HTTPException(status_code=404, detail="Admin profile not found")
-        return user_profile
+        return AdminInDB.model_validate(user_profile)
     elif role == "student":
         service = StudentService(db)
         user_profile = service.get_student_by_id(user_id)
         if not user_profile:
             raise HTTPException(status_code=404, detail="Student profile not found")
-        return user_profile
+        return UserInDBBase.model_validate(user_profile)
     else:
         raise HTTPException(status_code=403, detail="Invalid user role")
 
