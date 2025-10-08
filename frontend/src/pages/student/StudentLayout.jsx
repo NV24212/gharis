@@ -47,11 +47,7 @@ const StudentLayout = () => {
                     <img src={user?.profile_pic_url || logoUrl} alt="Avatar" className="h-9 w-9 rounded-full object-cover" />
                     <span className="text-lg font-bold whitespace-nowrap">{user?.name}</span>
                 </div>
-                {isDesktop ? (
-                     <button onClick={() => setIsDesktopSidebarOpen(!isOpen)} className="text-brand-secondary hover:text-brand-primary">
-                        <PanelLeft className="h-6 w-6" />
-                    </button>
-                ) : (
+                {!isDesktop && (
                     <button onClick={() => setIsMobileSidebarOpen(false)} className="text-brand-secondary hover:text-brand-primary">
                         <X size={24} />
                     </button>
@@ -71,11 +67,19 @@ const StudentLayout = () => {
                 </ul>
             </nav>
 
-            <div className="px-2 py-4 border-t border-brand-border">
-                <button onClick={handleLogout} className={`flex items-center w-full px-4 py-2.5 text-sm font-medium text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary rounded-lg transition-colors duration-200 ${!isOpen ? 'justify-center' : ''}`}>
-                    <LogOut className={`h-5 w-5 ${isOpen ? 'ml-3' : ''}`} />
-                    <span className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'hidden' : 'delay-200'}`}>{t('Logout')}</span>
-                </button>
+            <div className="px-2 py-4 mt-auto">
+                <div className="border-t border-brand-border pt-4 space-y-2">
+                    {isDesktop && (
+                         <button onClick={() => setIsDesktopSidebarOpen(!isOpen)} className={`flex items-center w-full px-4 py-2.5 text-sm font-medium text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary rounded-lg transition-colors duration-200 ${!isOpen ? 'justify-center' : ''}`}>
+                            <PanelLeft className={`h-5 w-5 ${isOpen ? 'ml-3' : ''}`} />
+                            <span className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'hidden' : 'delay-200'}`}>{t('student.nav.toggleSidebar')}</span>
+                        </button>
+                    )}
+                    <button onClick={handleLogout} className={`flex items-center w-full px-4 py-2.5 text-sm font-medium text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary rounded-lg transition-colors duration-200 ${!isOpen ? 'justify-center' : ''}`}>
+                        <LogOut className={`h-5 w-5 ${isOpen ? 'ml-3' : ''}`} />
+                        <span className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'hidden' : 'delay-200'}`}>{t('Logout')}</span>
+                    </button>
+                </div>
             </div>
         </div>
     );

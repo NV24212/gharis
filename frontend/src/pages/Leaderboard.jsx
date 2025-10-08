@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CacheBusterContext } from '../context/CacheBusterContext';
 import api from '../services/api';
 import LoadingScreen from '../components/LoadingScreen';
 import Section from '../components/Section';
@@ -7,6 +8,7 @@ import { logoUrl } from '../data/site';
 
 const Leaderboard = () => {
   const { t } = useTranslation();
+  const { cacheBuster } = useContext(CacheBusterContext);
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,7 +29,7 @@ const Leaderboard = () => {
     };
 
     fetchLeaderboard();
-  }, [t]);
+  }, [t, cacheBuster]);
 
   if (loading) {
     return <LoadingScreen fullScreen={true} />;

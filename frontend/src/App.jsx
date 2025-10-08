@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from './context/AuthContext';
+import { CacheBusterProvider } from './context/CacheBusterContext.jsx';
 import Home from './pages/Home.jsx';
 import Weeks from './pages/Weeks.jsx';
 import WeekDetail from './pages/WeekDetail.jsx';
@@ -81,39 +82,41 @@ const App = () => {
   const { user } = useContext(AuthContext);
 
   return (
-    <Layout>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <Login />} />
-        <Route path="/weeks" element={<Weeks />} />
-        <Route path="/weeks/:id" element={<WeekDetail />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
+    <CacheBusterProvider>
+      <Layout>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <Login />} />
+          <Route path="/weeks" element={<Weeks />} />
+          <Route path="/weeks/:id" element={<WeekDetail />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
 
-        {/* Protected Routes for Students */}
-        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-          <Route path="/dashboard" element={<StudentLayout />}>
-            <Route index element={<Navigate to="points" />} />
-            <Route path="profile" element={<StudentProfile />} />
-            <Route path="points" element={<StudentPoints />} />
+          {/* Protected Routes for Students */}
+          <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+            <Route path="/dashboard" element={<StudentLayout />}>
+              <Route index element={<Navigate to="points" />} />
+              <Route path="profile" element={<StudentProfile />} />
+              <Route path="points" element={<StudentPoints />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Protected Routes for Admin */}
-        <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route element={<AdminLayout />}>
-            <Route index element={<Navigate to="users" />} />
-            <Route path="profile" element={<AdminProfile />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="weeks" element={<WeekManagement />} />
-            <Route path="points" element={<PointsManagement />} />
+          {/* Protected Routes for Admin */}
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route element={<AdminLayout />}>
+              <Route index element={<Navigate to="users" />} />
+              <Route path="profile" element={<AdminProfile />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="weeks" element={<WeekManagement />} />
+              <Route path="points" element={<PointsManagement />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Fallback Route */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Layout>
+          {/* Fallback Route */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Layout>
+    </CacheBusterProvider>
   );
 };
 
