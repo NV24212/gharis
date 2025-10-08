@@ -78,8 +78,8 @@ const UserManagement = () => {
     if (!token) return;
     setIsAdminsLoading(true);
     try {
-      const response = await adminService.getAllAdmins();
-      setAdmins(response.data);
+      const data = await adminService.getAllAdmins();
+      setAdmins(data);
     } catch (err) {
       setError(t('userManagement.errors.fetchAdmins'));
       console.error(err);
