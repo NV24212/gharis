@@ -14,12 +14,6 @@ class StudentService:
             return response.data[0]
         return None
 
-    def update_profile_pic(self, user_id: int, url: str) -> None:
-        """
-        Updates the profile picture URL for a specific student.
-        """
-        self.db.table(self.table).update({"profile_pic_url": url}).eq("id", user_id).execute()
-
     def get_all_students(self) -> List[Dict[str, Any]]:
         """
         Retrieves all students from the database with their class name.

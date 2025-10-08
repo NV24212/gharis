@@ -28,7 +28,6 @@ CREATE TABLE admins (
     can_manage_students BOOLEAN DEFAULT TRUE,
     can_manage_weeks BOOLEAN DEFAULT TRUE,
     can_manage_points BOOLEAN DEFAULT TRUE,
-    profile_pic_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -40,7 +39,6 @@ CREATE TABLE students (
     class_id BIGINT REFERENCES classes(id) ON DELETE SET NULL,
     points INT DEFAULT 0,
     role TEXT DEFAULT 'student',
-    profile_pic_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
