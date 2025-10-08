@@ -1,11 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../context/AuthContext';
+import { CacheBusterContext } from '../../context/CacheBusterContext';
 import { Star } from 'lucide-react';
 
 const StudentPoints = () => {
   const { t } = useTranslation();
-  const { user } = useContext(AuthContext);
+  const { user, fetchCurrentUser } = useContext(AuthContext);
+  const { cacheBuster } = useContext(CacheBusterContext);
+
+  useEffect(() => {
+    if (fetchCurrentUser) {
+      fetchCurrentUser();
+    }
+  }, [cacheBuster, fetchCurrentUser]);
 
   return (
     <div>
