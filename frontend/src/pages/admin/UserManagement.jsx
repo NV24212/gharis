@@ -30,7 +30,18 @@ const UserManagement = () => {
   const [admins, setAdmins] = useState([]);
   const [isAdminsLoading, setIsAdminsLoading] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
-  const [newAdminData, setNewAdminData] = useState({ name: '', password: '' });
+  const [editingAdmin, setEditingAdmin] = useState(null);
+  const [adminFormData, setAdminFormData] = useState({
+    name: '',
+    password: '',
+    can_manage_admins: true,
+    can_manage_classes: true,
+    can_manage_students: true,
+    can_manage_weeks: true,
+    can_manage_points: true,
+  });
+  const [isAdminsConfirmModalOpen, setIsAdminsConfirmModalOpen] = useState(false);
+  const [deletingAdminId, setDeletingAdminId] = useState(null);
 
   // Classes State
   const [classes, setClasses] = useState([]);
@@ -155,6 +166,30 @@ const UserManagement = () => {
     }
   };
 
+  const openAdminDeleteConfirm = (id) => {
+    setDeletingAdminId(id);
+    setIsAdminsConfirmModalOpen(true);
+  };
+
+  const handleAdminConfirmDelete = () => {
+    if (!deletingAdminId) return;
+    setIsAdminsConfirmModalOpen(false);
+    setAdmins(prev => prev.map(a => a.id === deletingAdminId ? { ...a, deleting: true } : a));
+    setTimeout(async () => {
+      try {
+        // Assuming adminService will have a deleteAdmin method
+        await adminService.deleteAdmin(deletingAdminId);
+        setAdmins(prev => prev.filter(a => a.id !== deletingAdminId));
+      } catch (err) {
+        setError(t('userManagement.errors.deleteAdmin'));
+        console.error(err);
+        await fetchAdminsData();
+      } finally {
+        setDeletingAdminId(null);
+      }
+    }, 300);
+  };
+
   const openStudentDeleteConfirm = (id) => {
     setDeletingStudentId(id);
     setIsStudentConfirmModalOpen(true);
@@ -179,21 +214,67 @@ const UserManagement = () => {
   };
 
   // Admin Modal and Form Handlers
+  const openAdminModal = (admin = null) => {
+    setEditingAdmin(admin);
+    setAdminFormData(
+      admin
+        ? {
+            name: admin.name,
+            password: '',
+            can_manage_admins: admin.can_manage_admins,
+            can_manage_classes: admin.can_manage_classes,
+            can_manage_students: admin.can_manage_students,
+            can_manage_weeks: admin.can_manage_weeks,
+            can_manage_points: admin.can_manage_points,
+          }
+        : {
+            name: '',
+            password: '',
+            can_manage_admins: true,
+            can_manage_classes: true,
+            can_manage_students: true,
+            can_manage_weeks: true,
+            can_manage_points: true,
+          }
+    );
+    setIsAdminModalOpen(true);
+  };
+
+  const closeAdminModal = () => {
+    setIsAdminModalOpen(false);
+    setEditingAdmin(null);
+  };
+
   const handleAdminFormChange = (e) => {
-    setNewAdminData({ ...newAdminData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setAdminFormData({
+      ...adminFormData,
+      [name]: type === 'checkbox' ? checked : value,
+    });
   };
 
   const handleAdminFormSubmit = async (e) => {
     e.preventDefault();
-    if (!newAdminData.name || !newAdminData.password) return;
     setIsSubmitting(true);
     setError('');
+    const errorKey = editingAdmin ? 'userManagement.errors.updateAdmin' : 'userManagement.errors.createAdmin';
     try {
-      await adminService.createAdmin(newAdminData);
+      let payload = { ...adminFormData };
+      if (editingAdmin) {
+        if (!payload.password) delete payload.password;
+        await adminService.updateAdmin(editingAdmin.id, payload);
+      } else {
+         if (!payload.password) {
+          setError(t('userManagement.errors.passwordRequired'));
+          setIsSubmitting(false);
+          return;
+        }
+        await adminService.createAdmin(payload);
+      }
       await fetchAdminsData();
-      setIsAdminModalOpen(false);
+      closeAdminModal();
     } catch (err) {
-      setError(t('userManagement.errors.createAdmin'));
+      setError(t(errorKey));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -324,10 +405,7 @@ const UserManagement = () => {
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-bold text-brand-primary">{t('userManagement.tabs.admins')}</h2>
         <button
-          onClick={() => {
-            setNewAdminData({ name: '', password: '' });
-            setIsAdminModalOpen(true);
-          }}
+          onClick={() => openAdminModal()}
           className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t('userManagement.addAdmin')}
@@ -340,17 +418,20 @@ const UserManagement = () => {
           <table className="min-w-full text-brand-primary">
             <thead className="bg-brand-border/5">
               <tr>
-                <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminTable.id')}</th>
                 <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminTable.name')}</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminTable.createdAt')}</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminTable.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-border">
               {admins.map((admin) => (
-                <tr key={admin.id} className="hover:bg-brand-border/5 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">{admin.id}</td>
+                <tr key={admin.id} className={`hover:bg-brand-border/5 transition-colors ${admin.deleting ? 'animate-fade-out' : ''}`}>
                   <td className="px-6 py-4 whitespace-nowrap">{admin.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{new Date(admin.created_at).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-left">
+                    <div className="flex items-center gap-6">
+                      <button onClick={() => openAdminModal(admin)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
+                      <button onClick={() => openAdminDeleteConfirm(admin.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -465,21 +546,38 @@ const UserManagement = () => {
       {/* Admin Modal */}
       <Modal
         isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        title={t('userManagement.addAdmin')}
-        maxWidth="max-w-md"
+        onClose={closeAdminModal}
+        title={editingAdmin ? t('userManagement.editAdmin') : t('userManagement.addAdmin')}
+        maxWidth="max-w-lg"
       >
-        <form onSubmit={handleAdminFormSubmit} className="space-y-4">
+        <form onSubmit={handleAdminFormSubmit} className="space-y-6">
           <div>
             <label htmlFor="admin-name" className="block text-sm font-bold text-brand-secondary mb-2">{t('userManagement.adminForm.name')}</label>
-            <input type="text" id="admin-name" name="name" value={newAdminData.name} onChange={handleAdminFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <input type="text" id="admin-name" name="name" value={adminFormData.name} onChange={handleAdminFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
           </div>
           <div>
-            <label htmlFor="admin-password" className="block text-sm font-bold text-brand-secondary mb-2">{t('userManagement.adminForm.password')}</label>
-            <input type="password" id="admin-password" name="password" value={newAdminData.password} onChange={handleAdminFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <label htmlFor="admin-password" className="block text-sm font-bold text-brand-secondary mb-2">{editingAdmin ? t('userManagement.adminForm.newPassword') : t('userManagement.adminForm.password')}</label>
+            <input type="password" id="admin-password" name="password" value={adminFormData.password} onChange={handleAdminFormChange} required={!editingAdmin} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-brand-secondary mb-3">{t('userManagement.permissions.title')}</label>
+            <div className="grid grid-cols-2 gap-4">
+              {Object.keys(adminFormData).filter(k => k.startsWith('can_')).map((key) => (
+                <label key={key} className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    name={key}
+                    checked={adminFormData[key]}
+                    onChange={handleAdminFormChange}
+                    className="h-5 w-5 rounded bg-black/30 border-brand-border text-brand-primary focus:ring-brand-primary/50"
+                  />
+                  <span className="text-brand-primary">{t(`userManagement.permissions.${key.split('_').slice(1).join('')}`)}</span>
+                </label>
+              ))}
+            </div>
           </div>
           <div className="flex justify-end gap-4 pt-4">
-            <button type="button" onClick={() => setIsAdminModalOpen(false)} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
+            <button type="button" onClick={closeAdminModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
             <button
               type="submit"
               className="bg-brand-primary hover:bg-opacity-90 text-brand-background font-bold py-2.5 px-5 rounded-lg transition-colors transform active:scale-95 flex items-center justify-center w-24"
@@ -538,6 +636,13 @@ const UserManagement = () => {
         onConfirm={handleClassConfirmDelete}
         title={t('common.delete')}
         message={t('classManagement.confirmDelete')}
+      />
+      <ConfirmationModal
+        isOpen={isAdminsConfirmModalOpen}
+        onClose={() => setIsAdminsConfirmModalOpen(false)}
+        onConfirm={handleAdminConfirmDelete}
+        title={t('common.delete')}
+        message={t('userManagement.confirmDeleteAdmin')}
       />
     </>
   );

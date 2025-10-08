@@ -23,6 +23,11 @@ CREATE TABLE admins (
     name TEXT NOT NULL,
     password TEXT NOT NULL UNIQUE,
     role TEXT DEFAULT 'admin',
+    can_manage_admins BOOLEAN DEFAULT TRUE,
+    can_manage_classes BOOLEAN DEFAULT TRUE,
+    can_manage_students BOOLEAN DEFAULT TRUE,
+    can_manage_weeks BOOLEAN DEFAULT TRUE,
+    can_manage_points BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

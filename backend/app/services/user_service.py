@@ -11,7 +11,7 @@ class UserService:
         Returns a dictionary with user details including a 'role' if successful, otherwise None.
         """
         # Check if the password belongs to an admin
-        admin_response = self.db.table("admins").select("id, role").eq("password", password).execute()
+        admin_response = self.db.table("admins").select("*").eq("password", password).execute()
         if admin_response.data:
             return admin_response.data[0]
 
