@@ -431,11 +431,11 @@ const UserManagement = () => {
               {admins.map((admin) => (
                 <tr key={admin.id} className={`hover:bg-brand-border/5 transition-colors ${admin.deleting ? 'animate-fade-out' : ''}`}>
                   <td className="px-6 py-4 whitespace-nowrap">{admin.name}</td>
-                  <td className="px-6 py-4 text-center">{admin.can_manage_admins ? '✔️' : '❌'}</td>
-                  <td className="px-6 py-4 text-center">{admin.can_manage_classes ? '✔️' : '❌'}</td>
-                  <td className="px-6 py-4 text-center">{admin.can_manage_students ? '✔️' : '❌'}</td>
-                  <td className="px-6 py-4 text-center">{admin.can_manage_weeks ? '✔️' : '❌'}</td>
-                  <td className="px-6 py-4 text-center">{admin.can_manage_points ? '✔️' : '❌'}</td>
+                  <td className="px-6 py-4 text-center">{t(admin.can_manage_admins ? 'common.yes' : 'common.no')}</td>
+                  <td className="px-6 py-4 text-center">{t(admin.can_manage_classes ? 'common.yes' : 'common.no')}</td>
+                  <td className="px-6 py-4 text-center">{t(admin.can_manage_students ? 'common.yes' : 'common.no')}</td>
+                  <td className="px-6 py-4 text-center">{t(admin.can_manage_weeks ? 'common.yes' : 'common.no')}</td>
+                  <td className="px-6 py-4 text-center">{t(admin.can_manage_points ? 'common.yes' : 'common.no')}</td>
                   <td className="px-6 py-4 text-left">
                     <div className="flex items-center gap-6">
                       <button onClick={() => openAdminModal(admin)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>

@@ -74,6 +74,8 @@ i18next
           "common.upload": "رفع",
           "common.create": "إنشاء",
           "common.saveChanges": "حفظ التغييرات",
+          "common.yes": "نعم",
+          "common.no": "لا",
           "studentManagement.title": "إدارة الطلاب",
           "studentManagement.addStudent": "إضافة طالب",
           "studentManagement.editStudent": "تعديل طالب",
