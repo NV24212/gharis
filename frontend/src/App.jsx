@@ -6,7 +6,6 @@ import Home from './pages/Home.jsx';
 import Weeks from './pages/Weeks.jsx';
 import WeekDetail from './pages/WeekDetail.jsx';
 import Login from './pages/Login.jsx';
-import Dashboard from './pages/Dashboard.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
