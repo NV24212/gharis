@@ -25,7 +25,13 @@ def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token_data = {"id": str(user['id']), "role": user['role']}
+    token_data = {
+        "id": str(user['id']),
+        "role": user['role'],
+        "name": user.get("name"),
+        "profile_pic_url": user.get("profile_pic_url"),
+    }
+
     if user['role'] == 'admin':
         permissions = {
             "can_manage_admins": user.get("can_manage_admins"),
@@ -35,6 +41,8 @@ def login_for_access_token(
             "can_manage_points": user.get("can_manage_points"),
         }
         token_data.update(permissions)
+    elif user['role'] == 'student':
+        token_data["class"] = user.get("class")
 
     access_token = create_access_token(data=token_data)
     return {"access_token": access_token, "token_type": "bearer"}

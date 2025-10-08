@@ -15,7 +15,7 @@ class UserService:
             return admin_response.data[0]
 
         # Check if the password belongs to a student
-        student_response = self.db.table("students").select("*").eq("password", password).execute()
+        student_response = self.db.table("students").select("*, class:classes(id, name)").eq("password", password).execute()
         if student_response.data:
             return student_response.data[0]
 

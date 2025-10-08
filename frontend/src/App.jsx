@@ -93,7 +93,7 @@ const App = () => {
         {/* Protected Routes for Students */}
         <Route element={<ProtectedRoute allowedRoles={['student']} />}>
           <Route path="/dashboard" element={<StudentLayout />}>
-            <Route index element={<Navigate to="profile" />} />
+            <Route index element={<Navigate to="points" />} />
             <Route path="profile" element={<StudentProfile />} />
             <Route path="points" element={<StudentPoints />} />
           </Route>
@@ -102,7 +102,7 @@ const App = () => {
         {/* Protected Routes for Admin */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route element={<AdminLayout />}>
-            <Route index element={<Navigate to="profile" />} />
+            <Route index element={<Navigate to="users" />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="weeks" element={<WeekManagement />} />

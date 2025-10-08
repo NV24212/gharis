@@ -24,11 +24,11 @@ const AdminLayout = () => {
   };
 
   const navLinks = [
-    { to: '/admin/profile', text: t('student.nav.profile'), icon: ProfileIcon, show: true },
     // The "User Management" link should appear if the admin can manage students, other admins, or classes.
     { to: '/admin/users', text: t('admin.nav.users'), icon: Users, show: user?.can_manage_students || user?.can_manage_admins || user?.can_manage_classes },
     { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video, show: user?.can_manage_weeks },
     { to: '/admin/points', text: t('admin.nav.points'), icon: Star, show: user?.can_manage_points },
+    { to: '/admin/profile', text: t('student.nav.profile'), icon: ProfileIcon, show: true },
   ].filter(link => link.show);
 
   const getNavLinkClasses = (isDesktop) => {
@@ -46,17 +46,17 @@ const AdminLayout = () => {
 
     return (
         <div className="flex flex-col h-full">
-            <div className={`flex items-center p-4 mb-4 ${isOpen ? 'justify-between' : 'justify-center'}`}>
+            <div className={`flex items-center p-4 mb-4`}>
                 <div className={`flex items-center gap-3 transition-all duration-300 ${!isOpen ? 'opacity-0 w-0 h-0' : 'opacity-100'}`}>
                     <img src={user?.profile_pic_url || logoUrl} alt="Avatar" className="h-9 w-9 rounded-full object-cover" />
                     <span className="text-xl font-bold whitespace-nowrap">{user?.name}</span>
                 </div>
                 {isDesktop ? (
-                     <button onClick={() => setIsDesktopSidebarOpen(!isOpen)} className="text-brand-secondary hover:text-brand-primary">
+                     <button onClick={() => setIsDesktopSidebarOpen(!isOpen)} className="text-brand-secondary hover:text-brand-primary mr-auto">
                         <PanelLeft className="h-6 w-6" />
                     </button>
                 ) : (
-                    <button onClick={() => setIsMobileSidebarOpen(false)} className="text-brand-secondary hover:text-brand-primary">
+                    <button onClick={() => setIsMobileSidebarOpen(false)} className="text-brand-secondary hover:text-brand-primary mr-auto">
                         <X size={24} />
                     </button>
                 )}

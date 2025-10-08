@@ -175,6 +175,7 @@ i18next
           "student.nav.points": "النقاط",
           "profile.title": "ملفك الشخصي",
           "profile.changeAvatar": "تغيير الصورة الرمزية",
+          "profile.uploadNewPhoto": "رفع صورة جديدة",
           "profile.errors.upload": "فشل في رفع الصورة.",
           "points.title": "نقاطك",
           "points.yourTotal": "مجموع نقاطك هو"

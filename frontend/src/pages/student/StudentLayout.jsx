@@ -23,8 +23,8 @@ const StudentLayout = () => {
   };
 
   const navLinks = [
-    { to: '/dashboard/profile', text: t('student.nav.profile'), icon: User },
     { to: '/dashboard/points', text: t('student.nav.points'), icon: Star },
+    { to: '/dashboard/profile', text: t('student.nav.profile'), icon: User },
   ];
 
   const getNavLinkClasses = (isDesktop) => {
@@ -42,17 +42,17 @@ const StudentLayout = () => {
 
     return (
         <div className="flex flex-col h-full">
-            <div className={`flex items-center p-4 mb-4 ${isOpen ? 'justify-between' : 'justify-center'}`}>
+            <div className={`flex items-center p-4 mb-4`}>
                 <div className={`flex items-center gap-3 transition-all duration-300 ${!isOpen ? 'opacity-0 w-0 h-0' : 'opacity-100'}`}>
                     <img src={user?.profile_pic_url || logoUrl} alt="Avatar" className="h-9 w-9 rounded-full object-cover" />
                     <span className="text-xl font-bold whitespace-nowrap">{user?.name}</span>
                 </div>
                 {isDesktop ? (
-                     <button onClick={() => setIsDesktopSidebarOpen(!isOpen)} className="text-brand-secondary hover:text-brand-primary">
+                     <button onClick={() => setIsDesktopSidebarOpen(!isOpen)} className="text-brand-secondary hover:text-brand-primary mr-auto">
                         <PanelLeft className="h-6 w-6" />
                     </button>
                 ) : (
-                    <button onClick={() => setIsMobileSidebarOpen(false)} className="text-brand-secondary hover:text-brand-primary">
+                    <button onClick={() => setIsMobileSidebarOpen(false)} className="text-brand-secondary hover:text-brand-primary mr-auto">
                         <X size={24} />
                     </button>
                 )}
