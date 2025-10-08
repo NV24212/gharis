@@ -419,11 +419,6 @@ const UserManagement = () => {
             <thead className="bg-brand-border/5">
               <tr>
                 <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminTable.name')}</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">{t('userManagement.permissions.manageAdmins')}</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">{t('userManagement.permissions.manageClasses')}</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">{t('userManagement.permissions.manageStudents')}</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">{t('userManagement.permissions.manageWeeks')}</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">{t('userManagement.permissions.managePoints')}</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminTable.actions')}</th>
               </tr>
             </thead>
@@ -431,11 +426,6 @@ const UserManagement = () => {
               {admins.map((admin) => (
                 <tr key={admin.id} className={`hover:bg-brand-border/5 transition-colors ${admin.deleting ? 'animate-fade-out' : ''}`}>
                   <td className="px-6 py-4 whitespace-nowrap">{admin.name}</td>
-                  <td className="px-6 py-4 text-center">{t(admin.can_manage_admins ? 'common.yes' : 'common.no')}</td>
-                  <td className="px-6 py-4 text-center">{t(admin.can_manage_classes ? 'common.yes' : 'common.no')}</td>
-                  <td className="px-6 py-4 text-center">{t(admin.can_manage_students ? 'common.yes' : 'common.no')}</td>
-                  <td className="px-6 py-4 text-center">{t(admin.can_manage_weeks ? 'common.yes' : 'common.no')}</td>
-                  <td className="px-6 py-4 text-center">{t(admin.can_manage_points ? 'common.yes' : 'common.no')}</td>
                   <td className="px-6 py-4 text-left">
                     <div className="flex items-center gap-6">
                       <button onClick={() => openAdminModal(admin)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>

@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 ALGORITHM = settings.ALGORITHM
 
@@ -23,9 +23,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     return encoded_jwt
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    # Truncate password to 72 bytes to match hashing behavior
-    return pwd_context.verify(plain_password[:72], hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    # Truncate password to 72 bytes to avoid passlib error
-    return pwd_context.hash(password[:72])
+    return pwd_context.hash(password)
