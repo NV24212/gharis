@@ -41,12 +41,12 @@ const Navigation = () => {
 
             {user ? (
               <>
-                {user.role === 'student' && <Link to="/dashboard" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Dashboard')}</Link>}
-                {user.role === 'admin' && <Link to="/admin" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Admin Panel')}</Link>}
+                {user.role === 'student' && <Link to="/dashboard" className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">{t('Dashboard')}</Link>}
+                {user.role === 'admin' && <Link to="/admin" className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">{t('Admin Panel')}</Link>}
                 <button onClick={handleLogout} className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Logout')}</button>
               </>
             ) : (
-              <Link to="/login" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Login')}</Link>
+              <Link to="/login" className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">{t('Login')}</Link>
             )}
           </div>
         </div>
