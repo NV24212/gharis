@@ -14,24 +14,19 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   }, []);
 
-  const fetchCurrentUser = useCallback(async () => {
+  const fetchCurrentUser = useCallback(() => {
     const currentToken = localStorage.getItem('token');
-    if (!currentToken) return;
+    if (!currentToken) {
+      setUser(null);
+      return;
+    }
 
     try {
-      const { data: freshProfileData } = await api.get('/profile');
       const decodedToken = jwtDecode(currentToken);
-
-      setUser((prevUser) => ({
-        ...prevUser,
-        ...decodedToken,
-        ...freshProfileData,
-      }));
+      setUser(decodedToken);
     } catch (error) {
-      console.error('Failed to fetch current user', error);
-      if (error.response && error.response.status === 401) {
-        logout();
-      }
+      console.error('Failed to decode token:', error);
+      logout();
     }
   }, [logout]);
 
