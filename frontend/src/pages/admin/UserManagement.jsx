@@ -68,7 +68,6 @@ const UserManagement = () => {
   }, [students, classFilter]);
 
   const fetchInitialData = useCallback(async () => {
-    if (!token) return;
     setLoading(true);
     try {
       const [studentsRes, classesRes] = await Promise.all([
@@ -84,7 +83,7 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, t]);
+  }, [t]);
 
   const fetchStudents = useCallback(async () => {
     try {
@@ -97,7 +96,6 @@ const UserManagement = () => {
   }, [t]);
 
   const fetchAdminsData = useCallback(async () => {
-    if (!token) return;
     setIsAdminsLoading(true);
     try {
       const data = await adminService.getAllAdmins();
@@ -108,7 +106,7 @@ const UserManagement = () => {
     } finally {
       setIsAdminsLoading(false);
     }
-  }, [token, t]);
+  }, [t]);
 
   const fetchClasses = useCallback(async () => {
     try {
