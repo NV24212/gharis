@@ -29,3 +29,6 @@ class AdminService:
 
         response = self.db.table(self.table).update(update_data).eq("id", admin_id).execute()
         return response.data[0] if response.data else None
+
+    def delete_admin(self, admin_id: int) -> None:
+        self.db.table(self.table).delete().eq("id", admin_id).execute()

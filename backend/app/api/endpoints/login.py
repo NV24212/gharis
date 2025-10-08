@@ -17,7 +17,8 @@ def login_for_access_token(
     """
     OAuth2 compatible token login, gets an access token for future requests
     """
-    user = UserService(db).authenticate_user(password=form_data.password)
+    # In a password-only flow, the password is sent in the 'username' field.
+    user = UserService(db).authenticate_user(password=form_data.username)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
