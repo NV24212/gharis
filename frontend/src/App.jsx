@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from './context/AuthContext';
@@ -65,7 +65,31 @@ const Footer = () => (
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const { t } = useTranslation();
   const isAppPage = location.pathname.startsWith('/admin') || location.pathname.startsWith('/dashboard');
+
+  useEffect(() => {
+    const path = location.pathname;
+    let title;
+
+    const keyMap = {
+      '/login': 'Login',
+      '/weeks': 'Weeks',
+      '/leaderboard': 'Leaderboard',
+      '/dashboard': 'Dashboard',
+      '/admin': 'Admin Panel',
+    };
+
+    if (path === '/') {
+      title = 'مشروع غرس';
+    } else {
+      const pageKey = Object.keys(keyMap).find(key => path.startsWith(key));
+      const pageName = pageKey ? t(keyMap[pageKey]) : t('Ghars');
+      title = `غرس - ${pageName}`;
+    }
+
+    document.title = title;
+  }, [location, t]);
 
   return (
     <div className="min-h-screen bg-brand-background text-brand-primary flex flex-col font-arabic">
