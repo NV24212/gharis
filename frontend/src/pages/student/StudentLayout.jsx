@@ -99,7 +99,7 @@ const StudentLayout = () => {
       </aside>
 
       <div className="flex flex-col flex-1">
-        <header className="sticky top-0 bg-brand-background/80 backdrop-blur-lg border-b border-brand-border p-4 flex items-center md:hidden">
+        <header className="sticky top-0 z-30 bg-brand-background/80 backdrop-blur-lg border-b border-brand-border p-4 flex items-center md:hidden">
           <button onClick={() => setIsMobileSidebarOpen(true)} className="text-brand-primary">
             <Menu size={24} />
           </button>
