@@ -66,13 +66,13 @@ const Footer = () => (
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const isAdminPage = location.pathname.startsWith('/admin');
+  const isAppPage = location.pathname.startsWith('/admin') || location.pathname.startsWith('/dashboard');
 
   return (
     <div className="min-h-screen bg-brand-background text-brand-primary flex flex-col font-arabic">
-      {!isAdminPage && <Navigation />}
+      {!isAppPage && <Navigation />}
       <main className="flex-1 flex flex-col">{children}</main>
-      {!isAdminPage && <Footer />}
+      {!isAppPage && <Footer />}
     </div>
   );
 };

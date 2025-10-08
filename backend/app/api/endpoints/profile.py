@@ -20,8 +20,11 @@ def _upload_avatar(db: Client, file: UploadFile, user_id: int, service: Any):
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
 
     try:
+        # Read the file content as bytes before uploading
+        file_content = file.file.read()
+
         # Upload to 'avatars' bucket
-        db.storage.from_("avatars").upload(file=file.file, path=unique_filename, file_options={"content-type": file.content_type})
+        db.storage.from_("avatars").upload(file=file_content, path=unique_filename, file_options={"content-type": file.content_type})
 
         # Get public URL
         public_url_data = db.storage.from_("avatars").get_public_url(unique_filename)
