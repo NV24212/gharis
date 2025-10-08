@@ -62,7 +62,7 @@ CREATE TABLE content_cards (
 );
 
 -- Initial Data
-INSERT INTO admins (name, password, role) VALUES ('Default Admin', 'Xnaf*123', 'admin');
+INSERT INTO admins (name, password, role) VALUES ('Default Admin', '$argon2id$v=19$m=65536,t=3,p=4$knLOmXMu5ZzTem9NqXUOwQ$wq9yYx7dFRFBRyM1MRyXspzfGKPz930/K70KJs8NiWA', 'admin');
 
 -- Sample Data (Optional)
 INSERT INTO classes (name) VALUES ('Class A'), ('Class B');
