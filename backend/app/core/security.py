@@ -1,12 +1,8 @@
 from datetime import datetime, timedelta
-from typing import Any, Union
+from typing import Any
 
 from jose import jwt
-from passlib.context import CryptContext
-
 from app.core.config import settings
-
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 ALGORITHM = settings.ALGORITHM
 
@@ -22,8 +18,14 @@ def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain_password: str, password_in_db: str) -> bool:
+    """
+    Verifies a password by direct string comparison.
+    """
+    return plain_password == password_in_db
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    """
+    This function no longer hashes the password. It returns it as is.
+    """
+    return password

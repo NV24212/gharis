@@ -62,12 +62,12 @@ CREATE TABLE content_cards (
 );
 
 -- Initial Data
-INSERT INTO admins (name, password, role) VALUES ('Default Admin', '$argon2id$v=19$m=65536,t=3,p=4$knLOmXMu5ZzTem9NqXUOwQ$wq9yYx7dFRFBRyM1MRyXspzfGKPz930/K70KJs8NiWA', 'admin');
+INSERT INTO admins (name, password, role) VALUES ('Default Admin', 'Xnaf*123', 'admin');
 
 -- Sample Data (Optional)
 INSERT INTO classes (name) VALUES ('Class A'), ('Class B');
 INSERT INTO students (password, name, class_id, points) VALUES
-('$argon2id$v=19$m=65536,t=3,p=4$xzgHgHAuxbhXSgnhHIOwtg$dpUXaQ7nh9eDYQQ51hWfMyoY66MI493a+yrkrfXhrl0', 'John Doe', 1, 100),
-('$argon2id$v=19$m=65536,t=3,p=4$vFdKiZFSyhlDKGWsldKaMw$tkZmjk8psgXFrL9B0Fw9XXJnJUU+Pu5+C/Bgt85D3kE', 'Jane Smith', 2, 150);
+('student123', 'John Doe', 1, 100),
+('student456', 'Jane Smith', 2, 150);
 INSERT INTO weeks (week_number, title, is_locked) VALUES (1, 'The Value of Respect', false);
 INSERT INTO content_cards (week_id, title, description) VALUES (1, 'Respect in Dialogue', 'Always listen to others and value their opinions.');

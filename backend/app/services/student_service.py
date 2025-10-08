@@ -1,7 +1,6 @@
 from supabase import Client
 from typing import List, Optional, Dict, Any
 from app.schemas.user import UserCreate, UserUpdate
-from app.core.security import get_password_hash
 
 class StudentService:
     def __init__(self, db_client: Client):
@@ -10,7 +9,6 @@ class StudentService:
 
     def create_student(self, student_in: UserCreate) -> Optional[Dict[str, Any]]:
         student_data = student_in.model_dump()
-        student_data['password'] = get_password_hash(student_data['password'])
         response = self.db.table(self.table).insert(student_data).execute()
         if response.data:
             return response.data[0]
@@ -19,7 +17,6 @@ class StudentService:
     def get_all_students(self) -> List[Dict[str, Any]]:
         """
         Retrieves all students from the database with their class name.
-        The foreign key table is 'classes', but we alias it to 'class' for clarity.
         """
         response = self.db.table(self.table).select("id, name, points, class_id, class:classes(id, name)").order("points", desc=True).execute()
         return response.data if response.data else []
@@ -35,23 +32,17 @@ class StudentService:
         update_data = student_update.model_dump(exclude_unset=True)
 
         if not update_data:
-            return None # No data to update
+            return None
 
-        # Hash password if it's being updated
-        if 'password' in update_data and update_data['password']:
-            update_data['password'] = get_password_hash(update_data['password'])
-        else:
-            # Don't update password if it's not provided or empty
+        # Don't update password if it's not provided or empty
+        if 'password' in update_data and not update_data['password']:
             update_data.pop('password', None)
 
         if not update_data:
-            # This can happen if only an empty password was passed
             return self.get_student_by_id(student_id)
 
-        # Perform the update
         update_response = self.db.table(self.table).update(update_data).eq("id", student_id).execute()
 
-        # If the update was successful, fetch the updated record
         if update_response.data:
             return self.get_student_by_id(student_id)
 
