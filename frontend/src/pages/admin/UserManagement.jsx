@@ -135,7 +135,6 @@ const UserManagement = () => {
         ? { name: student.name, password: '', class_id: student.class?.id || '' }
         : { name: '', password: '', class_id: '' }
     );
-    setAvatarFile(null);
     setIsStudentModalOpen(true);
   };
 
@@ -146,12 +145,6 @@ const UserManagement = () => {
 
   const handleStudentFormChange = (e) => {
     setStudentFormData({ ...studentFormData, [e.target.name]: e.target.value });
-  };
-
-  const handleAvatarChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setAvatarFile(e.target.files[0]);
-    }
   };
 
   const handleStudentFormSubmit = async (e) => {
