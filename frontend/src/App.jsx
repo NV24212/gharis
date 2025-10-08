@@ -6,13 +6,16 @@ import Home from './pages/Home.jsx';
 import Weeks from './pages/Weeks.jsx';
 import WeekDetail from './pages/WeekDetail.jsx';
 import Login from './pages/Login.jsx';
-import Dashboard from './pages/Dashboard.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
 import PointsManagement from './pages/admin/PointsManagement.jsx';
+import AdminProfile from './pages/admin/AdminProfile.jsx';
+import StudentLayout from './pages/student/StudentLayout.jsx';
+import StudentProfile from './pages/student/StudentProfile.jsx';
+import StudentPoints from './pages/student/StudentPoints.jsx';
 import { logoUrl } from './data/site.js';
 
 const Navigation = () => {
@@ -63,13 +66,13 @@ const Footer = () => (
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const isAdminPage = location.pathname.startsWith('/admin');
+  const isAppPage = location.pathname.startsWith('/admin') || location.pathname.startsWith('/dashboard');
 
   return (
     <div className="min-h-screen bg-brand-background text-brand-primary flex flex-col font-arabic">
-      {!isAdminPage && <Navigation />}
+      {!isAppPage && <Navigation />}
       <main className="flex-1 flex flex-col">{children}</main>
-      {!isAdminPage && <Footer />}
+      {!isAppPage && <Footer />}
     </div>
   );
 };
@@ -89,13 +92,18 @@ const App = () => {
 
         {/* Protected Routes for Students */}
         <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<StudentLayout />}>
+            <Route index element={<Navigate to="points" />} />
+            <Route path="profile" element={<StudentProfile />} />
+            <Route path="points" element={<StudentPoints />} />
+          </Route>
         </Route>
 
         {/* Protected Routes for Admin */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route element={<AdminLayout />}>
             <Route index element={<Navigate to="users" />} />
+            <Route path="profile" element={<AdminProfile />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="weeks" element={<WeekManagement />} />
             <Route path="points" element={<PointsManagement />} />

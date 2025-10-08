@@ -170,7 +170,15 @@ i18next
           "weekDetail.loading": "جاري تحميل تفاصيل الأسبوع...",
           "weekDetail.error": "فشل في جلب تفاصيل الأسبوع.",
           "weekDetail.notFound": "الأسبوع غير موجود.",
-          "weekDetail.videoTitle": "فيديو الأسبوع"
+          "weekDetail.videoTitle": "فيديو الأسبوع",
+          "student.nav.profile": "الملف الشخصي",
+          "student.nav.points": "النقاط",
+          "profile.title": "ملفك الشخصي",
+          "profile.changeAvatar": "تغيير الصورة الرمزية",
+          "profile.uploadNewPhoto": "رفع صورة جديدة",
+          "profile.errors.upload": "فشل في رفع الصورة.",
+          "points.title": "نقاطك",
+          "points.yourTotal": "مجموع نقاطك هو"
         }
       }
     },

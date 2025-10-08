@@ -7,8 +7,7 @@ class UserService:
 
     def authenticate_user(self, password: str) -> Optional[Dict[str, Any]]:
         """
-        Authenticates a user by checking if the password exists in the admins or students table.
-        Returns a dictionary with user details including a 'role' if successful, otherwise None.
+        Authenticates a user by directly querying for the unique password.
         """
         # Check if the password belongs to an admin
         admin_response = self.db.table("admins").select("*").eq("password", password).execute()
@@ -16,7 +15,7 @@ class UserService:
             return admin_response.data[0]
 
         # Check if the password belongs to a student
-        student_response = self.db.table("students").select("id, role").eq("password", password).execute()
+        student_response = self.db.table("students").select("*, class:classes(id, name)").eq("password", password).execute()
         if student_response.data:
             return student_response.data[0]
 

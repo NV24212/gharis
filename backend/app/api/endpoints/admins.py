@@ -60,3 +60,28 @@ def update_admin(
         )
     updated_admin = admin_service.update_admin(admin_id=admin_id, admin_in=admin_in)
     return updated_admin
+
+@router.delete("/{admin_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_admins"]))])
+def delete_admin(
+    *,
+    db: Client = Depends(get_supabase_client),
+    admin_id: int,
+    current_user: Any = Depends(deps.get_current_admin_user)
+) -> None:
+    """
+    Delete an admin user.
+    """
+    admin_service = AdminService(db)
+    admin = admin_service.get_admin_by_id(admin_id=admin_id)
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Admin not found",
+        )
+    if admin['id'] == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admins cannot delete themselves.",
+        )
+    admin_service.delete_admin(admin_id=admin_id)
+    return None

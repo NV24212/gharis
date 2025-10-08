@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from app.schemas.week import Week
 from app.schemas.user import User
 from typing import List
-from .endpoints import login, students, weeks, classes, admins
+from .endpoints import login, students, weeks, classes, admins, profile
 
 api_router = APIRouter()
 
@@ -14,11 +14,15 @@ admin_router.include_router(students.admin_router, prefix="/students", tags=["Ad
 admin_router.include_router(weeks.admin_router, prefix="/weeks", tags=["Admin Weeks"])
 admin_router.include_router(classes.router, prefix="/classes", tags=["Admin Classes"])
 admin_router.include_router(admins.router, prefix="/admins", tags=["Admin Admins"])
+admin_router.include_router(profile.admin_router, prefix="/profile", tags=["Admin Profile"])
 
 
 # --- Top-Level API Router ---
 # Include the login router, which is public.
 api_router.include_router(login.router, tags=["Login"])
+
+# Include the profile router for authenticated users
+api_router.include_router(profile.user_router, prefix="/profile", tags=["User Profile"])
 
 # Include the admin router under the /admin prefix. All routes within it will inherit this prefix.
 api_router.include_router(admin_router, prefix="/admin")
