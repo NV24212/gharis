@@ -13,9 +13,7 @@ import AdminLayout from './pages/admin/AdminLayout.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
 import PointsManagement from './pages/admin/PointsManagement.jsx';
-import AdminProfile from './pages/admin/AdminProfile.jsx';
 import StudentLayout from './pages/student/StudentLayout.jsx';
-import StudentProfile from './pages/student/StudentProfile.jsx';
 import StudentPoints from './pages/student/StudentPoints.jsx';
 import { logoUrl } from './data/site.js';
 
@@ -96,7 +94,6 @@ const App = () => {
           <Route element={<ProtectedRoute allowedRoles={['student']} />}>
             <Route path="/dashboard" element={<StudentLayout />}>
               <Route index element={<Navigate to="points" />} />
-              <Route path="profile" element={<StudentProfile />} />
               <Route path="points" element={<StudentPoints />} />
             </Route>
           </Route>
@@ -105,7 +102,6 @@ const App = () => {
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route element={<AdminLayout />}>
               <Route index element={<Navigate to="users" />} />
-              <Route path="profile" element={<AdminProfile />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="weeks" element={<WeekManagement />} />
               <Route path="points" element={<PointsManagement />} />
