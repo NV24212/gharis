@@ -5,8 +5,6 @@ from pydantic import BaseModel
 from typing import Optional, List
 
 from app.core.config import settings
-from app.db.supabase import get_supabase_client
-from app.services.user_service import UserService
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/api/v1/login/token")
 

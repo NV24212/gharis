@@ -5,13 +5,14 @@ from supabase import Client
 from app.schemas.class_schema import Class, ClassCreate, ClassUpdate
 from app.services.class_service import ClassService
 from app.api import deps
+from app.db.supabase import get_supabase_client
 
 router = APIRouter()
 
 @router.post("", response_model=Class, status_code=status.HTTP_201_CREATED, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_classes"]))])
 def create_class(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     class_in: ClassCreate,
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
@@ -24,7 +25,7 @@ def create_class(
 
 @router.get("", response_model=List[Class], dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_classes"]))])
 def read_classes(
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
@@ -36,7 +37,7 @@ def read_classes(
 @router.put("/{class_id}", response_model=Class, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_classes"]))])
 def update_class(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     class_id: int,
     class_in: ClassUpdate,
     current_user: Any = Depends(deps.get_current_admin_user)
@@ -53,7 +54,7 @@ def update_class(
 @router.delete("/{class_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_classes"]))])
 def delete_class(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     class_id: int,
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> None:

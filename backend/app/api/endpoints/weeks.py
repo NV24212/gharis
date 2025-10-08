@@ -6,6 +6,7 @@ from app.schemas.week import Week, WeekCreate, WeekUpdate, ContentCard, ContentC
 from app.services.week_service import WeekService
 from app.api import deps
 from app.core.config import settings
+from app.db.supabase import get_supabase_client
 
 admin_router = APIRouter()
 public_router = APIRouter()
@@ -15,7 +16,7 @@ public_router = APIRouter()
 @admin_router.post("", response_model=Week, status_code=status.HTTP_201_CREATED, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def create_week(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     week_in: WeekCreate,
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
@@ -29,7 +30,7 @@ def create_week(
 @admin_router.put("/{week_id}", response_model=Week, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def update_week(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     week_id: int,
     week_in: WeekUpdate,
     current_user: Any = Depends(deps.get_current_admin_user)
@@ -46,7 +47,7 @@ def update_week(
 @admin_router.post("/{week_id}/video", response_model=Week, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def upload_week_video(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     week_id: int,
     file: UploadFile = File(...),
     current_user: Any = Depends(deps.get_current_admin_user)
@@ -64,7 +65,7 @@ def upload_week_video(
 @admin_router.delete("/{week_id}", response_model=Week, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def delete_week(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     week_id: int,
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
@@ -84,7 +85,7 @@ def delete_week(
 @admin_router.post("/{week_id}/cards", response_model=ContentCard, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def create_content_card(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     week_id: int,
     card_in: ContentCardCreate,
     current_user: Any = Depends(deps.get_current_admin_user)
@@ -102,7 +103,7 @@ def create_content_card(
 @admin_router.put("/cards/{card_id}", response_model=ContentCard, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def update_content_card(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     card_id: int,
     card_in: ContentCardUpdate,
     current_user: Any = Depends(deps.get_current_admin_user)
@@ -119,7 +120,7 @@ def update_content_card(
 @admin_router.delete("/cards/{card_id}", response_model=ContentCard, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def delete_content_card(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     card_id: int,
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
@@ -136,7 +137,7 @@ def delete_content_card(
 
 @public_router.get("/", response_model=List[Week])
 def read_weeks(
-    db: Client = Depends(deps.get_supabase_client)
+    db: Client = Depends(get_supabase_client)
 ) -> Any:
     """
     Retrieve all weeks with their content.
@@ -146,7 +147,7 @@ def read_weeks(
 
 @public_router.get("/all", response_model=List[Week])
 def read_all_weeks(
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
 ) -> Any:
     """
     Retrieve all weeks with their content.
@@ -157,7 +158,7 @@ def read_all_weeks(
 @public_router.get("/{week_id}", response_model=Week)
 def read_week(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     week_id: int
 ) -> Any:
     """

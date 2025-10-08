@@ -5,13 +5,14 @@ from supabase import Client
 from app.schemas.user import AdminCreate, AdminInDB, AdminUpdate
 from app.services.admin_service import AdminService
 from app.api import deps
+from app.db.supabase import get_supabase_client
 
 router = APIRouter()
 
 @router.get("", response_model=List[AdminInDB], dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_admins"]))])
 def read_admins(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
@@ -23,7 +24,7 @@ def read_admins(
 @router.post("", response_model=AdminInDB, status_code=status.HTTP_201_CREATED, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_admins"]))])
 def create_admin(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     admin_in: AdminCreate,
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
@@ -42,7 +43,7 @@ def create_admin(
 @router.put("/{admin_id}", response_model=AdminInDB, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_admins"]))])
 def update_admin(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     admin_id: int,
     admin_in: AdminUpdate,
     current_user: Any = Depends(deps.get_current_admin_user)

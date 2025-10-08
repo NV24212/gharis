@@ -6,6 +6,7 @@ from app.schemas.user import User, UserCreate, UserUpdate
 from app.schemas.points import PointsAdd
 from app.services.student_service import StudentService
 from app.api import deps
+from app.db.supabase import get_supabase_client
 
 # Router for admin-only student operations
 admin_router = APIRouter()
@@ -18,7 +19,7 @@ student_router = APIRouter()
 @admin_router.post("", response_model=User, status_code=status.HTTP_201_CREATED, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def create_student(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     student_in: UserCreate,
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
@@ -36,7 +37,7 @@ def create_student(
 
 @student_router.get("/me", response_model=User)
 def read_student_me(
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     current_user: User = Depends(deps.get_current_user)
 ) -> Any:
     """
@@ -48,7 +49,7 @@ def read_student_me(
 
 @admin_router.get("", response_model=List[User], dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def read_students(
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> Any:
     """
@@ -61,7 +62,7 @@ def read_students(
 @admin_router.put("/{student_id}", response_model=User, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def update_student(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     student_id: int,
     student_in: UserUpdate,
     current_user: Any = Depends(deps.get_current_admin_user)
@@ -79,7 +80,7 @@ def update_student(
 @admin_router.post("/{student_id}/add-points", response_model=User, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_points"]))])
 def add_student_points(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     student_id: int,
     points_in: PointsAdd,
     current_user: Any = Depends(deps.get_current_admin_user)
@@ -100,7 +101,7 @@ def add_student_points(
 @admin_router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def delete_student(
     *,
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
     student_id: int,
     current_user: Any = Depends(deps.get_current_admin_user)
 ) -> None:
@@ -119,7 +120,7 @@ def delete_student(
 
 @public_router.get("/", response_model=List[User])
 def read_leaderboard(
-    db: Client = Depends(deps.get_supabase_client),
+    db: Client = Depends(get_supabase_client),
 ) -> Any:
     """
     Retrieve the top students for the public leaderboard.

@@ -64,7 +64,15 @@ export const adminService = {
     createAdmin: async (adminData) => {
         const response = await api.post('/admin/admins', adminData);
         return response.data;
-    }
+    },
+    updateAdmin: async (adminId, adminData) => {
+        const response = await api.put(`/admin/admins/${adminId}`, adminData);
+        return response.data;
+    },
+    deleteAdmin: async (adminId) => {
+        const response = await api.delete(`/admin/admins/${adminId}`);
+        return response.data;
+    },
 }
 
 export default api;
