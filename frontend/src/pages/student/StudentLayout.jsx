@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { User, Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
-import { logoUrl } from '../../data/site.js';
+import { Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { CacheBusterContext } from '../../context/CacheBusterContext.jsx';
 
@@ -26,7 +25,6 @@ const StudentLayout = () => {
 
   const navLinks = [
     { to: '/dashboard/points', text: t('student.nav.points'), icon: Star },
-    { to: '/dashboard/profile', text: t('student.nav.profile'), icon: User },
   ];
 
   const getNavLinkClasses = (isDesktop) => {
@@ -46,7 +44,6 @@ const StudentLayout = () => {
         <div className="flex flex-col h-full">
             <div className={`flex items-center justify-between p-4 mb-4`}>
                 <div className={`flex items-center gap-3 transition-all duration-300 ${!isOpen ? 'opacity-0 w-0 h-0' : 'opacity-100'}`}>
-                    <img src={user?.profile_pic_url ? `${user.profile_pic_url}?v=${cacheBuster}` : logoUrl} alt="Avatar" className="h-9 w-9 rounded-full object-cover" />
                     <span className="text-lg font-bold whitespace-nowrap">{user?.name}</span>
                 </div>
                 {!isDesktop && (

@@ -29,7 +29,6 @@ def login_for_access_token(
         "id": str(user['id']),
         "role": user['role'],
         "name": user.get("name"),
-        "profile_pic_url": user.get("profile_pic_url"),
     }
 
     if user['role'] == 'admin':

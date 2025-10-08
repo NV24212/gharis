@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Users, Video, Star, LogOut, PanelLeft, Menu, X, User as ProfileIcon } from 'lucide-react';
-import { logoUrl } from '../../data/site.js';
+import { Users, Video, Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { CacheBusterContext } from '../../context/CacheBusterContext.jsx';
 
@@ -30,7 +29,6 @@ const AdminLayout = () => {
     { to: '/admin/users', text: t('admin.nav.users'), icon: Users, show: user?.can_manage_students || user?.can_manage_admins || user?.can_manage_classes },
     { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video, show: user?.can_manage_weeks },
     { to: '/admin/points', text: t('admin.nav.points'), icon: Star, show: user?.can_manage_points },
-    { to: '/admin/profile', text: t('student.nav.profile'), icon: ProfileIcon, show: true },
   ].filter(link => link.show);
 
   const getNavLinkClasses = (isDesktop) => {
@@ -50,7 +48,6 @@ const AdminLayout = () => {
         <div className="flex flex-col h-full">
             <div className={`flex items-center justify-between p-4 mb-4`}>
                 <div className={`flex items-center gap-3 transition-all duration-300 ${!isOpen ? 'opacity-0 w-0 h-0' : 'opacity-100'}`}>
-                    <img src={user?.profile_pic_url ? `${user.profile_pic_url}?v=${cacheBuster}` : logoUrl} alt="Avatar" className="h-9 w-9 rounded-full object-cover" />
                     <span className="text-lg font-bold whitespace-nowrap">{user?.name}</span>
                 </div>
                 {!isDesktop && (

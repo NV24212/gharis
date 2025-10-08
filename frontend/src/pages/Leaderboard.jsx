@@ -60,14 +60,7 @@ const Leaderboard = () => {
               <tr key={student.id} className="hover:bg-brand-border/5 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <img className="h-10 w-10 rounded-full object-cover" src={student.profile_pic_url || logoUrl} alt="" />
-                    </div>
-                    <div className="mr-4">
-                      <div className="text-sm font-medium text-brand-primary">{student.name}</div>
-                    </div>
-                  </div>
+                  <div className="text-sm font-medium text-brand-primary">{student.name}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.class?.name || t('studentManagement.form.unassigned')}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
