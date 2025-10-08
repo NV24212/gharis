@@ -14,10 +14,12 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     class_id: Optional[int] = None
     points: Optional[int] = None
+    profile_pic_url: Optional[str] = None
 
 class UserInDBBase(UserBase):
     id: int
     points: int
+    profile_pic_url: Optional[str] = None
     class_info: Optional[Class] = Field(None, alias='class')
 
     class Config:
@@ -28,6 +30,7 @@ class User(UserInDBBase):
 
 class AdminBase(BaseModel):
     name: str
+    profile_pic_url: Optional[str] = None
     can_manage_admins: bool = True
     can_manage_classes: bool = True
     can_manage_students: bool = True
@@ -42,6 +45,7 @@ class AdminCreate(AdminBase):
 class AdminUpdate(BaseModel):
     name: Optional[str] = None
     password: Optional[str] = None
+    profile_pic_url: Optional[str] = None
     can_manage_admins: Optional[bool] = None
     can_manage_classes: Optional[bool] = None
     can_manage_students: Optional[bool] = None

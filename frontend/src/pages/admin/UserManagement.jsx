@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import api, { classService, adminService } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2, Loader2, ChevronDown, Users, Shield, BookCopy } from 'lucide-react';
+import { logoUrl } from '../../data/site.js';
 import Modal from '../../components/Modal';
 import LoadingScreen from '../../components/LoadingScreen';
 import ConfirmationModal from '../../components/ConfirmationModal';
@@ -31,6 +32,7 @@ const UserManagement = () => {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [studentFormData, setStudentFormData] = useState({ name: '', password: '', class_id: '' });
+  const [avatarFile, setAvatarFile] = useState(null);
   const [isStudentConfirmModalOpen, setIsStudentConfirmModalOpen] = useState(false);
   const [deletingStudentId, setDeletingStudentId] = useState(null);
   const [classFilter, setClassFilter] = useState('');
@@ -136,6 +138,7 @@ const UserManagement = () => {
         ? { name: student.name, password: '', class_id: student.class?.id || '' }
         : { name: '', password: '', class_id: '' }
     );
+    setAvatarFile(null);
     setIsStudentModalOpen(true);
   };
 
@@ -148,6 +151,12 @@ const UserManagement = () => {
     setStudentFormData({ ...studentFormData, [e.target.name]: e.target.value });
   };
 
+  const handleAvatarChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarFile(e.target.files[0]);
+    }
+  };
+
   const handleStudentFormSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -155,9 +164,20 @@ const UserManagement = () => {
     try {
       let payload = { ...studentFormData, class_id: studentFormData.class_id ? Number(studentFormData.class_id) : null };
       if (editingStudent) {
+        // Update student text data
         if (!payload.password) delete payload.password;
         await api.put(`/admin/students/${editingStudent.id}`, payload);
+
+        // If there's an avatar, upload it
+        if (avatarFile) {
+          const formData = new FormData();
+          formData.append('file', avatarFile);
+          await api.post(`/admin/profile/students/${editingStudent.id}/upload-avatar`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+        }
       } else {
+        // Create new student
         if (!payload.password) {
           setError(t('studentManagement.errors.passwordRequired'));
           setIsSubmitting(false);
@@ -392,7 +412,16 @@ const UserManagement = () => {
           <tbody className="divide-y divide-brand-border">
             {filteredStudents.map((student) => (
               <tr key={student.id} className={`hover:bg-brand-border/5 transition-colors ${student.deleting ? 'animate-fade-out' : ''}`}>
-                <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10">
+                      <img className="h-10 w-10 rounded-full object-cover" src={student.profile_pic_url || logoUrl} alt="" />
+                    </div>
+                    <div className="mr-4">
+                      <div className="text-sm font-medium">{student.name}</div>
+                    </div>
+                  </div>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.class?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
                 <td className="px-6 py-4 text-left">
@@ -434,7 +463,16 @@ const UserManagement = () => {
             <tbody className="divide-y divide-brand-border">
               {admins.map((admin) => (
                 <tr key={admin.id} className={`hover:bg-brand-border/5 transition-colors ${admin.deleting ? 'animate-fade-out' : ''}`}>
-                  <td className="px-6 py-4 whitespace-nowrap">{admin.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <img className="h-10 w-10 rounded-full object-cover" src={admin.profile_pic_url || logoUrl} alt="" />
+                      </div>
+                      <div className="mr-4">
+                        <div className="text-sm font-medium">{admin.name}</div>
+                      </div>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 text-left">
                     <div className="flex items-center gap-6">
                       <button onClick={() => openAdminModal(admin)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
@@ -532,6 +570,12 @@ const UserManagement = () => {
               <ChevronDown className="h-5 w-5 text-brand-secondary" />
             </div>
           </div>
+          {editingStudent && (
+            <div>
+              <label htmlFor="avatar" className="block text-sm font-medium text-brand-secondary mb-2">{t('profile.changeAvatar')}</label>
+              <input type="file" id="avatar" name="avatar" onChange={handleAvatarChange} accept="image/*" className="w-full text-sm text-brand-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-primary/10 file:text-brand-primary hover:file:bg-brand-primary/20" />
+            </div>
+          )}
           <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={closeStudentModal} className="bg-brand-border/10 hover:bg-brand-border/20 text-brand-primary font-bold py-2.5 px-5 rounded-lg transition-colors">{t('common.cancel')}</button>
             <button

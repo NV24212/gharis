@@ -32,3 +32,9 @@ class AdminService:
 
     def delete_admin(self, admin_id: int) -> None:
         self.db.table(self.table).delete().eq("id", admin_id).execute()
+
+    def update_profile_pic(self, user_id: int, url: str) -> None:
+        """
+        Updates the profile picture URL for a specific admin.
+        """
+        self.db.table(self.table).update({"profile_pic_url": url}).eq("id", user_id).execute()

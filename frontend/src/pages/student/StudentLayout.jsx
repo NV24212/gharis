@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Users, Video, Star, LogOut, PanelLeft, Menu, X, User as ProfileIcon } from 'lucide-react';
+import { User, Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
 import { logoUrl } from '../../data/site.js';
 import { AuthContext } from '../../context/AuthContext.jsx';
 
-const AdminLayout = () => {
+const StudentLayout = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -13,7 +13,6 @@ const AdminLayout = () => {
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // Close mobile sidebar on route change
   useEffect(() => {
     setIsMobileSidebarOpen(false);
   }, [location.pathname]);
@@ -24,12 +23,9 @@ const AdminLayout = () => {
   };
 
   const navLinks = [
-    { to: '/admin/profile', text: t('student.nav.profile'), icon: ProfileIcon, show: true },
-    // The "User Management" link should appear if the admin can manage students, other admins, or classes.
-    { to: '/admin/users', text: t('admin.nav.users'), icon: Users, show: user?.can_manage_students || user?.can_manage_admins || user?.can_manage_classes },
-    { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video, show: user?.can_manage_weeks },
-    { to: '/admin/points', text: t('admin.nav.points'), icon: Star, show: user?.can_manage_points },
-  ].filter(link => link.show);
+    { to: '/dashboard/profile', text: t('student.nav.profile'), icon: User },
+    { to: '/dashboard/points', text: t('student.nav.points'), icon: Star },
+  ];
 
   const getNavLinkClasses = (isDesktop) => {
     const isOpen = isDesktop ? isDesktopSidebarOpen : true;
@@ -87,7 +83,6 @@ const AdminLayout = () => {
 
   return (
     <div dir="rtl" className="flex h-screen bg-brand-background text-brand-primary font-arabic">
-      {/* Mobile Sidebar (off-canvas) */}
       <div
         className={`fixed inset-0 bg-black/60 z-40 md:hidden transition-opacity duration-300 ${isMobileSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setIsMobileSidebarOpen(false)}
@@ -96,12 +91,10 @@ const AdminLayout = () => {
         <SidebarContent />
       </aside>
 
-      {/* Desktop Sidebar */}
       <aside className={`hidden md:flex md:flex-shrink-0 bg-black/20 border-l border-brand-border transition-all duration-300 ${isDesktopSidebarOpen ? 'w-64' : 'w-20'}`}>
         <SidebarContent isDesktop={true}/>
       </aside>
 
-      {/* Main Content */}
       <div className="flex flex-col flex-1">
         <header className="sticky top-0 bg-brand-background/80 backdrop-blur-lg border-b border-brand-border p-4 flex items-center md:hidden">
           <button onClick={() => setIsMobileSidebarOpen(true)} className="text-brand-primary">
@@ -118,4 +111,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default StudentLayout;
