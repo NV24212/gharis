@@ -1,6 +1,7 @@
 import React, { useState, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../context/AuthContext';
+import { CacheBusterContext } from '../../context/CacheBusterContext';
 import api from '../../services/api';
 import { UploadCloud, Loader2 } from 'lucide-react';
 import { logoUrl } from '../../data/site';
@@ -8,6 +9,7 @@ import { logoUrl } from '../../data/site';
 const StudentProfile = () => {
   const { t } = useTranslation();
   const { user, setUser } = useContext(AuthContext);
+  const { bustCache } = useContext(CacheBusterContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
@@ -35,6 +37,7 @@ const StudentProfile = () => {
         ...prevUser,
         profile_pic_url: response.data.profile_pic_url,
       }));
+      bustCache();
 
     } catch (err) {
       setError(t('profile.errors.upload'));
