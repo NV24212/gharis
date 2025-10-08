@@ -7,7 +7,7 @@ import { logoUrl } from '../../data/site';
 
 const StudentProfile = () => {
   const { t } = useTranslation();
-  const { user, login } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
@@ -27,14 +27,14 @@ const StudentProfile = () => {
     formData.append('file', file);
 
     try {
-      await api.post('/profile/upload-avatar', formData, {
+      const response = await api.post('/profile/upload-avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      const token = localStorage.getItem('token');
-      if (token) {
-        login(token);
-      }
+      setUser((prevUser) => ({
+        ...prevUser,
+        profile_pic_url: response.data.profile_pic_url,
+      }));
 
     } catch (err) {
       setError(t('profile.errors.upload'));
