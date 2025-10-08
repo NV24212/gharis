@@ -4,7 +4,7 @@
 -- 1. Go to your Supabase project's "SQL Editor".
 -- 2. Click on "New query".
 -- 3. Copy and paste the entire content of this file into the editor.
--- 4. Click "Run" to execute the script and create your database tables.
+-- 4. Click "Run" to execute the script and create ydour database tables.
 -- 5. After running this, go to "Storage" and create a new public bucket named `videos` for the weekly video uploads.
 
 -- Drop existing tables if they exist to start fresh
