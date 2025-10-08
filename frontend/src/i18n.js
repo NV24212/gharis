@@ -173,7 +173,7 @@ i18next
           "weekDetail.videoTitle": "فيديو الأسبوع",
           "student.nav.profile": "الملف الشخصي",
           "student.nav.points": "النقاط",
-          "student.nav.toggleSidebar": "تصغير الشريط",
+          "student.nav.toggleSidebar": "تصغير القائمة",
           "profile.title": "ملفك الشخصي",
           "profile.changeAvatar": "تغيير الصورة الرمزية",
           "profile.uploadNewPhoto": "رفع صورة جديدة",

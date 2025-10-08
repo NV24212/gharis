@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CacheBusterContext } from '../../context/CacheBusterContext';
 import api, { classService } from '../../services/api';
 import { Loader2, PlusCircle, MinusCircle, Search, ChevronDown } from 'lucide-react';
 import Modal from '../../components/Modal';
@@ -7,6 +8,7 @@ import LoadingScreen from '../../components/LoadingScreen';
 
 const PointsManagement = () => {
   const { t } = useTranslation();
+  const { bustCache } = useContext(CacheBusterContext);
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -94,6 +96,7 @@ const PointsManagement = () => {
         )
       );
 
+      bustCache();
       closeModal();
     } catch (err) {
       setError(t('pointsManagement.errors.addPoints'));
