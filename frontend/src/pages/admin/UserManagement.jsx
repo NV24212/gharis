@@ -9,8 +9,17 @@ import ConfirmationModal from '../../components/ConfirmationModal';
 
 const UserManagement = () => {
   const { t } = useTranslation();
-  const { token } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('students'); // 'students', 'admins', or 'classes'
+  const { user } = useContext(AuthContext);
+
+  const availableTabs = useMemo(() => {
+    const tabs = [];
+    if (user?.can_manage_students) tabs.push({ id: 'students', label: t('userManagement.tabs.students'), icon: Users });
+    if (user?.can_manage_admins) tabs.push({ id: 'admins', label: t('userManagement.tabs.admins'), icon: Shield });
+    if (user?.can_manage_classes) tabs.push({ id: 'classes', label: t('userManagement.tabs.classes'), icon: BookCopy });
+    return tabs;
+  }, [user, t]);
+
+  const [activeTab, setActiveTab] = useState(availableTabs[0]?.id || '');
 
   // Common State
   const [loading, setLoading] = useState(true);
@@ -475,33 +484,26 @@ const UserManagement = () => {
     <>
       <h1 className="text-3xl font-bold text-brand-primary mb-8">{t('userManagement.title')}</h1>
       <div className="flex border-b border-brand-border mb-8">
-        <button
-          onClick={() => setActiveTab('students')}
-          className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === 'students' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-brand-secondary hover:text-brand-primary'}`}
-        >
-          <Users size={20} />
-          <span>{t('userManagement.tabs.students')}</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('admins')}
-          className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === 'admins' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-brand-secondary hover:text-brand-primary'}`}
-        >
-          <Shield size={20} />
-          <span>{t('userManagement.tabs.admins')}</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('classes')}
-          className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === 'classes' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-brand-secondary hover:text-brand-primary'}`}
-        >
-          <BookCopy size={20} />
-          <span>{t('userManagement.tabs.classes')}</span>
-        </button>
+        {availableTabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${
+              activeTab === tab.id
+                ? 'text-brand-primary border-b-2 border-brand-primary'
+                : 'text-brand-secondary hover:text-brand-primary'
+            }`}
+          >
+            <tab.icon size={20} />
+            <span>{tab.label}</span>
+          </button>
+        ))}
       </div>
       {error && <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg mb-6">{error}</div>}
       <div>
-        {activeTab === 'students' && renderStudentsTab()}
-        {activeTab === 'admins' && renderAdminsTab()}
-        {activeTab === 'classes' && renderClassesTab()}
+        {activeTab === 'students' && user?.can_manage_students && renderStudentsTab()}
+        {activeTab === 'admins' && user?.can_manage_admins && renderAdminsTab()}
+        {activeTab === 'classes' && user?.can_manage_classes && renderClassesTab()}
       </div>
 
       {/* Student Modal */}

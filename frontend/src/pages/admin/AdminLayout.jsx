@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Users, Video, ClipboardList, Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
+import { Users, Video, Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
 import { logoUrl } from '../../data/site.js';
+import { AuthContext } from '../../context/AuthContext.jsx';
 
 const AdminLayout = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const { user } = useContext(AuthContext);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -16,10 +18,11 @@ const AdminLayout = () => {
   }, [location.pathname]);
 
   const navLinks = [
-    { to: '/admin/users', text: t('admin.nav.users'), icon: Users },
-    { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video },
-    { to: '/admin/points', text: t('admin.nav.points'), icon: Star },
-  ];
+    // The "User Management" link should appear if the admin can manage students, other admins, or classes.
+    { to: '/admin/users', text: t('admin.nav.users'), icon: Users, show: user?.can_manage_students || user?.can_manage_admins || user?.can_manage_classes },
+    { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video, show: user?.can_manage_weeks },
+    { to: '/admin/points', text: t('admin.nav.points'), icon: Star, show: user?.can_manage_points },
+  ].filter(link => link.show);
 
   const getNavLinkClasses = (isDesktop) => {
     const isOpen = isDesktop ? isDesktopSidebarOpen : true;
