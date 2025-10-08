@@ -12,7 +12,7 @@ public_router = APIRouter()
 
 # --- Admin Week Endpoints ---
 
-@admin_router.post("", response_model=Week, status_code=status.HTTP_201_CREATED)
+@admin_router.post("", response_model=Week, status_code=status.HTTP_201_CREATED, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def create_week(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -26,7 +26,7 @@ def create_week(
     week = week_service.create_week(week_in=week_in)
     return week_service.get_week_by_id(week["id"])
 
-@admin_router.put("/{week_id}", response_model=Week)
+@admin_router.put("/{week_id}", response_model=Week, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def update_week(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -43,7 +43,7 @@ def update_week(
         raise HTTPException(status_code=404, detail="Week not found")
     return week_service.get_week_by_id(updated_week["id"])
 
-@admin_router.post("/{week_id}/video", response_model=Week)
+@admin_router.post("/{week_id}/video", response_model=Week, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def upload_week_video(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -61,7 +61,7 @@ def upload_week_video(
     updated_week = week_service.upload_video(week_id, file, settings.SUPABASE_BUCKET)
     return week_service.get_week_by_id(updated_week["id"])
 
-@admin_router.delete("/{week_id}", response_model=Week)
+@admin_router.delete("/{week_id}", response_model=Week, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def delete_week(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -81,7 +81,7 @@ def delete_week(
 
 # --- Admin Content Card Endpoints ---
 
-@admin_router.post("/{week_id}/cards", response_model=ContentCard)
+@admin_router.post("/{week_id}/cards", response_model=ContentCard, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def create_content_card(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -99,7 +99,7 @@ def create_content_card(
     card = week_service.add_card_to_week(week_id=week_id, card_in=card_in)
     return card
 
-@admin_router.put("/cards/{card_id}", response_model=ContentCard)
+@admin_router.put("/cards/{card_id}", response_model=ContentCard, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def update_content_card(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -116,7 +116,7 @@ def update_content_card(
         raise HTTPException(status_code=404, detail="Content card not found")
     return card
 
-@admin_router.delete("/cards/{card_id}", response_model=ContentCard)
+@admin_router.delete("/cards/{card_id}", response_model=ContentCard, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_weeks"]))])
 def delete_content_card(
     *,
     db: Client = Depends(deps.get_supabase_client),

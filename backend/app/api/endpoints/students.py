@@ -15,7 +15,7 @@ public_router = APIRouter()
 student_router = APIRouter()
 
 
-@admin_router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
+@admin_router.post("", response_model=User, status_code=status.HTTP_201_CREATED, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def create_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -46,7 +46,7 @@ def read_student_me(
     student = student_service.get_student_by_id(student_id=current_user.id)
     return student
 
-@admin_router.get("", response_model=List[User])
+@admin_router.get("", response_model=List[User], dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def read_students(
     db: Client = Depends(deps.get_supabase_client),
     current_user: Any = Depends(deps.get_current_admin_user)
@@ -58,7 +58,7 @@ def read_students(
     return student_service.get_all_students()
 
 
-@admin_router.put("/{student_id}", response_model=User)
+@admin_router.put("/{student_id}", response_model=User, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def update_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -76,7 +76,7 @@ def update_student(
     updated_student = student_service.update_student(student_id=student_id, student_update=student_in)
     return updated_student
 
-@admin_router.post("/{student_id}/add-points", response_model=User)
+@admin_router.post("/{student_id}/add-points", response_model=User, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_points"]))])
 def add_student_points(
     *,
     db: Client = Depends(deps.get_supabase_client),
@@ -97,7 +97,7 @@ def add_student_points(
         raise HTTPException(status_code=400, detail="Could not add points to student.")
     return updated_student
 
-@admin_router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
+@admin_router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def delete_student(
     *,
     db: Client = Depends(deps.get_supabase_client),
