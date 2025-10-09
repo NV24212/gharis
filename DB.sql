@@ -1,7 +1,7 @@
 -- SQL Migration for Ghars Project on Supabase
 --
 -- Instructions:
--- 1. Go to your Supabase project's "SQL Editor".
+-- 1. Go to your Supabase project's "SQL Editor".s
 -- 2. Click on "New query".
 -- 3. Copy and paste the entire content of this file into the editor.
 -- 4. Click "Run" to execute the script and create your database tables.
