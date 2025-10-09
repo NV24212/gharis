@@ -10,6 +10,7 @@ import Login from './pages/Login.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminIndexRedirect from './pages/admin/AdminIndexRedirect.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
 import PointsManagement from './pages/admin/PointsManagement.jsx';
@@ -125,7 +126,7 @@ const App = () => {
           {/* Protected Routes for Admin */}
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route element={<AdminLayout />}>
-              <Route index element={<Navigate to="users" />} />
+              <Route index element={<AdminIndexRedirect />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="weeks" element={<WeekManagement />} />
               <Route path="points" element={<PointsManagement />} />
