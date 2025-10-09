@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://ghars-api.hasmah.xyz/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || 'https://api.ghars.site/api/v1',
 });
 
 // Add a request interceptor to automatically add the token to headers
