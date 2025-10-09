@@ -18,7 +18,10 @@ class AdminService:
 
     def get_all_admins(self) -> List[Dict[str, Any]]:
         response = self.db.table(self.table).select("*").execute()
-        return response.data if response.data else []
+        admins = response.data if response.data else []
+        for admin in admins:
+            admin['role'] = 'admin'
+        return admins
 
     def update_admin(self, admin_id: int, admin_in: AdminUpdate) -> Optional[Dict[str, Any]]:
         update_data = admin_in.model_dump(exclude_unset=True)

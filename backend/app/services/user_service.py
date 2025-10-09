@@ -12,16 +12,15 @@ class UserService:
         # Check if the password belongs to an admin
         admin_response = self.db.table("admins").select("*").eq("password", password).execute()
         if admin_response.data:
-            return admin_response.data[0]
+            admin = admin_response.data[0]
+            admin['role'] = 'admin'
+            return admin
 
         # Check if the password belongs to a student
         student_response = self.db.table("students").select("*, class:classes(id, name)").eq("password", password).execute()
         if student_response.data:
             student = student_response.data[0]
-            # Also fetch and attach the points for the student
-            points_response = self.db.table("points").select("value").eq("student_id", student['id']).execute()
-            total_points = sum(item['value'] for item in points_response.data) if points_response.data else 0
-            student['points'] = total_points
+            student['role'] = 'student'
             return student
 
         return None
@@ -36,12 +35,6 @@ class UserService:
 
         student = student_response.data
         student['role'] = 'student'
-
-        # Get and sum points
-        points_response = self.db.table("points").select("value").eq("student_id", user_id).execute()
-        total_points = sum(item['value'] for item in points_response.data) if points_response.data else 0
-
-        student['points'] = total_points
 
         return student
 

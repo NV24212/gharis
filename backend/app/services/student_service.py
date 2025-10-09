@@ -19,7 +19,10 @@ class StudentService:
         Retrieves all students from the database with their class name.
         """
         response = self.db.table(self.table).select("id, name, points, class_id, class:classes(id, name)").order("points", desc=True).execute()
-        return response.data if response.data else []
+        students = response.data if response.data else []
+        for student in students:
+            student['role'] = 'student'
+        return students
 
     def get_student_by_id(self, student_id: int) -> Optional[Dict[str, Any]]:
         """
