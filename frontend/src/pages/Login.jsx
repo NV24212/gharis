@@ -24,7 +24,7 @@ const Login = () => {
       formData.append('password', password);
       formData.append('username', 'user'); // Dummy username as backend expects it
 
-      const response = await api.post('/token', formData, {
+      const response = await api.post('/login/token', formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
 
