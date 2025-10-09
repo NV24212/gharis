@@ -1,26 +1,28 @@
 import React, { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import LoadingScreen from './LoadingScreen';
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  const { user, token } = useContext(AuthContext);
+  const { user, token, isLoading } = useContext(AuthContext);
+
+  if (isLoading) {
+    return <LoadingScreen fullScreen={true} />;
+  }
 
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  // If no user object is available yet but token exists,
-  // it might be still decoding. Can add a loading state here.
   if (!user) {
-    return <div>Loading...</div>; // Or a spinner component
+    // This case should ideally not be reached if isLoading is false and there's a token,
+    // but as a fallback, redirect to login.
+    return <Navigate to="/login" replace />;
   }
 
-  const userRole = user.role;
-
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Redirect if the user's role is not allowed
-    // A student trying to access an admin route should be redirected to their dashboard
-    return <Navigate to={userRole === 'admin' ? '/admin' : '/dashboard'} replace />;
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
   }
 
   return <Outlet />;
