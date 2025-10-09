@@ -10,26 +10,20 @@ const AdminIndexRedirect = () => {
     return <LoadingScreen fullScreen={false} />;
   }
 
-  // Define the order of pages to check for permissions
-  const orderedPages = [
-    { permission: 'can_manage_students', path: '/admin/users' },
-    { permission: 'can_manage_admins', path: '/admin/users' },
-    { permission: 'can_manage_classes', path: '/admin/users' },
-    { permission: 'can_manage_weeks', path: '/admin/weeks' },
-    { permission: 'can_manage_points', path: '/admin/points' },
-  ];
-
-  // Find the first page the user has permission to view
-  const redirectTo = orderedPages.find(page => user?.[page.permission])?.path;
-
-  // If a valid page is found, redirect. Otherwise, fallback to a default or show an error.
-  // A fallback to '/admin/users' is safe as a default, but this logic ensures it's permission-based.
-  if (redirectTo) {
-    return <Navigate to={redirectTo} replace />;
+  if (user) {
+    // Check permissions in a specific order and redirect to the first available page
+    if (user.can_manage_students || user.can_manage_admins || user.can_manage_classes) {
+      return <Navigate to="/admin/users" replace />;
+    }
+    if (user.can_manage_weeks) {
+      return <Navigate to="/admin/weeks" replace />;
+    }
+    if (user.can_manage_points) {
+      return <Navigate to="/admin/points" replace />;
+    }
   }
 
-  // Fallback for an admin who has no permissions (unlikely case)
-  // Or, you could render a "No Access" component here.
+  // Fallback for an admin who has no permissions or if user object is not available
   return <Navigate to="/login" replace />;
 };
 
