@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # The frontend URL that will be allowed to make requests to the backend
-    BACKEND_CORS_ORIGINS: List[str] = ["https://ghars.hasmah.xyz"]
+    BACKEND_CORS_ORIGINS: List[str] = ["https://ghars.hasmah.xyz", "https://ghars.site"]
 
     # Supabase configuration
     SUPABASE_URL: str

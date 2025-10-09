@@ -7,6 +7,13 @@ from .endpoints import login, students, weeks, classes, admins
 
 api_router = APIRouter()
 
+@api_router.get("/", status_code=200)
+def health_check():
+    """
+    Health check endpoint.
+    """
+    return {"status": "ok"}
+
 # --- Admin API Router ---
 # This router groups all endpoints that require admin authentication.
 admin_router = APIRouter()
