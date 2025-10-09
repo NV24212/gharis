@@ -32,6 +32,7 @@ i18next
           "login.submitButton": "تسجيل الدخول",
           "login.error": "كلمة مرور غير صحيحة أو خطأ في الخادم.",
           "admin.title": "لوحة التحكم",
+          "admin.nav.home": "الرئيسية",
           "admin.nav.users": "إدارة المستخدمين",
           "userManagement.title": "إدارة المستخدمين",
           "userManagement.tabs.students": "الطلاب",

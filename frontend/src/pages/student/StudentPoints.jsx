@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../context/AuthContext';
 import { CacheBusterContext } from '../../context/CacheBusterContext';
 import { Star, Users } from 'lucide-react';
+import LoadingScreen from '../../components/LoadingScreen';
 
 const StatCard = ({ icon: Icon, title, value, color }) => (
   <div className="bg-black/20 border border-brand-border rounded-20 p-6 flex items-center gap-6">
@@ -18,7 +19,7 @@ const StatCard = ({ icon: Icon, title, value, color }) => (
 
 const StudentPoints = () => {
   const { t } = useTranslation();
-  const { user, fetchCurrentUser } = useContext(AuthContext);
+  const { user, isLoading, fetchCurrentUser } = useContext(AuthContext);
   const { cacheBuster } = useContext(CacheBusterContext);
 
   useEffect(() => {
@@ -26,6 +27,10 @@ const StudentPoints = () => {
       fetchCurrentUser();
     }
   }, [cacheBuster, fetchCurrentUser]);
+
+  if (isLoading) {
+    return <LoadingScreen fullScreen={false} />;
+  }
 
   return (
     <div className="space-y-8">
