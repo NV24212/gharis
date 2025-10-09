@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Users, Video, Star, LogOut, PanelLeft, Menu, X, Home } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { CacheBusterContext } from '../../context/CacheBusterContext.jsx';
+import { logoUrl } from '../../data/site.js';
 
 const AdminLayout = () => {
   const { t } = useTranslation();
@@ -50,8 +51,9 @@ const AdminLayout = () => {
 
     return (
         <div className="flex flex-col h-full">
-            <div className={`flex items-center justify-between p-4 mb-4`}>
+            <div className={`flex items-center justify-between p-4 mb-4 border-b border-brand-border/50`}>
                 <div className={`flex items-center gap-3 transition-all duration-300 ${!isOpen ? 'opacity-0 w-0 h-0' : 'opacity-100'}`}>
+                    <img src={logoUrl} alt="Logo" className="h-8 w-8 rounded-full object-cover" />
                     <span className="text-lg font-bold whitespace-nowrap">{user?.name}</span>
                 </div>
                 {!isDesktop && (
