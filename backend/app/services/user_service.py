@@ -35,6 +35,7 @@ class UserService:
             return None
 
         student = student_response.data
+        student['role'] = 'student'
 
         # Get and sum points
         points_response = self.db.table("points").select("value").eq("student_id", user_id).execute()
@@ -51,4 +52,6 @@ class UserService:
         response = self.db.table("admins").select("*").eq("id", user_id).single().execute()
         if not response.data:
             return None
-        return response.data
+        admin = response.data
+        admin['role'] = 'admin'
+        return admin
