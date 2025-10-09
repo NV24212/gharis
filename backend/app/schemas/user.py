@@ -18,6 +18,7 @@ class UserUpdate(BaseModel):
 class UserInDBBase(UserBase):
     id: int
     points: int
+    role: str
     class_info: Optional[Class] = Field(None, alias='class')
 
     class Config:
@@ -51,6 +52,7 @@ class AdminUpdate(BaseModel):
 
 class AdminInDB(AdminBase):
     id: int
+    role: str
 
     class Config:
         from_attributes = True
