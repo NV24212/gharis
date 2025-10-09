@@ -18,7 +18,7 @@ admin_router.include_router(admins.router, prefix="/admins", tags=["Admin Admins
 
 # --- Top-Level API Router ---
 # Include the login router, which is public.
-api_router.include_router(login.router, tags=["Login"])
+api_router.include_router(login.router, prefix="/login", tags=["Login"])
 
 # Include the admin router under the /admin prefix. All routes within it will inherit this prefix.
 api_router.include_router(admin_router, prefix="/admin")
