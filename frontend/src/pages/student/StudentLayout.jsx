@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
+import { Star, LogOut, PanelLeft, Menu, X, Home } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { CacheBusterContext } from '../../context/CacheBusterContext.jsx';
 import { logoUrl } from '../../data/site.js';
@@ -31,12 +31,17 @@ const StudentLayout = () => {
   const getNavLinkClasses = (isDesktop) => {
     const isOpen = isDesktop ? isDesktopSidebarOpen : true;
     return (to) => {
-        const isActive = location.pathname.startsWith(to);
+        const isActive = location.pathname === to;
         return `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 ${
         isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary'
         } ${!isOpen ? 'justify-center' : ''}`;
     }
   };
+
+  const getHomeLinkClasses = (isDesktop) => {
+    const isOpen = isDesktop ? isDesktopSidebarOpen : true;
+    return `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary ${!isOpen ? 'justify-center' : ''}`;
+  }
 
   const SidebarContent = ({ isDesktop = false }) => {
     const isOpen = isDesktop ? isDesktopSidebarOpen : true;
@@ -60,14 +65,20 @@ const StudentLayout = () => {
 
             <nav className="flex-grow px-2">
                 <ul className="space-y-2">
-                {navLinks.map((link) => (
-                    <li key={link.to}>
-                    <NavLink to={link.to} className={getNavLinkClasses(isDesktop)(link.to)} title={isOpen ? '' : link.text}>
-                        <link.icon className={`h-5 w-5 ${isOpen ? 'ml-3' : ''}`} />
-                        <span className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'hidden' : 'delay-200'}`}>{link.text}</span>
-                    </NavLink>
+                    <li>
+                        <Link to="/" className={getHomeLinkClasses(isDesktop)} title={isOpen ? '' : t('admin.nav.home')}>
+                            <Home className={`h-5 w-5 ${isOpen ? 'ml-3' : ''}`} />
+                            <span className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'hidden' : 'delay-200'}`}>{t('admin.nav.home')}</span>
+                        </Link>
                     </li>
-                ))}
+                    {navLinks.map((link) => (
+                        <li key={link.to}>
+                        <NavLink to={link.to} className={getNavLinkClasses(isDesktop)(link.to)} title={isOpen ? '' : link.text}>
+                            <link.icon className={`h-5 w-5 ${isOpen ? 'ml-3' : ''}`} />
+                            <span className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'hidden' : 'delay-200'}`}>{link.text}</span>
+                        </NavLink>
+                        </li>
+                    ))}
                 </ul>
             </nav>
 

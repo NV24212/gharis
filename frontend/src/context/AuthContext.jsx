@@ -7,6 +7,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [isLoading, setIsLoading] = useState(true);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
@@ -14,35 +15,34 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   }, []);
 
-  const fetchCurrentUser = useCallback(() => {
+  const fetchCurrentUser = useCallback(async () => {
+    setIsLoading(true);
     const currentToken = localStorage.getItem('token');
     if (!currentToken) {
       setUser(null);
+      setIsLoading(false);
       return;
     }
 
     try {
-      const decodedToken = jwtDecode(currentToken);
-      setUser(decodedToken);
+      const { data: fullUser } = await api.get('/login/me');
+      setUser(fullUser);
     } catch (error) {
-      console.error('Failed to decode token:', error);
+      console.error('Failed to fetch current user:', error);
       logout();
+    } finally {
+      setIsLoading(false);
     }
   }, [logout]);
 
   useEffect(() => {
     if (token) {
-      try {
-        jwtDecode(token); // Just to validate
-        fetchCurrentUser(); // Fetch full user data
-      } catch (error) {
-        console.error('Invalid token:', error);
-        logout();
-      }
+      fetchCurrentUser();
     } else {
+      setIsLoading(false);
       setUser(null);
     }
-  }, [token, fetchCurrentUser, logout]);
+  }, [token, fetchCurrentUser]);
 
   const login = (newToken) => {
     localStorage.setItem('token', newToken);
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, setUser, fetchCurrentUser }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isLoading, fetchCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );

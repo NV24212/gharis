@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from typing import Any
+from typing import Any, Union
 
 from app.services.user_service import UserService
 from app.schemas.token import Token
+from app.schemas.user import User, AdminInDB
 from app.core.security import create_access_token
+from app.api.deps import get_current_user
 from app.db.supabase import get_supabase_client
 
 router = APIRouter()
@@ -45,3 +47,25 @@ def login_for_access_token(
 
     access_token = create_access_token(data=token_data)
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/me", response_model=Union[User, AdminInDB])
+def read_users_me(
+    current_user: dict = Depends(get_current_user),
+    db: Any = Depends(get_supabase_client)
+):
+    """
+    Get current user.
+    """
+    user_service = UserService(db)
+    if current_user.role == 'admin':
+        user = user_service.get_admin(current_user.id)
+    else:
+        user = user_service.get_student(current_user.id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+    return user
