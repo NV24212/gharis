@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Star, LogOut, PanelLeft, Menu, X } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { CacheBusterContext } from '../../context/CacheBusterContext.jsx';
+import { logoUrl } from '../../data/site.js';
 
 const StudentLayout = () => {
   const { t } = useTranslation();
@@ -42,12 +43,16 @@ const StudentLayout = () => {
 
     return (
         <div className="flex flex-col h-full">
-            <div className={`flex items-center justify-between p-4 mb-4`}>
-                <div className={`flex items-center gap-3 transition-all duration-300 ${!isOpen ? 'opacity-0 w-0 h-0' : 'opacity-100'}`}>
-                    <span className="text-lg font-bold whitespace-nowrap">{user?.name}</span>
+            <div className={`flex items-center p-4 mb-4 border-b border-brand-border/50 ${isOpen ? 'justify-start' : 'justify-center'}`}>
+                <div className="flex items-center gap-3 overflow-hidden">
+                    <img src={user?.avatar_url || logoUrl} alt={user?.name || 'Avatar'} className="h-10 w-10 rounded-full object-cover flex-shrink-0" />
+                    <div className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'opacity-0 w-0' : 'opacity-100 delay-200'}`}>
+                        <p className="font-bold text-brand-primary truncate">{user?.name}</p>
+                        <p className="text-sm text-brand-secondary">{user?.class?.name || t('dashboard.noClass')}</p>
+                    </div>
                 </div>
                 {!isDesktop && (
-                    <button onClick={() => setIsMobileSidebarOpen(false)} className="text-brand-secondary hover:text-brand-primary">
+                    <button onClick={() => setIsMobileSidebarOpen(false)} className="text-brand-secondary hover:text-brand-primary ml-auto">
                         <X size={24} />
                     </button>
                 )}
