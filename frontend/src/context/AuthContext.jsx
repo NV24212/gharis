@@ -44,6 +44,12 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token, fetchCurrentUser]);
 
+  useEffect(() => {
+    if (user) {
+      setIsLoading(false);
+    }
+  }, [user]);
+
   const login = (newToken) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);

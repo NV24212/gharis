@@ -5,12 +5,13 @@ import { Star, LogOut, PanelLeft, Menu, X, Home } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { CacheBusterContext } from '../../context/CacheBusterContext.jsx';
 import { logoUrl } from '../../data/site.js';
+import LoadingScreen from '../../components/LoadingScreen.jsx';
 
 const StudentLayout = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, isLoading } = useContext(AuthContext);
   const { cacheBuster } = useContext(CacheBusterContext);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -54,6 +55,10 @@ const StudentLayout = () => {
   const getHomeLinkClasses = (isDesktop) => {
     const isOpen = isDesktop ? isDesktopSidebarOpen : true;
     return `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary ${!isOpen ? 'justify-center' : ''}`;
+  }
+
+  if (isLoading) {
+    return <LoadingScreen />;
   }
 
   const SidebarContent = ({ isDesktop = false }) => {

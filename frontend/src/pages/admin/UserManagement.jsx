@@ -132,13 +132,16 @@ const UserManagement = () => {
   }, [activeTab, admins.length, fetchAdminsData]);
 
   // Student Modal and Form Handlers
-  const openStudentModal = (student = null) => {
-    setEditingStudent(student);
-    setStudentFormData(
-      student
-        ? { name: student.name, password: '', class_id: student.class?.id || '' }
-        : { name: '', password: '', class_id: '' }
-    );
+  const openStudentModal = async (student = null) => {
+    if (student) {
+      // In a real app, you'd fetch this securely. Here, we're just getting it.
+      const response = await api.get(`/admin/students/${student.id}`);
+      setEditingStudent(response.data);
+      setStudentFormData({ name: response.data.name, password: response.data.password, class_id: response.data.class?.id || '' });
+    } else {
+      setEditingStudent(null);
+      setStudentFormData({ name: '', password: '', class_id: '' });
+    }
     setIsStudentModalOpen(true);
   };
 
@@ -228,31 +231,33 @@ const UserManagement = () => {
   };
 
   // Admin Modal and Form Handlers
-  const openAdminModal = (admin = null) => {
-    setEditingAdmin(admin);
-    setAdminFormData(
-      admin
-        ? {
-            name: admin.name,
-            password: '',
-            can_manage_admins: admin.can_manage_admins,
-            can_manage_classes: admin.can_manage_classes,
-            can_manage_students: admin.can_manage_students,
-            can_manage_weeks: admin.can_manage_weeks,
-            can_manage_points: admin.can_manage_points,
-            can_view_analytics: admin.can_view_analytics,
-          }
-        : {
-            name: '',
-            password: '',
-            can_manage_admins: true,
-            can_manage_classes: true,
-            can_manage_students: true,
-            can_manage_weeks: true,
-            can_manage_points: true,
-            can_view_analytics: false,
-          }
-    );
+  const openAdminModal = async (admin = null) => {
+    if (admin) {
+      const response = await api.get(`/admin/admins/${admin.id}`);
+      setEditingAdmin(response.data);
+      setAdminFormData({
+        name: response.data.name,
+        password: response.data.password,
+        can_manage_admins: response.data.can_manage_admins,
+        can_manage_classes: response.data.can_manage_classes,
+        can_manage_students: response.data.can_manage_students,
+        can_manage_weeks: response.data.can_manage_weeks,
+        can_manage_points: response.data.can_manage_points,
+        can_view_analytics: response.data.can_view_analytics,
+      });
+    } else {
+      setEditingAdmin(null);
+      setAdminFormData({
+        name: '',
+        password: '',
+        can_manage_admins: true,
+        can_manage_classes: true,
+        can_manage_students: true,
+        can_manage_weeks: true,
+        can_manage_points: true,
+        can_view_analytics: false,
+      });
+    }
     setIsAdminModalOpen(true);
   };
 
@@ -496,8 +501,8 @@ const UserManagement = () => {
             <input type="text" id="name" name="name" value={studentFormData.name} onChange={handleStudentFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-brand-secondary mb-2">{editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')}</label>
-            <PasswordInput id="password" name="password" value={studentFormData.password} onChange={handleStudentFormChange} required={!editingStudent} />
+            <label htmlFor="password" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.form.password')}</label>
+            <PasswordInput id="password" name="password" value={studentFormData.password} onChange={handleStudentFormChange} required />
           </div>
           <div className="relative">
             <label htmlFor="class_id" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.class')}</label>
@@ -535,8 +540,8 @@ const UserManagement = () => {
             <input type="text" id="admin-name" name="name" value={adminFormData.name} onChange={handleAdminFormChange} required className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
           </div>
           <div>
-            <label htmlFor="admin-password" className="block text-sm font-bold text-brand-secondary mb-2">{editingAdmin ? t('userManagement.adminForm.newPassword') : t('userManagement.adminForm.password')}</label>
-            <PasswordInput id="admin-password" name="password" value={adminFormData.password} onChange={handleAdminFormChange} required={!editingAdmin} />
+            <label htmlFor="admin-password" className="block text-sm font-bold text-brand-secondary mb-2">{t('userManagement.adminForm.password')}</label>
+            <PasswordInput id="admin-password" name="password" value={adminFormData.password} onChange={handleAdminFormChange} required />
           </div>
           <div>
             <label className="block text-sm font-bold text-brand-secondary mb-3">{t('userManagement.permissions.title')}</label>
