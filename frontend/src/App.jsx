@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactGA from 'react-ga4';
@@ -19,42 +19,69 @@ import Analytics from './pages/admin/Analytics.jsx';
 import StudentLayout from './pages/student/StudentLayout.jsx';
 import StudentPoints from './pages/student/StudentPoints.jsx';
 import { logoUrl } from './data/site.js';
+import { Menu, X } from 'lucide-react';
 
 const Navigation = () => {
   const { user, logout } = useContext(AuthContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
+    setIsMenuOpen(false);
     navigate('/login');
   };
 
-  return (
-    <nav className="sticky top-0 z-40 bg-brand-background/80 backdrop-blur-lg border-b border-brand-border">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex items-center justify-between gap-4 h-16">
-          <Link to="/" className="flex items-center gap-3 group">
-            <img src={logoUrl} alt="Logo" className="h-9 w-9 rounded-full object-cover" />
-            <span className="text-brand-primary text-xl font-bold">{t('Ghars')}</span>
-          </Link>
-          <div className="flex items-center gap-5 text-sm font-medium">
-            <Link to="/weeks" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Weeks')}</Link>
-            <Link to="/leaderboard" className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Leaderboard')}</Link>
+  const closeMenu = () => setIsMenuOpen(false);
 
-            {user ? (
-              <>
-                {user.role === 'student' && <Link to="/dashboard" className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">{t('Dashboard')}</Link>}
-                {user.role === 'admin' && <Link to="/admin" className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">{t('Admin Panel')}</Link>}
-                <button onClick={handleLogout} className="text-brand-secondary hover:text-brand-primary transition-colors">{t('Logout')}</button>
-              </>
-            ) : (
-              <Link to="/login" className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">{t('Login')}</Link>
-            )}
+  const navLinks = (
+    <>
+      <Link to="/weeks" onClick={closeMenu} className="text-brand-secondary hover:text-brand-primary transition-colors block py-2">{t('Weeks')}</Link>
+      <Link to="/leaderboard" onClick={closeMenu} className="text-brand-secondary hover:text-brand-primary transition-colors block py-2">{t('Leaderboard')}</Link>
+      {user ? (
+        <>
+          {user.role === 'student' && <Link to="/dashboard" onClick={closeMenu} className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors block text-center mt-2">{t('Dashboard')}</Link>}
+          {user.role === 'admin' && <Link to="/admin" onClick={closeMenu} className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors block text-center mt-2">{t('Admin Panel')}</Link>}
+          <button onClick={handleLogout} className="text-brand-secondary hover:text-brand-primary transition-colors w-full text-right mt-2 block py-2">{t('Logout')}</button>
+        </>
+      ) : (
+        <Link to="/login" onClick={closeMenu} className="bg-white text-brand-background font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors block text-center mt-2">{t('Login')}</Link>
+      )}
+    </>
+  );
+
+  return (
+    <>
+      <nav className="sticky top-0 z-40 bg-brand-background/80 backdrop-blur-lg border-b border-brand-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex items-center justify-between gap-4 h-16">
+            <Link to="/" className="flex items-center gap-3 group">
+              <img src={logoUrl} alt="Logo" className="h-9 w-9 rounded-full object-cover" />
+              <span className="text-brand-primary text-xl font-bold">{t('Ghars')}</span>
+            </Link>
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-5 text-sm font-medium">
+              {navLinks}
+            </div>
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-brand-primary">
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+      {/* Mobile Menu Panel */}
+      {isMenuOpen && (
+        <div className="md:hidden fixed top-16 right-0 left-0 bottom-0 z-30 bg-brand-background/95 backdrop-blur-xl animate-fade-in-down">
+          <div className="px-6 py-4">
+            {navLinks}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

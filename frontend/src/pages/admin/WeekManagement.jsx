@@ -311,7 +311,7 @@ const WeekManagement = () => {
         </button>
       </div>
 
-      <div className="bg-black/20 border border-brand-border rounded-20 overflow-hidden">
+      <div className="bg-black/20 border border-brand-border rounded-20 overflow-x-auto">
         <table className="min-w-full text-brand-primary">
           <thead className="bg-brand-border/5">
             <tr>
