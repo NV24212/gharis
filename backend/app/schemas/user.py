@@ -49,7 +49,6 @@ class AdminUpdate(BaseModel):
     can_manage_students: Optional[bool] = None
     can_manage_weeks: Optional[bool] = None
     can_manage_points: Optional[bool] = None
-    can_view_analytics: Optional[bool] = None
 
 
 class AdminInDB(AdminBase):
