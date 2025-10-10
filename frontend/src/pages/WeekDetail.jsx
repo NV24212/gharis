@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import LoadingScreen from '../components/LoadingScreen';
 
 const WeekDetail = () => {
   const { id } = useParams();
@@ -32,12 +33,7 @@ const WeekDetail = () => {
   }, [id, t]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-brand-secondary p-8">
-        <Loader2 className="w-12 h-12 animate-spin mb-4" />
-        <p>{t('weekDetail.loading')}</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

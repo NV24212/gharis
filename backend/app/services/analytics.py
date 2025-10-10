@@ -26,12 +26,26 @@ def get_analytics_report():
 
         # Define all report requests
         requests = {
+            "users_per_day": RunReportRequest(
+                property=property_id,
+                dimensions=[Dimension(name="date")],
+                metrics=[Metric(name="activeUsers")],
+                date_ranges=date_range,
+                order_bys=[{"dimension": {"dimension_name": "date"}, "desc": False}]
+            ),
+            "users_per_week": RunReportRequest(
+                property=property_id,
+                dimensions=[Dimension(name="week")],
+                metrics=[Metric(name="activeUsers")],
+                date_ranges=date_range,
+                 order_bys=[{"dimension": {"dimension_name": "week"}, "desc": False}]
+            ),
             "content_by_page": RunReportRequest(
                 property=property_id,
                 dimensions=[Dimension(name="unifiedScreenName")],
-                metrics=[Metric(name="screenPageViews",), Metric(name="sessions")],
+                metrics=[Metric(name="screenPageViews"), Metric(name="sessions")],
                 date_ranges=date_range,
-                limit=10
+                limit=50 # Return more pages
             ),
         }
 
@@ -53,6 +67,7 @@ def get_analytics_report():
         # Process results into a single structured report
         final_report = {
             "overview": {},
+            "trends": {"usersPerDay": [], "usersPerWeek": []},
             "content": {"byPage": []},
         }
 
@@ -81,6 +96,8 @@ def get_analytics_report():
 
         # Process dimensional reports
         final_report["content"]["byPage"] = process_dimensional_report(results.get("content_by_page"), "unifiedScreenName", ["screenPageViews", "sessions"])
+        final_report["trends"]["usersPerDay"] = process_dimensional_report(results.get("users_per_day"), "date", ["activeUsers"])
+        final_report["trends"]["usersPerWeek"] = process_dimensional_report(results.get("users_per_week"), "week", ["activeUsers"])
 
         return final_report
 

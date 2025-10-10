@@ -154,6 +154,7 @@ const Analytics = () => {
       <div className="border-b border-gray-700">
         <nav className="-mb-px flex space-x-4" aria-label="Tabs">
           <Tab id="overview" activeTab={activeTab} setActiveTab={setActiveTab}>{t('analytics.tabs.overview')}</Tab>
+          <Tab id="trends" activeTab={activeTab} setActiveTab={setActiveTab}>{t('analytics.tabs.trends')}</Tab>
           <Tab id="content" activeTab={activeTab} setActiveTab={setActiveTab}>{t('analytics.tabs.content')}</Tab>
         </nav>
       </div>
@@ -164,6 +165,16 @@ const Analytics = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <StatCard title={t('analytics.overview.activeUsers')} value={data?.overview?.activeUsers} icon={<Users className="w-6 h-6 text-blue-400" />} />
             <StatCard title={t('analytics.overview.pageViews')} value={data?.overview?.screenPageViews} icon={<Eye className="w-6 h-6 text-indigo-400" />} />
+          </div>
+        </TabPanel>
+         <TabPanel id="trends" activeTab={activeTab}>
+          <div className="space-y-8">
+            <Section title={t('analytics.trends.usersPerDay')}>
+              <CustomBarChart data={data?.trends?.usersPerDay} xAxisKey="date" bar1Key="activeUsers" bar1Name={t('analytics.overview.activeUsers')} />
+            </Section>
+            <Section title={t('analytics.trends.usersPerWeek')}>
+               <CustomBarChart data={data?.trends?.usersPerWeek} xAxisKey="week" bar1Key="activeUsers" bar1Name={t('analytics.overview.activeUsers')} />
+            </Section>
           </div>
         </TabPanel>
         <TabPanel id="content" activeTab={activeTab}>
