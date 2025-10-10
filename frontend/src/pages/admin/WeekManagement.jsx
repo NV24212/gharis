@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2, X, UploadCloud, Loader2, Video, FileCheck, Trash } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
 import Modal from '../../components/Modal';
+import WeekCard from './WeekCard';
 import ConfirmationModal from '../../components/ConfirmationModal';
 
 const WeekManagement = () => {
@@ -311,34 +312,15 @@ const WeekManagement = () => {
         </button>
       </div>
 
-      <div className="bg-black/20 border border-brand-border rounded-20 overflow-x-auto">
-        <table className="min-w-full text-brand-primary">
-          <thead className="bg-brand-border/5">
-            <tr>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('weekManagement.table.weekNo')}</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('weekManagement.table.title')}</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('weekManagement.table.status')}</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">{t('weekManagement.table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-brand-border">
-            {weeks.map((week) => (
-              <tr key={week.id} className={`hover:bg-brand-border/5 transition-colors ${week.deleting ? 'animate-fade-out' : ''}`}>
-                <td className="px-6 py-4">{week.week_number}</td>
-                <td className="px-6 py-4">{week.title}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${!week.is_locked ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
-                    {!week.is_locked ? t('weekManagement.status.unlocked') : t('weekManagement.status.locked')}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-left">
-                  <button onClick={() => openModal(week)} className="text-brand-secondary hover:text-brand-primary mr-4 transition-colors"><Edit size={18} /></button>
-                  <button onClick={() => openDeleteConfirm(week.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {weeks.map((week) => (
+          <WeekCard
+            key={week.id}
+            week={week}
+            onEdit={openModal}
+            onDelete={openDeleteConfirm}
+          />
+        ))}
       </div>
 
       <Modal

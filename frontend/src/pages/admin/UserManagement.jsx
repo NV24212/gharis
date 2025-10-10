@@ -5,6 +5,8 @@ import { AuthContext } from '../../context/AuthContext';
 import { Plus, Edit, Trash2, Loader2, ChevronDown, Users, Shield, BookCopy } from 'lucide-react';
 import { logoUrl } from '../../data/site.js';
 import Modal from '../../components/Modal';
+import StudentCard from './StudentCard';
+import AdminCard from './AdminCard';
 import LoadingScreen from '../../components/LoadingScreen';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import PasswordInput from '../../components/PasswordInput';
@@ -357,7 +359,7 @@ const UserManagement = () => {
 
   const renderStudentsTab = () => (
     <>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold text-brand-primary">{t('userManagement.tabs.students')}</h2>
           <div className="relative">
@@ -366,7 +368,7 @@ const UserManagement = () => {
               id="classFilter"
               value={classFilter}
               onChange={(e) => setClassFilter(e.target.value)}
-              className="bg-black/30 border border-brand-border text-brand-primary p-2.5 pl-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 appearance-none"
+              className="bg-black/30 border border-brand-border text-brand-primary p-2.5 pl-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 appearance-none text-sm"
             >
               <option value="">{t('userManagement.allClasses')}</option>
               {classes.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
@@ -378,51 +380,32 @@ const UserManagement = () => {
         </div>
         <button
           onClick={() => openStudentModal()}
-          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
+          className="flex items-center justify-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t('studentManagement.addStudent')}
         </button>
       </div>
 
-      <div className="bg-black/20 border border-brand-border rounded-20 overflow-x-auto">
-        <table className="min-w-full text-brand-primary">
-          <thead className="bg-brand-border/5">
-            <tr>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.name')}</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.class')}</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.points')}</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-brand-border">
-            {filteredStudents.map((student) => (
-              <tr key={student.id} className={`hover:bg-brand-border/5 transition-colors ${student.deleting ? 'animate-fade-out' : ''}`}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium">{student.name}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.class?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
-                <td className="px-6 py-4 text-left">
-                  <div className="flex items-center gap-6">
-                    <button onClick={() => openStudentModal(student)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
-                    <button onClick={() => openStudentDeleteConfirm(student.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {filteredStudents.map((student) => (
+          <StudentCard
+            key={student.id}
+            student={student}
+            onEdit={openStudentModal}
+            onDelete={openStudentDeleteConfirm}
+          />
+        ))}
       </div>
     </>
   );
 
   const renderAdminsTab = () => (
     <>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
         <h2 className="text-2xl font-bold text-brand-primary">{t('userManagement.tabs.admins')}</h2>
         <button
           onClick={() => openAdminModal()}
-          className="flex items-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
+          className="flex items-center justify-center gap-2 bg-brand-primary text-brand-background font-bold py-2.5 px-5 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform active:scale-95"
         >
           <Plus size={20} /> {t('userManagement.addAdmin')}
         </button>
@@ -430,30 +413,15 @@ const UserManagement = () => {
       {isAdminsLoading ? (
         <LoadingScreen fullScreen={false} />
       ) : (
-        <div className="bg-black/20 border border-brand-border rounded-20 overflow-x-auto">
-          <table className="min-w-full text-brand-primary">
-            <thead className="bg-brand-border/5">
-              <tr>
-                <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminTable.name')}</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">{t('userManagement.adminTable.actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-brand-border">
-              {admins.map((admin) => (
-                <tr key={admin.id} className={`hover:bg-brand-border/5 transition-colors ${admin.deleting ? 'animate-fade-out' : ''}`}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium">{admin.name}</div>
-                  </td>
-                  <td className="px-6 py-4 text-left">
-                    <div className="flex items-center gap-6">
-                      <button onClick={() => openAdminModal(admin)} className="text-brand-secondary hover:text-brand-primary transition-colors"><Edit size={18} /></button>
-                      <button onClick={() => openAdminDeleteConfirm(admin.id)} className="text-brand-secondary hover:text-red-500 transition-colors"><Trash2 size={18} /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {admins.map((admin) => (
+            <AdminCard
+              key={admin.id}
+              admin={admin}
+              onEdit={openAdminModal}
+              onDelete={openAdminDeleteConfirm}
+            />
+          ))}
         </div>
       )}
     </>
