@@ -16,6 +16,7 @@ class TokenData(BaseModel):
     can_manage_students: Optional[bool] = None
     can_manage_weeks: Optional[bool] = None
     can_manage_points: Optional[bool] = None
+    can_view_analytics: Optional[bool] = None
 
 def get_current_user(token: str = Depends(reusable_oauth2)):
     try:

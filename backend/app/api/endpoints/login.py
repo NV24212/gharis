@@ -40,6 +40,7 @@ def login_for_access_token(
             "can_manage_students": user.get("can_manage_students"),
             "can_manage_weeks": user.get("can_manage_weeks"),
             "can_manage_points": user.get("can_manage_points"),
+            "can_view_analytics": user.get("can_view_analytics"),
         }
         token_data.update(permissions)
     elif user['role'] == 'student':
