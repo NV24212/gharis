@@ -1,6 +1,8 @@
 from supabase import Client
 from typing import List, Optional, Dict, Any
 from app.schemas.user import AdminCreate, AdminUpdate
+from app.db.supabase import get_supabase_client
+from fastapi import Depends
 
 class AdminService:
     def __init__(self, db_client: Client):
@@ -47,3 +49,6 @@ class AdminService:
 
     def delete_admin(self, admin_id: int) -> None:
         self.db.table(self.table).delete().eq("id", admin_id).execute()
+
+def get_admin_service(db: Client = Depends(get_supabase_client)) -> AdminService:
+    return AdminService(db)
