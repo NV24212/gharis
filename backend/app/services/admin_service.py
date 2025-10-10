@@ -10,11 +10,18 @@ class AdminService:
     def create_admin(self, admin_in: AdminCreate) -> Optional[Dict[str, Any]]:
         admin_data = admin_in.model_dump()
         response = self.db.table(self.table).insert(admin_data).execute()
-        return response.data[0] if response.data else None
+        if response.data:
+            admin = response.data[0]
+            return self.get_admin_by_id(admin['id'])
+        return None
 
     def get_admin_by_id(self, admin_id: int) -> Optional[Dict[str, Any]]:
-        response = self.db.table(self.table).select("*").eq("id", admin_id).execute()
-        return response.data[0] if response.data else None
+        response = self.db.table(self.table).select("*").eq("id", admin_id).single().execute()
+        if response.data:
+            admin = response.data
+            admin['role'] = 'admin'
+            return admin
+        return None
 
     def get_all_admins(self) -> List[Dict[str, Any]]:
         response = self.db.table(self.table).select("*").execute()
@@ -30,8 +37,13 @@ class AdminService:
         if 'password' in update_data and not update_data['password']:
             update_data.pop('password')
 
+        if not update_data:
+            return self.get_admin_by_id(admin_id)
+
         response = self.db.table(self.table).update(update_data).eq("id", admin_id).execute()
-        return response.data[0] if response.data else None
+        if response.data:
+            return self.get_admin_by_id(admin_id)
+        return None
 
     def delete_admin(self, admin_id: int) -> None:
         self.db.table(self.table).delete().eq("id", admin_id).execute()
