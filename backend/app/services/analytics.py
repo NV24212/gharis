@@ -93,21 +93,28 @@ def get_analytics_report():
             final_report["overview"]["totalUsers"] = total_users_res.rows[0].metric_values[0].value
 
         # Helper to process dimensional reports
-        def process_dimensional_report(response, key_dim_name, value_metric_names):
+        def process_dimensional_report(response, key_dim_name, value_metric_names_map):
             data = []
             if not response or not response.rows:
                 return data
             for row in response.rows:
                 item = {key_dim_name: row.dimension_values[0].value}
                 for i, metric_header in enumerate(response.metric_headers):
-                    item[metric_header.name] = row.metric_values[i].value
+                    output_key = value_metric_names_map.get(metric_header.name, metric_header.name)
+                    item[output_key] = row.metric_values[i].value
                 data.append(item)
             return data
 
         # Process dimensional reports
-        final_report["content"]["byPage"] = process_dimensional_report(results.get("content_by_page"), "unifiedScreenName", ["screenPageViews", "sessions"])
-        final_report["trends"]["usersPerDay"] = process_dimensional_report(results.get("users_per_day"), "date", ["activeUsers"])
-        final_report["trends"]["usersPerWeek"] = process_dimensional_report(results.get("users_per_week"), "week", ["activeUsers"])
+        final_report["content"]["byPage"] = process_dimensional_report(
+            results.get("content_by_page"), "unifiedScreenName", {"screenPageViews": "views", "sessions": "sessions"}
+        )
+        final_report["trends"]["usersPerDay"] = process_dimensional_report(
+            results.get("users_per_day"), "date", {"activeUsers": "users"}
+        )
+        final_report["trends"]["usersPerWeek"] = process_dimensional_report(
+            results.get("users_per_week"), "week", {"activeUsers": "users"}
+        )
 
         return final_report
 

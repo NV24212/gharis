@@ -171,10 +171,10 @@ const Analytics = () => {
          <TabPanel id="trends" activeTab={activeTab}>
           <div className="space-y-8">
             <Section title={t('analytics.trends.usersPerDay')}>
-              <CustomBarChart data={data?.trends?.usersPerDay} xAxisKey="date" bar1Key="activeUsers" bar1Name={t('analytics.overview.activeUsers')} />
+              <CustomBarChart data={data?.trends?.usersPerDay} xAxisKey="date" bar1Key="users" bar1Name={t('analytics.overview.activeUsers')} />
             </Section>
             <Section title={t('analytics.trends.usersPerWeek')}>
-               <CustomBarChart data={data?.trends?.usersPerWeek} xAxisKey="week" bar1Key="activeUsers" bar1Name={t('analytics.overview.activeUsers')} />
+               <CustomBarChart data={data?.trends?.usersPerWeek} xAxisKey="week" bar1Key="users" bar1Name={t('analytics.overview.activeUsers')} />
             </Section>
           </div>
         </TabPanel>
@@ -184,7 +184,7 @@ const Analytics = () => {
               data={data?.content?.byPage}
               columns={[
                 { key: 'unifiedScreenName', header: t('analytics.content.page') },
-                { key: 'screenPageViews', header: t('analytics.overview.pageViews') },
+                { key: 'views', header: t('analytics.overview.pageViews') },
                 { key: 'sessions', header: t('analytics.overview.sessions') },
               ]}
             />
