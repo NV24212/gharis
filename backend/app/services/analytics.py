@@ -1,98 +1,116 @@
 import os
-import json
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
-from google.analytics.data_v1beta.types import (
-    RunReportRequest,
-    Dimension,
-    Metric,
-    DateRange,
-)
+from google.analytics.data_v1beta.types import RunReportRequest, Dimension, Metric, DateRange
 from app.core.config import settings
+from concurrent.futures import ThreadPoolExecutor
 
 def get_analytics_report():
     """
-    Authenticates with Google Analytics and fetches a report of key metrics.
+    Authenticates with Google Analytics and fetches a comprehensive set of reports.
     """
     try:
-        # Check if all required environment variables are set
         if not all([settings.GA4_PROJECT_ID, settings.GA4_CLIENT_EMAIL, settings.GA4_PRIVATE_KEY]):
-            return {"error": "Google Analytics is not fully configured. Please set GA4_PROJECT_ID, GA4_CLIENT_EMAIL, and GA4_PRIVATE_KEY."}
+            return {"error": "Google Analytics is not fully configured."}
 
-        # Dynamically construct the credentials JSON
         creds_json = {
             "type": "service_account",
             "project_id": settings.GA4_PROJECT_ID,
-            "private_key_id": None,  # This is not strictly required by the client library
             "private_key": settings.GA4_PRIVATE_KEY.replace('\\n', '\n'),
             "client_email": settings.GA4_CLIENT_EMAIL,
-            "client_id": None,  # This is not strictly required by the client library
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{settings.GA4_CLIENT_EMAIL.replace('@', '%40')}"
         }
 
         client = BetaAnalyticsDataClient.from_service_account_info(creds_json)
-        property_id = settings.GA_PROPERTY_ID
+        property_id = f"properties/{settings.GA_PROPERTY_ID}"
+        date_range = [DateRange(start_date="28daysAgo", end_date="today")]
 
-        # Define the request for the report
-        request = RunReportRequest(
-            property=f"properties/{property_id}",
-            dimensions=[
-                Dimension(name="country"),
-                Dimension(name="unifiedScreenName")
-            ],
-            metrics=[
-                Metric(name="activeUsers"),
-                Metric(name="screenPageViews"),
-                Metric(name="newUsers")
-            ],
-            date_ranges=[DateRange(start_date="28daysAgo", end_date="today")],
-        )
-
-        # Run the report
-        response = client.run_report(request)
-
-        # Process the response into a more friendly format
-        report = {
-            "totals": {},
-            "by_country": [],
-            "by_page": [],
+        # Define all report requests
+        requests = {
+            "overview": RunReportRequest(
+                property=property_id,
+                metrics=[
+                    Metric(name="activeUsers"),
+                    Metric(name="newUsers"),
+                    Metric(name="sessions"),
+                    Metric(name="bounceRate"),
+                    Metric(name="averageSessionDuration"),
+                    Metric(name="screenPageViews")
+                ],
+                date_ranges=date_range,
+            ),
+            "audience_by_country": RunReportRequest(
+                property=property_id,
+                dimensions=[Dimension(name="country")],
+                metrics=[Metric(name="activeUsers"), Metric(name="sessions")],
+                date_ranges=date_range,
+                limit=10
+            ),
+            "acquisition": RunReportRequest(
+                property=property_id,
+                dimensions=[Dimension(name="sessionSourceMedium")],
+                metrics=[Metric(name="sessions"), Metric(name="newUsers")],
+                date_ranges=date_range,
+                limit=10
+            ),
+            "technology_by_device": RunReportRequest(
+                property=property_id,
+                dimensions=[Dimension(name="deviceCategory")],
+                metrics=[Metric(name="activeUsers")],
+                date_ranges=date_range,
+            ),
+            "content_by_page": RunReportRequest(
+                property=property_id,
+                dimensions=[Dimension(name="unifiedScreenName")],
+                metrics=[Metric(name="screenPageViews",), Metric(name="sessions")],
+                date_ranges=date_range,
+                limit=10
+            ),
         }
 
-        # Extract totals
-        if response.metric_headers and response.totals:
-            for i, header in enumerate(response.metric_headers):
-                report["totals"][header.name] = response.totals[0].metric_values[i].value
+        # Run reports in parallel
+        with ThreadPoolExecutor() as executor:
+            future_to_report = {executor.submit(client.run_report, request): name for name, request in requests.items()}
+            results = {report_name: future.result() for future, report_name in future_to_report.items()}
 
-        # Extract data from rows
-        country_data = {}
-        page_data = {}
+        # Process results into a single structured report
+        final_report = {
+            "overview": {},
+            "audience": {"byCountry": []},
+            "acquisition": {"bySourceMedium": []},
+            "technology": {"byDevice": []},
+            "content": {"byPage": []},
+        }
 
-        for row in response.rows:
-            country = row.dimension_values[0].value
-            page = row.dimension_values[1].value
-            active_users = int(row.metric_values[0].value)
-            page_views = int(row.metric_values[1].value)
+        # Process Overview
+        overview_res = results.get("overview")
+        if overview_res and overview_res.totals:
+            for i, header in enumerate(overview_res.metric_headers):
+                value = overview_res.totals[0].metric_values[i].value
+                # Format duration nicely
+                if "Duration" in header.name:
+                     value = f"{float(value):.2f}s"
+                final_report["overview"][header.name] = value
 
-            # Aggregate by country
-            if country not in country_data:
-                country_data[country] = {"users": 0, "views": 0}
-            country_data[country]["users"] += active_users
-            country_data[country]["views"] += page_views
+        # Helper to process dimensional reports
+        def process_dimensional_report(response, key_dim_name, value_metric_names):
+            data = []
+            if not response or not response.rows:
+                return data
+            for row in response.rows:
+                item = {row.dimension_values[0].name: row.dimension_values[0].value}
+                for i, metric_header in enumerate(response.metric_headers):
+                    item[metric_header.name] = row.metric_values[i].value
+                data.append(item)
+            return data
 
-            # Aggregate by page
-            if page not in page_data:
-                page_data[page] = {"users": 0, "views": 0}
-            page_data[page]["users"] += active_users
-            page_data[page]["views"] += page_views
+        # Process dimensional reports
+        final_report["audience"]["byCountry"] = process_dimensional_report(results.get("audience_by_country"), "country", ["activeUsers", "sessions"])
+        final_report["acquisition"]["bySourceMedium"] = process_dimensional_report(results.get("acquisition"), "sessionSourceMedium", ["sessions", "newUsers"])
+        final_report["technology"]["byDevice"] = process_dimensional_report(results.get("technology_by_device"), "deviceCategory", ["activeUsers"])
+        final_report["content"]["byPage"] = process_dimensional_report(results.get("content_by_page"), "unifiedScreenName", ["screenPageViews", "sessions"])
 
-        report["by_country"] = [{"country": k, **v} for k, v in country_data.items()]
-        report["by_page"] = [{"page": k, **v} for k, v in page_data.items()]
-
-        return report
+        return final_report
 
     except Exception as e:
         print(f"Error fetching Google Analytics data: {e}")
-        # In a real app, you'd want more robust error handling/logging
         return {"error": str(e)}
