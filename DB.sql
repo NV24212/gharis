@@ -28,6 +28,7 @@ CREATE TABLE admins (
     can_manage_students BOOLEAN DEFAULT TRUE,
     can_manage_weeks BOOLEAN DEFAULT TRUE,
     can_manage_points BOOLEAN DEFAULT TRUE,
+    can_view_analytics BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -62,7 +63,7 @@ CREATE TABLE content_cards (
 );
 
 -- Initial Data
-INSERT INTO admins (name, password, role) VALUES ('Default Admin', 'Xnaf*123', 'admin');
+INSERT INTO admins (name, password, role, can_view_analytics) VALUES ('Default Admin', 'Xnaf*123', 'admin', TRUE);
 
 -- Sample Data (Optional)
 INSERT INTO classes (name) VALUES ('Class A'), ('Class B');

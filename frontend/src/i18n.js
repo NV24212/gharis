@@ -61,6 +61,7 @@ i18next
           "userManagement.permissions.managestudents": "إدارة الطلاب",
           "userManagement.permissions.manageweeks": "إدارة الأسابيع",
           "userManagement.permissions.managepoints": "إدارة النقاط",
+          "userManagement.permissions.viewanalytics": "عرض الإحصائيات",
           "userManagement.errors.updateAdmin": "فشل في تحديث الأدمن.",
           "userManagement.errors.deleteAdmin": "فشل في حذف الأدمن.",
           "admin.nav.weeks": "إدارة الأسابيع",
@@ -180,7 +181,15 @@ i18next
           "profile.uploadNewPhoto": "رفع صورة جديدة",
           "profile.errors.upload": "فشل في رفع الصورة.",
           "points.title": "نقاطك",
-          "points.yourTotal": "مجموع نقاطك هو"
+          "points.yourTotal": "مجموع نقاطك هو",
+          "admin.nav.analytics": "الإحصائيات",
+          "analytics.title": "إحصائيات الموقع",
+          "analytics.fetchError": "فشل في جلب بيانات الإحصائيات.",
+          "analytics.activeUsers": "المستخدمون النشطون",
+          "analytics.pageViews": "مشاهدات الصفحة",
+          "analytics.newUsers": "مستخدمون جدد",
+          "analytics.viewsByPage": "المشاهدات حسب الصفحة",
+          "analytics.usersByCountry": "المستخدمون حسب البلد"
         }
       }
     },

@@ -34,6 +34,7 @@ class AdminBase(BaseModel):
     can_manage_students: bool = True
     can_manage_weeks: bool = True
     can_manage_points: bool = True
+    can_view_analytics: bool = False
 
 
 class AdminCreate(AdminBase):
@@ -48,6 +49,7 @@ class AdminUpdate(BaseModel):
     can_manage_students: Optional[bool] = None
     can_manage_weeks: Optional[bool] = None
     can_manage_points: Optional[bool] = None
+    can_view_analytics: Optional[bool] = None
 
 
 class AdminInDB(AdminBase):
