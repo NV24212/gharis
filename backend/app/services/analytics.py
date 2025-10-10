@@ -1,6 +1,6 @@
 import os
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
-from google.analytics.data_v1beta.types import RunReportRequest, Dimension, Metric, DateRange
+from google.analytics.data_v1beta.types import RunReportRequest, Dimension, Metric, DateRange, RunRealtimeReportRequest
 from app.core.config import settings
 from concurrent.futures import ThreadPoolExecutor
 
@@ -67,9 +67,19 @@ def get_analytics_report():
             ),
         }
 
+        # Define realtime request separately
+        realtime_request = RunRealtimeReportRequest(
+            property=property_id,
+            metrics=[Metric(name="activeUsers")]
+        )
+
         # Run reports in parallel
         with ThreadPoolExecutor() as executor:
+            # Historical reports
             future_to_report = {executor.submit(client.run_report, request): name for name, request in requests.items()}
+            # Realtime report
+            future_to_report[executor.submit(client.run_realtime_report, realtime_request)] = "realtime"
+
             results = {report_name: future.result() for future, report_name in future_to_report.items()}
 
         # Process results into a single structured report
@@ -81,7 +91,7 @@ def get_analytics_report():
             "content": {"byPage": []},
         }
 
-        # Process Overview
+        # Process Overview from historical data
         overview_res = results.get("overview")
         if overview_res and overview_res.totals:
             for i, header in enumerate(overview_res.metric_headers):
@@ -90,6 +100,12 @@ def get_analytics_report():
                 if "Duration" in header.name:
                      value = f"{float(value):.2f}s"
                 final_report["overview"][header.name] = value
+
+        # Override activeUsers with real-time data if available
+        realtime_res = results.get("realtime")
+        if realtime_res and realtime_res.rows:
+            # Realtime report returns the value in the first row/metric
+            final_report["overview"]["activeUsers"] = realtime_res.rows[0].metric_values[0].value
 
         # Helper to process dimensional reports
         def process_dimensional_report(response, key_dim_name, value_metric_names):
