@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
-import React, { useEffect, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import api from '../../services/api';
 import { AlertTriangle, RefreshCw, Users, Eye, UserPlus, Clock, TrendingUp, BarChart3 } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
