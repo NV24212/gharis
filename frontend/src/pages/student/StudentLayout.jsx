@@ -15,10 +15,6 @@ const StudentLayout = () => {
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    setIsMobileSidebarOpen(false);
-  }, [location.pathname]);
-
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
     if (isMobileSidebarOpen) {
@@ -56,8 +52,14 @@ const StudentLayout = () => {
     return `flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 text-brand-secondary hover:bg-brand-primary/5 hover:text-brand-primary ${!isOpen ? 'justify-center' : ''}`;
   }
 
-  const SidebarContent = ({ isDesktop = false }) => {
+  const SidebarContent = ({ isDesktop = false, closeMobileSidebar }) => {
     const isOpen = isDesktop ? isDesktopSidebarOpen : true;
+
+    const handleLinkClick = () => {
+        if (!isDesktop) {
+            closeMobileSidebar();
+        }
+    }
 
     return (
         <div className="flex flex-col h-full">
@@ -70,7 +72,7 @@ const StudentLayout = () => {
                     </div>
                 </div>
                 {!isDesktop && (
-                    <button onClick={() => setIsMobileSidebarOpen(false)} className="text-brand-secondary hover:text-brand-primary ml-auto">
+                    <button onClick={closeMobileSidebar} className="text-brand-secondary hover:text-brand-primary ml-auto">
                         <X size={24} />
                     </button>
                 )}
@@ -79,14 +81,14 @@ const StudentLayout = () => {
             <nav className="flex-grow px-2">
                 <ul className="space-y-2">
                     <li>
-                        <Link to="/" className={getHomeLinkClasses(isDesktop)} title={isOpen ? '' : t('admin.nav.home')}>
+                        <Link to="/" className={getHomeLinkClasses(isDesktop)} title={isOpen ? '' : t('admin.nav.home')} onClick={handleLinkClick}>
                             <Home className={`h-5 w-5 ${isOpen ? 'ml-3' : ''}`} />
                             <span className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'hidden' : 'delay-200'}`}>{t('admin.nav.home')}</span>
                         </Link>
                     </li>
                     {navLinks.map((link) => (
                         <li key={link.to}>
-                        <NavLink to={link.to} className={getNavLinkClasses(isDesktop)(link.to)} title={isOpen ? '' : link.text}>
+                        <NavLink to={link.to} className={getNavLinkClasses(isDesktop)(link.to)} title={isOpen ? '' : link.text} onClick={handleLinkClick}>
                             <link.icon className={`h-5 w-5 ${isOpen ? 'ml-3' : ''}`} />
                             <span className={`transition-opacity duration-200 whitespace-nowrap ${!isOpen ? 'hidden' : 'delay-200'}`}>{link.text}</span>
                         </NavLink>
@@ -120,7 +122,7 @@ const StudentLayout = () => {
         onClick={() => setIsMobileSidebarOpen(false)}
       />
       <aside className={`fixed top-0 right-0 h-full w-64 bg-black/50 backdrop-blur-lg border-l border-brand-border z-50 transition-transform duration-300 ease-in-out md:hidden ${isMobileSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <SidebarContent />
+        <SidebarContent closeMobileSidebar={() => setIsMobileSidebarOpen(false)} />
       </aside>
 
       <aside className={`hidden md:flex md:flex-shrink-0 bg-black/20 border-l border-brand-border transition-all duration-300 ${isDesktopSidebarOpen ? 'w-64' : 'w-20'}`}>
