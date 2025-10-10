@@ -24,7 +24,9 @@ class Settings(BaseSettings):
 
     # Google Analytics Configuration
     GA_PROPERTY_ID: str = "451406458"
-    GA_SERVICE_ACCOUNT_CREDENTIALS: Union[str, None] = None
+    GA4_PROJECT_ID: Optional[str] = None
+    GA4_CLIENT_EMAIL: Optional[str] = None
+    GA4_PRIVATE_KEY: Optional[str] = None
 
     class Config:
         case_sensitive = True

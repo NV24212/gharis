@@ -14,14 +14,24 @@ def get_analytics_report():
     Authenticates with Google Analytics and fetches a report of key metrics.
     """
     try:
-        # Load credentials from the environment variable
-        creds_str = settings.GA_SERVICE_ACCOUNT_CREDENTIALS
-        print(f"DEBUG: GA_SERVICE_ACCOUNT_CREDENTIALS raw value: '{creds_str}'")
+        # Check if all required environment variables are set
+        if not all([settings.GA4_PROJECT_ID, settings.GA4_CLIENT_EMAIL, settings.GA4_PRIVATE_KEY]):
+            return {"error": "Google Analytics is not fully configured. Please set GA4_PROJECT_ID, GA4_CLIENT_EMAIL, and GA4_PRIVATE_KEY."}
 
-        if not creds_str:
-            return {"error": "Google Analytics credentials are not configured. Please set the GA_SERVICE_ACCOUNT_CREDENTIALS environment variable."}
+        # Dynamically construct the credentials JSON
+        creds_json = {
+            "type": "service_account",
+            "project_id": settings.GA4_PROJECT_ID,
+            "private_key_id": None,  # This is not strictly required by the client library
+            "private_key": settings.GA4_PRIVATE_KEY.replace('\\n', '\n'),
+            "client_email": settings.GA4_CLIENT_EMAIL,
+            "client_id": None,  # This is not strictly required by the client library
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{settings.GA4_CLIENT_EMAIL.replace('@', '%40')}"
+        }
 
-        creds_json = json.loads(creds_str)
         client = BetaAnalyticsDataClient.from_service_account_info(creds_json)
         property_id = settings.GA_PROPERTY_ID
 
