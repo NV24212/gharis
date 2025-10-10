@@ -7,6 +7,7 @@ import { logoUrl } from '../../data/site.js';
 import Modal from '../../components/Modal';
 import LoadingScreen from '../../components/LoadingScreen';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import PasswordInput from '../../components/PasswordInput';
 
 const UserManagement = () => {
   const { t } = useTranslation();
@@ -528,7 +529,7 @@ const UserManagement = () => {
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-brand-secondary mb-2">{editingStudent ? t('studentManagement.form.newPassword') : t('studentManagement.form.password')}</label>
-            <input type="password" id="password" name="password" value={studentFormData.password} onChange={handleStudentFormChange} required={!editingStudent} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <PasswordInput id="password" name="password" value={studentFormData.password} onChange={handleStudentFormChange} required={!editingStudent} />
           </div>
           <div className="relative">
             <label htmlFor="class_id" className="block text-sm font-medium text-brand-secondary mb-2">{t('studentManagement.table.class')}</label>
@@ -567,7 +568,7 @@ const UserManagement = () => {
           </div>
           <div>
             <label htmlFor="admin-password" className="block text-sm font-bold text-brand-secondary mb-2">{editingAdmin ? t('userManagement.adminForm.newPassword') : t('userManagement.adminForm.password')}</label>
-            <input type="password" id="admin-password" name="password" value={adminFormData.password} onChange={handleAdminFormChange} required={!editingAdmin} className="w-full bg-black/30 border border-brand-border text-brand-primary p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50" />
+            <PasswordInput id="admin-password" name="password" value={adminFormData.password} onChange={handleAdminFormChange} required={!editingAdmin} />
           </div>
           <div>
             <label className="block text-sm font-bold text-brand-secondary mb-3">{t('userManagement.permissions.title')}</label>
