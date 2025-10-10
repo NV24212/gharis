@@ -195,6 +195,7 @@ i18next
           "analytics.overview.newUsers": "مستخدمون جدد",
           "analytics.overview.sessions": "الجلسات",
           "analytics.overview.pageViews": "مشاهدات الصفحة",
+          "analytics.overview.totalUsers": "إجمالي المستخدمين (28 يومًا)",
           "analytics.overview.avgSessionDuration": "متوسط مدة الجلسة",
           "analytics.overview.bounceRate": "معدل الارتداد",
           "analytics.tabs.overview": "نظرة عامة",
