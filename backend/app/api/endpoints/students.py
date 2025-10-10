@@ -59,6 +59,23 @@ def read_students(
     return student_service.get_all_students()
 
 
+@admin_router.get("/{student_id}", response_model=User, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
+def read_student_by_id(
+    *,
+    db: Client = Depends(get_supabase_client),
+    student_id: int,
+    current_user: Any = Depends(deps.get_current_admin_user)
+) -> Any:
+    """
+    Retrieve a specific student by ID (Admin only).
+    """
+    student_service = StudentService(db)
+    student = student_service.get_student_by_id(student_id=student_id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return student
+
+
 @admin_router.put("/{student_id}", response_model=User, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_students"]))])
 def update_student(
     *,

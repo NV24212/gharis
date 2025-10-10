@@ -3,7 +3,7 @@ from typing import List, Any
 from supabase import Client
 
 from app.schemas.user import AdminCreate, AdminInDB, AdminUpdate
-from app.services.admin_service import AdminService
+from app.services.admin_service import AdminService, get_admin_service
 from app.api import deps
 from app.db.supabase import get_supabase_client
 
@@ -20,6 +20,24 @@ def read_admins(
     """
     admin_service = AdminService(db)
     return admin_service.get_all_admins()
+
+@router.get("/{admin_id}", response_model=AdminInDB, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_admins"]))])
+def read_admin_by_id(
+    *,
+    admin_service: AdminService = Depends(get_admin_service),
+    admin_id: int,
+    current_user: Any = Depends(deps.get_current_admin_user)
+) -> Any:
+    """
+    Retrieve a specific admin user by ID.
+    """
+    admin = admin_service.get_admin_by_id(admin_id=admin_id)
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Admin not found",
+        )
+    return admin
 
 @router.post("", response_model=AdminInDB, status_code=status.HTTP_201_CREATED, dependencies=[Depends(deps.PermissionChecker(required_permissions=["can_manage_admins"]))])
 def create_admin(
