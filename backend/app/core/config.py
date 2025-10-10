@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8 # 8 days
 
     # Google Analytics Configuration
-    GA_PROPERTY_ID: str = "451406458"
+    GA_PROPERTY_ID: str = "508192372"
     GA4_PROJECT_ID: Optional[str] = None
     GA4_CLIENT_EMAIL: Optional[str] = None
     GA4_PRIVATE_KEY: Optional[str] = None
