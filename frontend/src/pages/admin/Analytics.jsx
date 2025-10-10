@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { AlertTriangle, RefreshCw, Users, Eye, UserPlus, Clock, TrendingUp, BarChart3 } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { useMemo } from 'react';
 
 // Reusable Tab Component
 const Tab = ({ id, activeTab, setActiveTab, children }) => (
@@ -104,6 +105,32 @@ const Analytics = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
 
+  const formattedData = useMemo(() => {
+    if (!data) return null;
+
+    const formatGA4Date = (dateString) => {
+      const year = dateString.substring(0, 4);
+      const month = dateString.substring(4, 6);
+      const day = dateString.substring(6, 8);
+      const date = new Date(`${year}-${month}-${day}`);
+      return date.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+    };
+
+    return {
+      ...data,
+      trends: {
+        usersPerDay: data.trends.usersPerDay.map(item => ({
+          ...item,
+          date: formatGA4Date(item.date),
+        })),
+        usersPerWeek: data.trends.usersPerWeek.map(item => ({
+          ...item,
+          week: `${t('weeks.week')} ${parseInt(item.week.substring(2)) + 1}`,
+        })),
+      },
+    };
+  }, [data, t]);
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -169,25 +196,25 @@ const Analytics = () => {
       <div>
         <TabPanel id="overview" activeTab={activeTab}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <StatCard title={t('analytics.overview.activeUsers')} value={data?.overview?.activeUsers} icon={<Users className="w-6 h-6 text-blue-400" />} />
-            <StatCard title={t('analytics.overview.totalUsers')} value={data?.overview?.totalUsers} icon={<UserPlus className="w-6 h-6 text-green-400" />} />
-            <StatCard title={t('analytics.overview.pageViews')} value={data?.overview?.screenPageViews} icon={<Eye className="w-6 h-6 text-indigo-400" />} />
+            <StatCard title={t('analytics.overview.activeUsers')} value={formattedData?.overview?.activeUsers} icon={<Users className="w-6 h-6 text-blue-400" />} />
+            <StatCard title={t('analytics.overview.totalUsers')} value={formattedData?.overview?.totalUsers} icon={<UserPlus className="w-6 h-6 text-green-400" />} />
+            <StatCard title={t('analytics.overview.pageViews')} value={formattedData?.overview?.screenPageViews} icon={<Eye className="w-6 h-6 text-indigo-400" />} />
           </div>
         </TabPanel>
          <TabPanel id="trends" activeTab={activeTab}>
           <div className="space-y-8">
             <Section title={t('analytics.trends.usersPerDay')}>
-              <CustomChart type="line" data={data?.trends?.usersPerDay} xAxisKey="date" dataKey="users" name={t('analytics.overview.activeUsers')} />
+              <CustomChart type="line" data={formattedData?.trends?.usersPerDay} xAxisKey="date" dataKey="users" name={t('analytics.overview.activeUsers')} />
             </Section>
             <Section title={t('analytics.trends.usersPerWeek')}>
-               <CustomChart type="line" data={data?.trends?.usersPerWeek} xAxisKey="week" dataKey="users" name={t('analytics.overview.activeUsers')} />
+               <CustomChart type="line" data={formattedData?.trends?.usersPerWeek} xAxisKey="week" dataKey="users" name={t('analytics.overview.activeUsers')} />
             </Section>
           </div>
         </TabPanel>
         <TabPanel id="content" activeTab={activeTab}>
           <Section title={t('analytics.content.byPage')}>
             <DataTable
-              data={data?.content?.byPage}
+              data={formattedData?.content?.byPage}
               columns={[
                 { key: 'unifiedScreenName', header: t('analytics.content.page') },
                 { key: 'views', header: t('analytics.overview.pageViews') },
@@ -195,8 +222,8 @@ const Analytics = () => {
               ]}
             />
             <div className="mt-8">
-               <ResponsiveContainer width="100%" height={data?.content?.byPage?.length * 40}>
-                <BarChart data={data?.content?.byPage} layout="vertical" margin={{ top: 5, right: 20, left: 100, bottom: 5 }}>
+               <ResponsiveContainer width="100%" height={formattedData?.content?.byPage?.length * 40}>
+                <BarChart data={formattedData?.content?.byPage} layout="vertical" margin={{ top: 5, right: 20, left: 100, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
                   <XAxis type="number" tick={{ fill: '#a0a0a0' }} />
                   <YAxis type="category" dataKey="unifiedScreenName" tick={{ fill: '#a0a0a0' }} width={150} />
