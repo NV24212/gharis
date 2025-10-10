@@ -11,7 +11,10 @@ class StudentService:
         student_data = student_in.model_dump()
         response = self.db.table(self.table).insert(student_data).execute()
         if response.data:
-            return response.data[0]
+            student = response.data[0]
+            # After creation, refetch the student to get the class object and role
+            created_student = self.get_student_by_id(student['id'])
+            return created_student
         return None
 
     def get_all_students(self) -> List[Dict[str, Any]]:
@@ -29,7 +32,11 @@ class StudentService:
         Retrieves a single student by their ID with their class name.
         """
         response = self.db.table(self.table).select("id, name, points, class_id, class:classes(id, name)").eq("id", student_id).single().execute()
-        return response.data if response.data else None
+        if response.data:
+            student = response.data
+            student['role'] = 'student'
+            return student
+        return None
 
     def update_student(self, student_id: int, student_update: UserUpdate) -> Optional[Dict[str, Any]]:
         update_data = student_update.model_dump(exclude_unset=True)

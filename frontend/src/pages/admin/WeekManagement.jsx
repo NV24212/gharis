@@ -166,18 +166,17 @@ const WeekManagement = () => {
       }
 
       setSubmissionStatus(t('weekManagement.status.completed'));
-      fetchWeeks();
+      await fetchWeeks();
       setTimeout(() => {
         closeModal();
+        setIsSubmitting(false);
       }, 1000);
 
     } catch (err) {
       setError(t(errorKey));
       console.error(err);
-      setIsSubmitting(false); // Stop submission on error
       setSubmissionStatus('');
-    } finally {
-        // Keep modal open to show completion status
+      setIsSubmitting(false);
     }
   };
 

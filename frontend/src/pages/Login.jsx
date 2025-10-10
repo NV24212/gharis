@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 import { jwtDecode } from 'jwt-decode';
-import { KeyRound } from 'lucide-react';
 import { logoUrl } from '../data/site';
+import PasswordInput from '../components/PasswordInput';
 
 const Login = () => {
   const [password, setPassword] = useState('');
@@ -51,21 +51,19 @@ const Login = () => {
         <div className="bg-black/40 border border-brand-border rounded-20 shadow-card p-8 backdrop-blur-lg">
           <h1 className="text-2xl font-bold text-center text-brand-primary mb-6">{t('login.title')}</h1>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
+            <div>
               <label htmlFor="password" className="sr-only">
                 {t('login.passwordLabel')}
               </label>
-              <KeyRound className="absolute top-1/2 left-3 -translate-y-1/2 h-5 w-5 text-brand-secondary" />
-              <input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 autoComplete="current-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t('login.passwordPlaceholder')}
-                className="w-full pl-10 pr-3 py-2.5 text-brand-primary bg-brand-background/50 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all duration-300"
+                className="bg-brand-background/50 py-2.5"
               />
             </div>
             {error && <p className="text-red-500 text-xs text-center animate-fade-in-up">{error}</p>}

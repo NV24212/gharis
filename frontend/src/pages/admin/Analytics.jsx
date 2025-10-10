@@ -163,11 +163,7 @@ const Analytics = () => {
         <TabPanel id="overview" activeTab={activeTab}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <StatCard title={t('analytics.overview.activeUsers')} value={data?.overview?.activeUsers} icon={<Users className="w-6 h-6 text-blue-400" />} />
-            <StatCard title={t('analytics.overview.newUsers')} value={data?.overview?.newUsers} icon={<UserPlus className="w-6 h-6 text-yellow-400" />} />
-            <StatCard title={t('analytics.overview.sessions')} value={data?.overview?.sessions} icon={<TrendingUp className="w-6 h-6 text-green-400" />} />
             <StatCard title={t('analytics.overview.pageViews')} value={data?.overview?.screenPageViews} icon={<Eye className="w-6 h-6 text-indigo-400" />} />
-            <StatCard title={t('analytics.overview.avgSessionDuration')} value={data?.overview?.averageSessionDuration} icon={<Clock className="w-6 h-6 text-red-400" />} />
-            <StatCard title={t('analytics.overview.bounceRate')} value={`${(parseFloat(data?.overview?.bounceRate || 0) * 100).toFixed(2)}%`} icon={<BarChart3 className="w-6 h-6 text-purple-400" />} />
           </div>
         </TabPanel>
         <TabPanel id="content" activeTab={activeTab}>
