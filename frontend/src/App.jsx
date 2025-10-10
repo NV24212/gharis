@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import ReactGA from 'react-ga4';
 import { AuthContext } from './context/AuthContext';
 import { CacheBusterProvider } from './context/CacheBusterContext.jsx';
 import Home from './pages/Home.jsx';
@@ -14,6 +15,7 @@ import AdminIndexRedirect from './pages/admin/AdminIndexRedirect.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
 import WeekManagement from './pages/admin/WeekManagement.jsx';
 import PointsManagement from './pages/admin/PointsManagement.jsx';
+import Analytics from './pages/admin/Analytics.jsx';
 import StudentLayout from './pages/student/StudentLayout.jsx';
 import StudentPoints from './pages/student/StudentPoints.jsx';
 import { logoUrl } from './data/site.js';
@@ -104,6 +106,13 @@ const Layout = ({ children }) => {
 const App = () => {
   const { user } = useContext(AuthContext);
 
+  useEffect(() => {
+    const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+    if (gaMeasurementId) {
+      ReactGA.initialize(gaMeasurementId);
+    }
+  }, []);
+
   return (
     <CacheBusterProvider>
       <Layout>
@@ -130,6 +139,7 @@ const App = () => {
               <Route path="users" element={<UserManagement />} />
               <Route path="weeks" element={<WeekManagement />} />
               <Route path="points" element={<PointsManagement />} />
+              <Route path="analytics" element={<Analytics />} />
             </Route>
           </Route>
 

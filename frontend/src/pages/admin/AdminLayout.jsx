@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Users, Video, Star, LogOut, PanelLeft, Menu, X, Home } from 'lucide-react';
+import { Users, Video, Star, LogOut, PanelLeft, Menu, X, Home, BarChart } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { CacheBusterContext } from '../../context/CacheBusterContext.jsx';
 import { logoUrl } from '../../data/site.js';
@@ -29,6 +29,7 @@ const AdminLayout = () => {
     { to: '/admin/users', text: t('admin.nav.users'), icon: Users, show: user?.can_manage_students || user?.can_manage_admins || user?.can_manage_classes },
     { to: '/admin/weeks', text: t('admin.nav.weeks'), icon: Video, show: user?.can_manage_weeks },
     { to: '/admin/points', text: t('admin.nav.points'), icon: Star, show: user?.can_manage_points },
+    { to: '/admin/analytics', text: t('admin.nav.analytics'), icon: BarChart, show: user?.can_view_analytics },
   ].filter(link => link.show);
 
   const getNavLinkClasses = (isDesktop) => {

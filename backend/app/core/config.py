@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8 # 8 days
 
+    # Google Analytics Configuration
+    GA_PROPERTY_ID: str = "451406458"
+    GA_SERVICE_ACCOUNT_CREDENTIALS: str
+
     class Config:
         case_sensitive = True
 

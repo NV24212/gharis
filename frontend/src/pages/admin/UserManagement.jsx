@@ -49,6 +49,7 @@ const UserManagement = () => {
     can_manage_students: true,
     can_manage_weeks: true,
     can_manage_points: true,
+    can_view_analytics: false,
   });
   const [isAdminsConfirmModalOpen, setIsAdminsConfirmModalOpen] = useState(false);
   const [deletingAdminId, setDeletingAdminId] = useState(null);
@@ -236,6 +237,7 @@ const UserManagement = () => {
             can_manage_students: admin.can_manage_students,
             can_manage_weeks: admin.can_manage_weeks,
             can_manage_points: admin.can_manage_points,
+            can_view_analytics: admin.can_view_analytics,
           }
         : {
             name: '',
@@ -245,6 +247,7 @@ const UserManagement = () => {
             can_manage_students: true,
             can_manage_weeks: true,
             can_manage_points: true,
+            can_view_analytics: false,
           }
     );
     setIsAdminModalOpen(true);
