@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     # Google Analytics Configuration
     GA_PROPERTY_ID: str = "451406458"
-    GA_SERVICE_ACCOUNT_CREDENTIALS: str
+    GA_SERVICE_ACCOUNT_CREDENTIALS: Union[str, None] = None
 
     class Config:
         case_sensitive = True
