@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { AlertTriangle, RefreshCw, Users, Eye, UserPlus, Clock, TrendingUp, BarChart3 } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
 // Reusable Tab Component
 const Tab = ({ id, activeTab, setActiveTab, children }) => (
@@ -48,23 +48,29 @@ const Section = ({ title, children }) => (
   </div>
 );
 
-// Reusable Bar Chart
-const CustomBarChart = ({ data, xAxisKey, bar1Key, bar1Name, bar2Key, bar2Name }) => (
-  <ResponsiveContainer width="100%" height={300}>
-    <BarChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
-      <XAxis dataKey={xAxisKey} tick={{ fill: '#a0a0a0' }} />
-      <YAxis tick={{ fill: '#a0a0a0' }} />
-      <Tooltip
-        contentStyle={{ backgroundColor: '#1E1E1E', border: '1px solid #333' }}
-        labelStyle={{ color: '#FFF' }}
-      />
-      <Legend wrapperStyle={{ color: '#FFF' }} />
-      <Bar dataKey={bar1Key} fill="#8884d8" name={bar1Name} />
-      {bar2Key && <Bar dataKey={bar2Key} fill="#82ca9d" name={bar2Name} />}
-    </BarChart>
-  </ResponsiveContainer>
-);
+// Reusable Chart Component
+const CustomChart = ({ type = 'bar', data, xAxisKey, yAxisKey, dataKey, name, yAxisKey2, dataKey2, name2 }) => {
+  const ChartComponent = type === 'line' ? LineChart : BarChart;
+  const ChartElement = type === 'line' ? Line : Bar;
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <ChartComponent data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+        <XAxis dataKey={xAxisKey} tick={{ fill: '#a0a0a0' }} />
+        <YAxis yAxisId="left" tick={{ fill: '#a0a0a0' }} />
+        {yAxisKey2 && <YAxis yAxisId="right" orientation="right" tick={{ fill: '#a0a0a0' }} />}
+        <Tooltip
+          contentStyle={{ backgroundColor: '#1E1E1E', border: '1px solid #333' }}
+          labelStyle={{ color: '#FFF' }}
+        />
+        <Legend wrapperStyle={{ color: '#FFF' }} />
+        <ChartElement yAxisId="left" type="monotone" dataKey={dataKey} fill="#8884d8" name={name} />
+        {dataKey2 && <ChartElement yAxisId={yAxisKey2 ? "right" : "left"} type="monotone" dataKey={dataKey2} fill="#82ca9d" name={name2} />}
+      </ChartComponent>
+    </ResponsiveContainer>
+  );
+};
 
 // Reusable Data Table
 const DataTable = ({ data, columns }) => (
@@ -171,10 +177,10 @@ const Analytics = () => {
          <TabPanel id="trends" activeTab={activeTab}>
           <div className="space-y-8">
             <Section title={t('analytics.trends.usersPerDay')}>
-              <CustomBarChart data={data?.trends?.usersPerDay} xAxisKey="date" bar1Key="users" bar1Name={t('analytics.overview.activeUsers')} />
+              <CustomChart type="line" data={data?.trends?.usersPerDay} xAxisKey="date" dataKey="users" name={t('analytics.overview.activeUsers')} />
             </Section>
             <Section title={t('analytics.trends.usersPerWeek')}>
-               <CustomBarChart data={data?.trends?.usersPerWeek} xAxisKey="week" bar1Key="users" bar1Name={t('analytics.overview.activeUsers')} />
+               <CustomChart type="line" data={data?.trends?.usersPerWeek} xAxisKey="week" dataKey="users" name={t('analytics.overview.activeUsers')} />
             </Section>
           </div>
         </TabPanel>
@@ -188,6 +194,23 @@ const Analytics = () => {
                 { key: 'sessions', header: t('analytics.overview.sessions') },
               ]}
             />
+            <div className="mt-8">
+               <ResponsiveContainer width="100%" height={data?.content?.byPage?.length * 40}>
+                <BarChart data={data?.content?.byPage} layout="vertical" margin={{ top: 5, right: 20, left: 100, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+                  <XAxis type="number" tick={{ fill: '#a0a0a0' }} />
+                  <YAxis type="category" dataKey="unifiedScreenName" tick={{ fill: '#a0a0a0' }} width={150} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1E1E1E', border: '1px solid #333' }}
+                    labelStyle={{ color: '#FFF' }}
+                  />
+                  <Legend wrapperStyle={{ color: '#FFF' }} />
+                  <Bar dataKey="views" fill="#8884d8" name={t('analytics.overview.pageViews')}>
+                     <LabelList dataKey="views" position="right" style={{ fill: 'white' }}/>
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </Section>
         </TabPanel>
       </div>
