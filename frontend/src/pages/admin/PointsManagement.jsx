@@ -5,6 +5,7 @@ import api, { classService } from '../../services/api';
 import { Loader2, PlusCircle, MinusCircle, Search, ChevronDown } from 'lucide-react';
 import Modal from '../../components/Modal';
 import LoadingScreen from '../../components/LoadingScreen';
+import PointsStudentCard from './PointsStudentCard';
 
 const PointsManagement = () => {
   const { t } = useTranslation();
@@ -149,38 +150,15 @@ const PointsManagement = () => {
       {error && !isModalOpen && <div className="bg-red-900/20 border border-red-500/30 text-red-300 p-4 rounded-lg mb-6">{error}</div>}
       {success && <div className="bg-green-900/20 border border-green-500/30 text-green-300 p-4 rounded-lg mb-6">{success}</div>}
 
-      <div className="bg-black/20 border border-brand-border rounded-20 overflow-hidden">
-        <table className="min-w-full text-brand-primary">
-          <thead className="bg-brand-border/5">
-            <tr>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.name')}</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.class')}</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.points')}</th>
-              <th className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">{t('studentManagement.table.actions')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-brand-border">
-            {filteredStudents.map((student) => (
-              <tr key={student.id} className="hover:bg-brand-border/5 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">{student.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.class?.name || <span className="text-brand-secondary">{t('studentManagement.form.unassigned')}</span>}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{student.points}</td>
-                <td className="px-6 py-4 text-center">
-                  <div className="flex items-center justify-center gap-6">
-                    <button onClick={() => openModal(student, 'add')} className="text-green-400 hover:text-green-300 transition-colors flex items-center gap-2">
-                      <PlusCircle size={20} />
-                      <span>{t('pointsManagement.add')}</span>
-                    </button>
-                    <button onClick={() => openModal(student, 'deduct')} className="text-red-500 hover:text-red-400 transition-colors flex items-center gap-2">
-                      <MinusCircle size={20} />
-                       <span>{t('pointsManagement.deduct')}</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {filteredStudents.map((student) => (
+          <PointsStudentCard
+            key={student.id}
+            student={student}
+            onAdd={(s) => openModal(s, 'add')}
+            onDeduct={(s) => openModal(s, 'deduct')}
+          />
+        ))}
       </div>
 
       <Modal
