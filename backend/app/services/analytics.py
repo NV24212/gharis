@@ -26,18 +26,6 @@ def get_analytics_report():
 
         # Define all report requests
         requests = {
-            "overview": RunReportRequest(
-                property=property_id,
-                metrics=[
-                    Metric(name="activeUsers"),
-                    Metric(name="newUsers"),
-                    Metric(name="sessions"),
-                    Metric(name="bounceRate"),
-                    Metric(name="averageSessionDuration"),
-                    Metric(name="screenPageViews")
-                ],
-                date_ranges=date_range,
-            ),
             "content_by_page": RunReportRequest(
                 property=property_id,
                 dimensions=[Dimension(name="unifiedScreenName")],
@@ -50,7 +38,7 @@ def get_analytics_report():
         # Define realtime request separately
         realtime_request = RunRealtimeReportRequest(
             property=property_id,
-            metrics=[Metric(name="activeUsers")]
+            metrics=[Metric(name="activeUsers"), Metric(name="screenViews")]
         )
 
         # Run reports in parallel
@@ -68,21 +56,16 @@ def get_analytics_report():
             "content": {"byPage": []},
         }
 
-        # Process Overview from historical data
-        overview_res = results.get("overview")
-        if overview_res and overview_res.totals:
-            for i, header in enumerate(overview_res.metric_headers):
-                value = overview_res.totals[0].metric_values[i].value
-                # Format duration nicely
-                if "Duration" in header.name:
-                     value = f"{float(value):.2f}s"
-                final_report["overview"][header.name] = value
-
-        # Override activeUsers with real-time data if available
+        # Process Realtime Overview Data
         realtime_res = results.get("realtime")
         if realtime_res and realtime_res.rows:
-            # Realtime report returns the value in the first row/metric
-            final_report["overview"]["activeUsers"] = realtime_res.rows[0].metric_values[0].value
+            for i, header in enumerate(realtime_res.metric_headers):
+                metric_name = header.name
+                # The realtime API uses 'screenViews', but the historical API (and thus frontend) uses 'screenPageViews'
+                if metric_name == "screenViews":
+                    metric_name = "screenPageViews"
+                value = realtime_res.rows[0].metric_values[i].value
+                final_report["overview"][metric_name] = value
 
         # Helper to process dimensional reports
         def process_dimensional_report(response, key_dim_name, value_metric_names):
