@@ -164,6 +164,7 @@ const Analytics = () => {
         <TabPanel id="overview" activeTab={activeTab}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <StatCard title={t('analytics.overview.activeUsers')} value={data?.overview?.activeUsers} icon={<Users className="w-6 h-6 text-blue-400" />} />
+            <StatCard title={t('analytics.overview.totalUsers')} value={data?.overview?.totalUsers} icon={<UserPlus className="w-6 h-6 text-green-400" />} />
             <StatCard title={t('analytics.overview.pageViews')} value={data?.overview?.screenPageViews} icon={<Eye className="w-6 h-6 text-indigo-400" />} />
           </div>
         </TabPanel>

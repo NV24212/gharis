@@ -26,6 +26,11 @@ def get_analytics_report():
 
         # Define all report requests
         requests = {
+            "total_users": RunReportRequest(
+                property=property_id,
+                metrics=[Metric(name="activeUsers")],
+                date_ranges=date_range,
+            ),
             "users_per_day": RunReportRequest(
                 property=property_id,
                 dimensions=[Dimension(name="date")],
@@ -81,6 +86,11 @@ def get_analytics_report():
                     metric_name = "screenPageViews"
                 value = realtime_res.rows[0].metric_values[i].value
                 final_report["overview"][metric_name] = value
+
+        # Process Total Users
+        total_users_res = results.get("total_users")
+        if total_users_res and total_users_res.rows:
+            final_report["overview"]["totalUsers"] = total_users_res.rows[0].metric_values[0].value
 
         # Helper to process dimensional reports
         def process_dimensional_report(response, key_dim_name, value_metric_names):
