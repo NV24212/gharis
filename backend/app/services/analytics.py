@@ -52,7 +52,7 @@ def get_analytics_report():
         # Define realtime request separately
         realtime_request = RunRealtimeReportRequest(
             property=property_id,
-            metrics=[Metric(name="activeUsers"), Metric(name="screenViews")]
+            metrics=[Metric(name="activeUsers"), Metric(name="screenPageViews")]
         )
 
         # Run reports in parallel

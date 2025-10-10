@@ -199,8 +199,11 @@ i18next
           "analytics.overview.bounceRate": "معدل الارتداد",
           "analytics.tabs.overview": "نظرة عامة",
           "analytics.tabs.content": "المحتوى",
+          "analytics.tabs.trends": "الاتجاهات",
           "analytics.content.byPage": "المحتوى حسب الصفحة",
-          "analytics.content.page": "الصفحة"
+          "analytics.content.page": "الصفحة",
+          "analytics.trends.usersPerDay": "المستخدمون يوميًا",
+          "analytics.trends.usersPerWeek": "المستخدمون أسبوعيًا"
         }
       }
     },
