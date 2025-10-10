@@ -61,7 +61,7 @@ def get_analytics_report():
         }
 
         # Extract totals
-        if response.metric_headers:
+        if response.metric_headers and response.totals:
             for i, header in enumerate(response.metric_headers):
                 report["totals"][header.name] = response.totals[0].metric_values[i].value
 
