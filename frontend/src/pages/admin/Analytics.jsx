@@ -154,7 +154,6 @@ const Analytics = () => {
       <div className="border-b border-gray-700">
         <nav className="-mb-px flex space-x-4" aria-label="Tabs">
           <Tab id="overview" activeTab={activeTab} setActiveTab={setActiveTab}>{t('analytics.tabs.overview')}</Tab>
-          <Tab id="audience" activeTab={activeTab} setActiveTab={setActiveTab}>{t('analytics.tabs.audience')}</Tab>
           <Tab id="acquisition" activeTab={activeTab} setActiveTab={setActiveTab}>{t('analytics.tabs.acquisition')}</Tab>
           <Tab id="technology" activeTab={activeTab} setActiveTab={setActiveTab}>{t('analytics.tabs.technology')}</Tab>
           <Tab id="content" activeTab={activeTab} setActiveTab={setActiveTab}>{t('analytics.tabs.content')}</Tab>
@@ -172,18 +171,6 @@ const Analytics = () => {
             <StatCard title={t('analytics.overview.avgSessionDuration')} value={data?.overview?.averageSessionDuration} icon={<Clock className="w-6 h-6 text-red-400" />} />
             <StatCard title={t('analytics.overview.bounceRate')} value={`${(parseFloat(data?.overview?.bounceRate || 0) * 100).toFixed(2)}%`} icon={<BarChart3 className="w-6 h-6 text-purple-400" />} />
           </div>
-        </TabPanel>
-        <TabPanel id="audience" activeTab={activeTab}>
-          <Section title={t('analytics.audience.byCountry')}>
-            <CustomBarChart
-              data={data?.audience?.byCountry}
-              xAxisKey="country"
-              bar1Key="activeUsers"
-              bar1Name={t('analytics.overview.activeUsers')}
-              bar2Key="sessions"
-              bar2Name={t('analytics.overview.sessions')}
-            />
-          </Section>
         </TabPanel>
         <TabPanel id="acquisition" activeTab={activeTab}>
            <Section title={t('analytics.acquisition.bySourceMedium')}>
