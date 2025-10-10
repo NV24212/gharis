@@ -384,7 +384,7 @@ const UserManagement = () => {
         </button>
       </div>
 
-      <div className="bg-black/20 border border-brand-border rounded-20 overflow-hidden">
+      <div className="bg-black/20 border border-brand-border rounded-20 overflow-x-auto">
         <table className="min-w-full text-brand-primary">
           <thead className="bg-brand-border/5">
             <tr>
@@ -430,7 +430,7 @@ const UserManagement = () => {
       {isAdminsLoading ? (
         <LoadingScreen fullScreen={false} />
       ) : (
-        <div className="bg-black/20 border border-brand-border rounded-20 overflow-hidden">
+        <div className="bg-black/20 border border-brand-border rounded-20 overflow-x-auto">
           <table className="min-w-full text-brand-primary">
             <thead className="bg-brand-border/5">
               <tr>
@@ -572,7 +572,7 @@ const UserManagement = () => {
           </div>
           <div>
             <label className="block text-sm font-bold text-brand-secondary mb-3">{t('userManagement.permissions.title')}</label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Object.keys(adminFormData).filter(k => k.startsWith('can_')).map((key) => (
                 <label key={key} className="flex items-center space-x-3">
                   <input
