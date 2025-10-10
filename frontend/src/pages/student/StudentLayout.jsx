@@ -19,6 +19,19 @@ const StudentLayout = () => {
     setIsMobileSidebarOpen(false);
   }, [location.pathname]);
 
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isMobileSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    // Cleanup function to reset scroll on component unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileSidebarOpen]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
