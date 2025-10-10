@@ -27,6 +27,17 @@ const Navigation = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
+
   const handleLogout = () => {
     logout();
     setIsMenuOpen(false);
@@ -78,12 +89,10 @@ const Navigation = () => {
               <span className="text-brand-primary text-xl font-bold">{t('Ghars')}</span>
             </Link>
 
-            {/* Desktop Menu */}
             <div className="hidden md:flex">
               {desktopNavLinks}
             </div>
 
-            {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-brand-primary">
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -93,7 +102,6 @@ const Navigation = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu Panel */}
       {isMenuOpen && (
         <div className="md:hidden fixed top-16 right-0 left-0 bottom-0 z-30 bg-brand-background/95 backdrop-blur-xl animate-fade-in-down">
           {mobileNavLinks}
