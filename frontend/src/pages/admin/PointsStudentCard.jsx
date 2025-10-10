@@ -8,7 +8,7 @@ const PointsStudentCard = ({ student, onAdd, onDeduct }) => {
   return (
     <div className="bg-black/20 border border-brand-border rounded-2xl p-4 flex flex-col justify-between transition-all duration-300 hover:border-brand-primary/50 hover:-translate-y-1">
       <div>
-        <h3 className="text-lg font-bold text-brand-primary truncate pr-2">{student.name}</h3>
+        <h3 className="text-lg font-bold text-brand-primary min-w-0 break-words">{student.name}</h3>
         <div className="mt-2 space-y-2 text-sm">
           <div className="flex items-center gap-2 text-brand-secondary">
             <BookOpen size={14} />
