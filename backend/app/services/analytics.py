@@ -38,13 +38,6 @@ def get_analytics_report():
                 ],
                 date_ranges=date_range,
             ),
-            "audience_by_country": RunReportRequest(
-                property=property_id,
-                dimensions=[Dimension(name="country")],
-                metrics=[Metric(name="activeUsers"), Metric(name="sessions")],
-                date_ranges=date_range,
-                limit=10
-            ),
             "acquisition": RunReportRequest(
                 property=property_id,
                 dimensions=[Dimension(name="sessionSourceMedium")],
@@ -85,7 +78,6 @@ def get_analytics_report():
         # Process results into a single structured report
         final_report = {
             "overview": {},
-            "audience": {"byCountry": []},
             "acquisition": {"bySourceMedium": []},
             "technology": {"byDevice": []},
             "content": {"byPage": []},
@@ -120,7 +112,6 @@ def get_analytics_report():
             return data
 
         # Process dimensional reports
-        final_report["audience"]["byCountry"] = process_dimensional_report(results.get("audience_by_country"), "country", ["activeUsers", "sessions"])
         final_report["acquisition"]["bySourceMedium"] = process_dimensional_report(results.get("acquisition"), "sessionSourceMedium", ["sessions", "newUsers"])
         final_report["technology"]["byDevice"] = process_dimensional_report(results.get("technology_by_device"), "deviceCategory", ["activeUsers"])
         final_report["content"]["byPage"] = process_dimensional_report(results.get("content_by_page"), "unifiedScreenName", ["screenPageViews", "sessions"])
