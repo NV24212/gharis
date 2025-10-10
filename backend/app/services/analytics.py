@@ -97,7 +97,7 @@ def get_analytics_report():
             if not response or not response.rows:
                 return data
             for row in response.rows:
-                item = {row.dimension_values[0].name: row.dimension_values[0].value}
+                item = {key_dim_name: row.dimension_values[0].value}
                 for i, metric_header in enumerate(response.metric_headers):
                     item[metric_header.name] = row.metric_values[i].value
                 data.append(item)
