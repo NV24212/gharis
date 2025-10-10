@@ -15,7 +15,13 @@ def get_analytics_report():
     """
     try:
         # Load credentials from the environment variable
-        creds_json = json.loads(settings.GA_SERVICE_ACCOUNT_CREDENTIALS)
+        creds_str = settings.GA_SERVICE_ACCOUNT_CREDENTIALS
+        print(f"DEBUG: GA_SERVICE_ACCOUNT_CREDENTIALS raw value: '{creds_str}'")
+
+        if not creds_str:
+            return {"error": "Google Analytics credentials are not configured. Please set the GA_SERVICE_ACCOUNT_CREDENTIALS environment variable."}
+
+        creds_json = json.loads(creds_str)
         client = BetaAnalyticsDataClient.from_service_account_info(creds_json)
         property_id = settings.GA_PROPERTY_ID
 
