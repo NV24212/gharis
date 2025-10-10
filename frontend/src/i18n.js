@@ -198,12 +198,7 @@ i18next
           "analytics.overview.avgSessionDuration": "متوسط مدة الجلسة",
           "analytics.overview.bounceRate": "معدل الارتداد",
           "analytics.tabs.overview": "نظرة عامة",
-          "analytics.tabs.acquisition": "الاكتساب",
-          "analytics.tabs.technology": "التقنية",
           "analytics.tabs.content": "المحتوى",
-          "analytics.acquisition.bySourceMedium": "الاكتساب حسب المصدر/الوسيط",
-          "analytics.acquisition.sourceMedium": "المصدر / الوسيط",
-          "analytics.technology.byDevice": "التقنية حسب الجهاز",
           "analytics.content.byPage": "المحتوى حسب الصفحة",
           "analytics.content.page": "الصفحة"
         }
