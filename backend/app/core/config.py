@@ -13,12 +13,12 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[str] = ["https://ghars.hasmah.xyz", "https://ghars.site"]
 
     # Supabase configuration
-    SUPABASE_URL: str
-    SUPABASE_KEY: str
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
     SUPABASE_BUCKET: str = "videos"
 
     # Security settings
-    SECRET_KEY: str
+    SECRET_KEY: str = ""
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8 # 8 days
 
