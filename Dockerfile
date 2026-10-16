@@ -10,11 +10,14 @@ COPY backend/requirements.txt .
 # Install any needed dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application's code from the backend/app directory into the container's app directory
-COPY backend/app ./app
+# Copy all the content inside backend/app directly into the root of /app
+COPY backend/app/ .
+
+# Explicitly set the Python path so local imports resolve flawlessly
+ENV PYTHONPATH=/app
 
 # Expose the port the app runs on
 EXPOSE 8001
 
-# Define the command to run the app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+# Run Uvicorn pointing directly to main:app in the working directory root
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
