@@ -21,6 +21,7 @@ COPY --from=builder /root/.local /root/.local
 
 # Ensure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONPATH=/app
 
 # Copy the application code
 COPY backend/app /app/app
@@ -29,4 +30,5 @@ COPY backend/app /app/app
 EXPOSE 8001
 
 # Run Uvicorn with the correct module path
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+# Use PORT environment variable if set, otherwise default to 8001
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8001}"]
