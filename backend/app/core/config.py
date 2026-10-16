@@ -7,7 +7,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Ghars Project"
-    API_V1_STR: str = "/api/v1"
+    API_V1_STR: str = ""
 
     # The frontend URL that will be allowed to make requests to the backend
     BACKEND_CORS_ORIGINS: List[str] = ["https://ghars.hasmah.xyz", "https://ghars.site"]
