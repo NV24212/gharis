@@ -1,23 +1,32 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
+# Build stage
+FROM python:3.11-slim as builder
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the dependencies file from the backend directory into the container
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libc-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install dependencies
 COPY backend/requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Install any needed dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Final stage
+FROM python:3.11-slim
 
-# Copy all the content inside backend/app directly into the root of /app
-COPY backend/app/ .
+WORKDIR /app
 
-# Explicitly set the Python path so local imports resolve flawlessly
-ENV PYTHONPATH=/app
+# Copy installed packages from builder
+COPY --from=builder /root/.local /root/.local
+
+# Ensure scripts in .local are usable
+ENV PATH=/root/.local/bin:$PATH
+
+# Copy the application code
+COPY backend/app /app/app
 
 # Expose the port the app runs on
 EXPOSE 8001
 
-# Run Uvicorn pointing directly to main:app in the working directory root
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+# Run Uvicorn with the correct module path
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
