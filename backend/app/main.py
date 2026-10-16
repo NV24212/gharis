@@ -7,10 +7,11 @@ app = FastAPI(title=settings.PROJECT_NAME)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=False,  # Must be False when using wildcard
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
