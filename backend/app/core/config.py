@@ -12,7 +12,15 @@ class Settings(BaseSettings):
     API_V1_STR: str = ""
 
     # The frontend URL that will be allowed to make requests to the backend
-    BACKEND_CORS_ORIGINS: Union[List[str], str] = ["https://ghars.hasmah.xyz", "https://ghars.site", "http://localhost:3000", "http://localhost:5173", "*"]
+    BACKEND_CORS_ORIGINS: Union[List[str], str] = [
+        "https://gharis.vercel.app",
+        "https://gharis-etar.vercel.app",
+        "https://ghars.hasmah.xyz",
+        "https://ghars.site",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "*"
+    ]
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
